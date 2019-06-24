@@ -19,17 +19,17 @@ The downloader will save a simple config file in a json format with the director
 # USAGE
 To download manga using a link:
 
-`main.py down link_to_manga`
+`SMD.py down link_to_manga`
 
 To download a range of chapters:
 
-`main.py down link_to_manga -r 1 20 (both ends are inclusive)`
+`SMD.py down link_to_manga -r 1 20 (both ends are inclusive)`
 
 To download a selection of manga:
 
-`main.py down link_to_manga -s 1 5 10 15`
+`SMD.py down link_to_manga -s 1 5 10 15`
 
 
 To check for new updates for the tracked manga:
 
-`main.py update`
+`SMD.py update`

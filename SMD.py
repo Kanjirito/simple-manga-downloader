@@ -50,6 +50,7 @@ def parser():
     parser_conf.add_argument("-r", "--remove-tracked", help="Removes mangda from tracked", dest="remove")
     parser_conf.add_argument("-c", "--clear-tracked", help="Clears the tracked list",
                              action="store_true")
+    parser_conf.add_argument("-s", "--save-directory", help="Changes the manga directory", dest="m_dir")
     parser_conf.add_argument("-d", "--default", help="Resets the config to defaults",
                              action="store_true")
     parser_conf.add_argument("-l", "--list-tracked", help="Lists all of the tracked shows",
@@ -92,6 +93,8 @@ def conf_mode(args, config):
         config.remove_tracked(remove)
     if args.list:
         config.list_tracked()
+    if args.m_dir is not None:
+        config.change_dir(args.m_dir)
     config.save_config()
 
 

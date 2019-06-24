@@ -4,7 +4,7 @@ import os
 
 class Config():
     def __init__(self):
-        self.config_path = os.path.normpath("/home/kanji/.config/manga_downloader_config.json")
+        self.config_path = os.path.normpath(os.path.expanduser("~/.config/simple_manga_downloader_config.json"))
 
         # Loads the config or creates the base one if not present
         if os.path.isfile(self.config_path):
@@ -35,6 +35,10 @@ class Config():
                 self.tracked_manga.remove(s)
             else:
                 print(f"Manga {s} not tracked")
+
+    def change_dir(self, dire):
+        '''Changes the manga download directory'''
+        self.manga_directory = os.path.normpath(dire)
 
     def clear_tracked(self):
         '''Clears the tracked shows'''
