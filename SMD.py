@@ -99,6 +99,9 @@ def conf_mode(args, config):
 
 
 def update_mode(config):
+    if len(config.tracked_manga) == 0:
+        print("No managa tracked!")
+        return
     print(f"Updating {len(config.tracked_manga)} manga")
     manga_objects = []
     for ID in config.tracked_manga:
@@ -110,20 +113,19 @@ def update_mode(config):
     total_num_ch = 0
     found_titles = {}
     for manga in manga_objects:
-        if len(manga.wanted) > 0:
-            title = manga.series_title
-            wanted_count = len(manga.wanted)
-            total_num_ch += wanted_count
-            found_titles.setdefault(title, 0)
-            found_titles[title] += wanted_count
+        if len(manga.ch_info) > 0:
+            total_num_ch += len(manga.ch_info)
+            found_titles[manga.series_title] = [ch for ch in manga.ch_info]
 
-    print("\nChecking complete!\n")
+    print("------------------------\nChecking complete!\n")
     if total_num_ch == 0:
-        print(f"Found {total_num_ch} chapters ready to download.")
+        print("Found 0 chapters ready to download.")
     elif total_num_ch > 0:
         print(f"Found {total_num_ch} chapter(s) ready to download for:")
         for title in found_titles:
-            print(f"{title} - {found_titles[title]} chapter(s)")
+            print(f"{title} - {len(found_titles[title])} chapter(s):")
+            for ch in found_titles[title]:
+                print(f"    {ch['name']}")
         confirm = input(f"Start the download? [y to confirm/anything else to cancel]: ").lower()
         if confirm == "y":
             if download(manga_objects):
