@@ -1,8 +1,8 @@
 #!/bin/env python3
 from modules.mangadex_org import Manga
 from config_parser import Config
+from pathlib import Path
 import argparse
-import os
 import time
 import html
 
@@ -138,35 +138,39 @@ def update_mode(config):
 def download(manga_objects):
     '''Downloands the image in the proper directories'''
 
-    # Counts downloaded pages
+    # Counts downloaded pages and times the download
     down_count = 0
     t1 = time.time()
 
     for manga in manga_objects:
         # Creates the manga folder
-        if not os.path.isdir(manga.manga_dir):
-            os.mkdir(manga.manga_dir)
+        if not manga.manga_dir.is_dir():
+            manga.manga_dir.mkdir()
 
         # Goes ever every chapter
         for ch in manga.ch_info:
             print(f"\nDownloading {manga.series_title} - {ch['name']}\n------------------------")
 
             # Creates the chapter folder
-            ch_dir = os.path.join(manga.manga_dir, ch["name"])
-            os.mkdir(ch_dir)
+            ch_dir = manga.manga_dir / ch["name"]
+            ch_dir.mkdir()
 
-            # Goes over every page and saves it with 1 s delay
+            # Goes over every page and saves it with 0.5 s delay
             for n, img in enumerate(ch["pages"]):
                 img_url = ch["url"] + img
                 if ch["title"] != "":
-                    image_name = f"{manga.series_title} - {ch['name']} - {html.unescape(ch['title'])} - Page {n}{os.path.splitext(img)[1]}"
+                    image_name = f"{manga.series_title} - {ch['name']} - {html.unescape(ch['title'])} - Page {n}{Path(img).suffix}"
                 else:
-                    image_name = f"{manga.series_title} - {ch['name']} - Page {n}{os.path.splitext(img)[1]}"
+                    image_name = f"{manga.series_title} - {ch['name']} - Page {n}{Path(img).suffix}"
+
+                # Replaces a "/" in titles to something usable
                 image_name = image_name.replace("/", "╱")
+
                 print(f"Getting image: {img}")
-                content = manga.scraper.get(img_url).content
-                with open(os.path.join(ch_dir, image_name), "wb") as f:
-                    f.write(content)
+                content = manga.scraper.get(img_url, stream=True)
+                with open(ch_dir / image_name, "wb") as f:
+                    for chunk in content.iter_content(1024):
+                        f.write(chunk)
                 down_count += 1
                 time.sleep(0.5)
     if down_count > 0:
@@ -176,7 +180,7 @@ def download(manga_objects):
         if m > 0:
             timing = f"{m:02}:{s:02}"
         else:
-            timing = f"{s:02} second(s)"
+            timing = f"{s} second(s)"
         print("------------------------\n" + f"Finished downloading {down_count} pages in {timing}!\n" + "------------------------")
     return True
 

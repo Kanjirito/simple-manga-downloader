@@ -6,8 +6,8 @@ import html
 
 class Manga():
     def __init__(self, ID, directory):
-        # Initilazies the data
-        self.folder = os.path.normpath(directory)
+        # Initializes the data
+        self.folder = directory
         self.scraper = cfscrape.create_scraper()
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
@@ -27,7 +27,7 @@ class Manga():
         self.series_title = html.unescape(data["manga"]["title"])
 
         # Series directory
-        self.manga_dir = os.path.join(self.folder, self.series_title)
+        self.manga_dir = self.folder / self.series_title
 
         # Checks if chapters exist
         try:
@@ -40,12 +40,12 @@ class Manga():
 
         for chapter in data["chapter"]:
             ch = data["chapter"][chapter]
-            # Only english
+            # Only English
             if ch["lang_code"] != "gb":
                 continue
 
             # Creates the number of the chapter
-            # Uses chapter number if preset
+            # Uses chapter number if present
             # Sets to 1 if oneshot
             # Slices title if "Chapter XX"
             if ch["chapter"] != "":
@@ -55,11 +55,8 @@ class Manga():
             elif ch["title"].lower().startswith("chapter"):
                 num = float(ch["chapter"].split()[-1])
 
-            try:
-                if num.is_integer():
-                    num = int(num)
-            except AttributeError:
-                pass
+            if num.is_integer():
+                num = int(num)
 
             self.chapters.setdefault(num, {})
             self.chapters[num][ch["group_name"]] = ch
@@ -134,12 +131,14 @@ class Manga():
             index = wanted[1]
             for n in index:
                 n = float(n)
+                if n.is_integer():
+                    n = int(n)
                 filtered.append(n)
 
         filtered = sorted(filtered)
 
         # Checks if the chapters that fit the selection are already downloaded
-        if not os.path.isdir(self.manga_dir):
+        if not self.manga_dir.is_dir():
             downloaded_chapters = None
         else:
             downloaded_chapters = os.listdir(self.manga_dir)

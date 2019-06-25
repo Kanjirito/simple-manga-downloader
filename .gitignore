@@ -130,5 +130,6 @@ dmypy.json
 # My files
 to_do.txt
 response
+simple_manga_downloader_config.json
 
 # End of https://www.gitignore.io/api/python
