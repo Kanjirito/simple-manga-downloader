@@ -51,7 +51,7 @@ class Manga():
             if ch["chapter"] != "":
                 num = float(ch["chapter"])
             elif ch["title"].lower() == "oneshot":
-                num = 0
+                num = 0.0
             elif ch["title"].lower().startswith("chapter"):
                 num = float(ch["chapter"].split()[-1])
 
