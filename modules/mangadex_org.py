@@ -98,6 +98,11 @@ class Manga():
             ch_id = self.chapters[ch][group]["ch_id"]
             r = self.scraper.get(self.ch_api_url.format(ch_id)).json()
 
+            # Skips chapter if the release is delayed
+            if r["status"] == "delayed":
+                print("Chapter is a delayed release skipping")
+                continue
+
             # Fixes the incomplete link
             if r["server"] == "/data/":
                 server = "https://mangadex.org/data/"
