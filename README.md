@@ -21,9 +21,9 @@ To download manga using a link:
 
 `SMD.py down link_to_manga`
 
-To download a range of chapters:
+To download a range of chapters (both ends are inclusive):
 
-`SMD.py down link_to_manga -r 1 20 (both ends are inclusive)`
+`SMD.py down link_to_manga -r 1 20 `
 
 To download a selection of manga:
 
