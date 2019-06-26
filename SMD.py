@@ -131,7 +131,7 @@ def update_mode(config):
             if download(manga_objects):
                 print("Updated titles:")
                 for title in found_titles:
-                    print(f"{title} - {found_titles[title]} chapter(s)")
+                    print(f"{title} - {len(found_titles[title])} chapter(s)")
 
         else:
             print("Download cancelled")
