@@ -1,37 +1,45 @@
 #!/bin/env python3
-from modules.mangadex_org import Manga
+from modules.mangadex_org import Mangadex
+from modules.mangaseeonline_us import Mangasee
 from config_parser import Config
 from pathlib import Path
 import argparse
+import requests
 import time
 import html
+import os
+
+ARGS = None
+CONFIG = None
 
 
 def main():
-    config = Config()
-    args = parser()
-    mode = args.subparser_name
+    global CONFIG
+    global ARGS
+    CONFIG = Config()
+    ARGS = parser()
+    mode = ARGS.subparser_name
     if mode == "down":
-        down_mode(args, config)
+        down_mode()
     elif mode == "conf":
-        conf_mode(args, config)
+        conf_mode()
     elif mode == "update":
-        update_mode(config)
+        update_mode()
 
 
-def get_id(input):
-    if "/" in input:
-        ID = input.split("/")[4]
-    else:
-        ID = input
-    return ID
+def site_detect(link):
+    if "mangadex.org" in link:
+        manga = Mangadex(link, CONFIG.manga_directory)
+    elif "mangaseeonline.us" in link:
+        manga = Mangasee(link, CONFIG.manga_directory)
+    return manga
 
 
 def parser():
     '''Parses the arguments'''
     parser = argparse.ArgumentParser()
 
-    # Subparsers for the conifg and download functionality
+    # Sub-parsers for the config and download functionality
     subparsers = parser.add_subparsers(dest="subparser_name", required=True)
     parser_conf = subparsers.add_parser("conf", help="Program will be in the config edit mode")
     parser_down = subparsers.add_parser("down", help="Program will be in the download mode")
@@ -47,7 +55,7 @@ def parser():
 
     # Parser for config mode
     parser_conf.add_argument("-a", "--add-tracked", help="Adds manga to the tracked", dest="add")
-    parser_conf.add_argument("-r", "--remove-tracked", help="Removes mangda from tracked", dest="remove")
+    parser_conf.add_argument("-r", "--remove-tracked", help="Removes manga from tracked", dest="remove")
     parser_conf.add_argument("-c", "--clear-tracked", help="Clears the tracked list",
                              action="store_true")
     parser_conf.add_argument("-s", "--save-directory", help="Changes the manga directory", dest="m_dir")
@@ -60,53 +68,41 @@ def parser():
     return args
 
 
-def down_mode(args, config):
-    # Gets the chapter selection
-    if args.latest:
-        selection = "NEW"
-    elif args.range is not None:
-        selection = ["range", args.range]
-    elif args.selection is not None:
-        selection = ["selection", args.selection]
-    else:
-        selection = "ALL"
-
-    ID = get_id(args.input)
-    manga = Manga(ID, config.manga_directory)
-    manga.filter_wanted(selection)
+def down_mode():
+    manga = site_detect(ARGS.input)
+    filter_wanted(manga)
     manga.get_info()
-    manga_objects = [manga]
-    download(manga_objects)
+    download([manga])
 
 
-def conf_mode(args, config):
-    if args.default:
-        config.reset_config()
-    elif args.clear_tracked:
-        config.clear_tracked()
+def conf_mode():
+    if ARGS.default:
+        CONFIG.reset_config()
+    elif ARGS.clear_tracked:
+        CONFIG.clear_tracked()
 
-    if args.add is not None:
-        add = args.add.split()
-        config.add_tracked(add)
-    if args.remove is not None:
-        remove = args.remove.split()
-        config.remove_tracked(remove)
-    if args.list:
-        config.list_tracked()
-    if args.m_dir is not None:
-        config.change_dir(args.m_dir)
-    config.save_config()
+    if ARGS.add is not None:
+        add = ARGS.add.split()
+        CONFIG.add_tracked(add)
+    if ARGS.remove is not None:
+        remove = ARGS.remove.split()
+        CONFIG.remove_tracked(remove)
+    if ARGS.list:
+        CONFIG.list_tracked()
+    if ARGS.m_dir is not None:
+        CONFIG.change_dir(ARGS.m_dir)
+    CONFIG.save_config()
 
 
-def update_mode(config):
-    if len(config.tracked_manga) == 0:
-        print("No managa tracked!")
+def update_mode():
+    if len(CONFIG.tracked_manga) == 0:
+        print("No manga tracked!")
         return
-    print(f"Updating {len(config.tracked_manga)} manga")
+    print(f"Updating {len(CONFIG.tracked_manga)} manga")
     manga_objects = []
-    for ID in config.tracked_manga:
-        manga = Manga(get_id(ID), config.manga_directory)
-        manga.filter_wanted("ALL")
+    for link in CONFIG.tracked_manga:
+        manga = site_detect(link)
+        filter_wanted(manga, ignore=True)
         manga.get_info()
         manga_objects.append(manga)
 
@@ -121,7 +117,7 @@ def update_mode(config):
     if total_num_ch == 0:
         print("Found 0 chapters ready to download.")
     elif total_num_ch > 0:
-        print(f"Found {total_num_ch} chapter(s) ready to download for:")
+        print(f"Found {total_num_ch} chapter(s) ready to download:")
         for title in found_titles:
             print(f"{title} - {len(found_titles[title])} chapter(s):")
             for ch in found_titles[title]:
@@ -137,8 +133,63 @@ def update_mode(config):
             print("Download cancelled")
 
 
+def filter_wanted(manga, ignore=None):
+    '''Creates a list of chapters that fit the wanted criteria
+    ignore=True skips argument checking, used for update mode'''
+    if ignore is None:
+        ignore = False
+
+    # Gets the chapter selection
+    if ignore:
+        filtered = list(manga.chapters)
+    else:
+
+        # If "oneshot" selection is ignored
+        if len(manga.chapters) == 1 and list(manga.chapters)[0] == 0:
+            filtered = list(manga.chapters)
+        elif ARGS.latest:
+            filtered = [max(list(manga.chapters))]
+        elif ARGS.range is not None:
+            filtered = []
+            a, b = [float(n) for n in ARGS.range]
+            for ch in manga.chapters:
+                if a <= ch <= b:
+                    filtered.append(ch)
+        elif ARGS.selection is not None:
+            filtered = []
+            index = ARGS.selection
+            for n in index:
+                n = float(n)
+                if n.is_integer():
+                    n = int(n)
+                filtered.append(n)
+        else:
+            filtered = list(manga.chapters)
+    filtered = sorted(filtered)
+
+    # Checks if the chapters that fit the selection are already downloaded
+    if not manga.manga_dir.is_dir():
+        downloaded_chapters = None
+    else:
+        downloaded_chapters = os.listdir(manga.manga_dir)
+
+    checked = []
+    if downloaded_chapters is not None:
+        for n in filtered:
+            chapter_name = f"Chapter {n}"
+            if chapter_name not in downloaded_chapters and n in list(manga.chapters):
+                checked.append(n)
+    else:
+        for n in filtered:
+            if n in list(manga.chapters):
+                checked.append(n)
+
+    manga.wanted = checked
+    print(f"\nFound {len(manga.wanted)} uploaded and undownloaded chapter(s)\n")
+
+
 def download(manga_objects):
-    '''Downloands the image in the proper directories'''
+    '''Downloads the images in the proper directories'''
 
     # Counts downloaded pages and times the download
     down_count = 0
@@ -157,10 +208,9 @@ def download(manga_objects):
             ch_dir = manga.manga_dir / ch["name"]
             ch_dir.mkdir()
 
-            # Goes over every page and saves it with 0.5 s delay
+            # Goes over every page and saves it with a small delay
             for n, img in enumerate(ch["pages"]):
-                img_url = ch["url"] + img
-                if ch["title"] != "":
+                if ch["title"] != "" and ch["title"] is not None:
                     image_name = f"{manga.series_title} - {ch['name']} - {html.unescape(ch['title'])} - Page {n}{Path(img).suffix}"
                 else:
                     image_name = f"{manga.series_title} - {ch['name']} - Page {n}{Path(img).suffix}"
@@ -168,13 +218,19 @@ def download(manga_objects):
                 # Replaces a "/" in titles to something usable
                 image_name = image_name.replace("/", "╱")
 
-                print(f"Getting image: {img}")
-                content = manga.scraper.get(img_url, stream=True)
+                print(f"Getting Page {n}")
+
+                # If site uses cloud flare protection us the scraper
+                # Otherwise uses requests
+                if manga.cloud_flare:
+                    content = manga.scraper.get(img, stream=True)
+                else:
+                    content = requests.get(img, stream=True)
                 with open(ch_dir / image_name, "wb") as f:
                     for chunk in content.iter_content(1024):
                         f.write(chunk)
                 down_count += 1
-                time.sleep(0.5)
+                time.sleep(0.4)
     if down_count > 0:
         t2 = time.time()
         delta = round(t2 - t1)

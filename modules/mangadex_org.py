@@ -1,18 +1,25 @@
 import cfscrape
-import os
 import sys
 import html
 
 
-class Manga():
-    def __init__(self, ID, directory):
+class Mangadex():
+    def __init__(self, link, directory):
         # Initializes the data
+        self.cloud_flare = True
         self.folder = directory
         self.scraper = cfscrape.create_scraper()
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
-        self.id = ID
+        self.id = self.get_id(link)
         self.get_chapters()
+
+    def get_id(self, link):
+        if "/" in link:
+            ID = link.split("/")[4]
+        else:
+            ID = link
+        return ID
 
     def get_chapters(self):
         '''Gets the manga data using the mangadex API'''
@@ -62,14 +69,12 @@ class Manga():
             self.chapters[num][ch["group_name"]] = ch
             self.chapters[num][ch["group_name"]]["ch_id"] = chapter
 
-        print("------------------------\n" + f"Found {len(self.chapters)} uploaded chapter(s) for {self.series_title}\n" + "------------------------")
+        print("\n------------------------\n" + f"Found {len(self.chapters)} uploaded chapter(s) for {self.series_title}\n" + "------------------------")
 
     def get_info(self):
         '''Gets the data about the specific chapters using the mangadex API'''
-        # The dict used by the download method
+        # The dict used by the download function
         self.ch_info = []
-
-        print(f"\nFound {len(self.wanted)} undownloaded chapter(s)\n")
 
         # Goes over every chapter
         for ch in self.wanted:
@@ -109,54 +114,11 @@ class Manga():
             else:
                 server = r["server"]
 
-            # Creates the page url
-            self.ch_info.append({"url": f"{server}{r['hash']}/",
-                                 "pages": r['page_array'],
+            # Creates the list of page urls
+            url = f"{server}{r['hash']}/"
+            pages = [f"{url}{page}" for page in r['page_array']]
+
+            # Creates chapter info dict
+            self.ch_info.append({"pages": pages,
                                  "name": chapter_name,
                                  "title": r["title"]})
-
-    def filter_wanted(self, wanted):
-        '''Creates a list of chapters that fit the wanted criteria'''
-
-        # If oneshot selection is ignored
-        if len(self.chapters) == 1 and list(self.chapters)[0] == 0:
-            filtered = list(self.chapters)
-        elif wanted == "ALL":
-            filtered = list(self.chapters)
-        elif wanted == "NEW":
-            filtered = [max(list(self.chapters))]
-        elif wanted[0] == "range":
-            filtered = []
-            a, b = [float(n) for n in wanted[1]]
-            for ch in self.chapters:
-                if a <= ch <= b:
-                    filtered.append(ch)
-        elif wanted[0] == "selection":
-            filtered = []
-            index = wanted[1]
-            for n in index:
-                n = float(n)
-                if n.is_integer():
-                    n = int(n)
-                filtered.append(n)
-
-        filtered = sorted(filtered)
-
-        # Checks if the chapters that fit the selection are already downloaded
-        if not self.manga_dir.is_dir():
-            downloaded_chapters = None
-        else:
-            downloaded_chapters = os.listdir(self.manga_dir)
-
-        checked = []
-        if downloaded_chapters is not None:
-            for n in filtered:
-                chapter_name = f"Chapter {n}"
-                if chapter_name not in downloaded_chapters and n in list(self.chapters):
-                    checked.append(n)
-        else:
-            for n in filtered:
-                if n in list(self.chapters):
-                    checked.append(n)
-
-        self.wanted = checked

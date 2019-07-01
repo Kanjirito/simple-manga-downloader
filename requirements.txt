@@ -1,6 +1,8 @@
+beautifulsoup4==4.7.1
 certifi==2019.3.9
 cfscrape==2.0.7
 chardet==3.0.4
 idna==2.8
 requests==2.22.0
+soupsieve==1.9.2
 urllib3==1.25.3
