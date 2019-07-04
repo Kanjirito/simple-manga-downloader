@@ -9,8 +9,8 @@ class Mangadex():
         self.cloud_flare = True
         self.folder = directory
         self.scraper = cfscrape.create_scraper()
-        self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
+        self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)
         self.get_chapters()
 
@@ -45,8 +45,7 @@ class Mangadex():
         # Creates the chapters info dict
         self.chapters = {}
 
-        for chapter in data["chapter"]:
-            ch = data["chapter"][chapter]
+        for chapter, ch in data["chapter"].items():
             # Only English
             if ch["lang_code"] != "gb":
                 continue
@@ -55,12 +54,14 @@ class Mangadex():
             # Uses chapter number if present
             # Sets to 1 if oneshot
             # Slices title if "Chapter XX"
-            if ch["chapter"] != "":
+            if ch["chapter"]:
                 num = float(ch["chapter"])
             elif ch["title"].lower() == "oneshot":
                 num = 0.0
             elif ch["title"].lower().startswith("chapter"):
                 num = float(ch["chapter"].split()[-1])
+            else:
+                num = 0.0
 
             if num.is_integer():
                 num = int(num)
@@ -89,16 +90,24 @@ class Mangadex():
             else:
                 print(f"\nMultiple groups for chapter {ch}, select one(1,2,3...):")
                 sorted_groups = sorted(self.chapters[ch])
+                selections = []
                 for n, g in enumerate(sorted_groups):
                     print(f"{n+1}.{g}")
-                select = int(input("Enter the number of the group: "))
-                while select > len(sorted_groups):
-                    select = int(input("\nWrong number, try again: "))
-                select -= 1
+                    selections.append(n + 1)
+                try:
+                    select = int(input("Enter the number of the group: "))
+                except ValueError:
+                    select = len(sorted_groups) + 1
+                while select not in selections:
+                    try:
+                        select = int(input("Wrong input, try again: "))
+                    except ValueError:
+                        select = len(sorted_groups) + 1
                 print()
-                group = sorted_groups[select]
+                group = sorted_groups[select - 1]
                 del select
                 del sorted_groups
+                del selections
 
             ch_id = self.chapters[ch][group]["ch_id"]
             r = self.scraper.get(self.ch_api_url.format(ch_id)).json()

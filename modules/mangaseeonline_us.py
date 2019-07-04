@@ -29,7 +29,8 @@ class Mangasee():
         self.manga_dir = self.folder / self.series_title
 
         # Finds all of the chapters and creates the dict
-        chapters = reversed(soup.find_all(class_="list-group-item"))
+        chapters = soup.find_all(class_="list-group-item")
+        chapters.reverse()
 
         self.chapters = {}
         for chapter in chapters:

@@ -95,7 +95,7 @@ def conf_mode():
 
 
 def update_mode():
-    if len(CONFIG.tracked_manga) == 0:
+    if not CONFIG.tracked_manga:
         print("No manga tracked!")
         return
     print(f"Updating {len(CONFIG.tracked_manga)} manga")
@@ -109,14 +109,14 @@ def update_mode():
     total_num_ch = 0
     found_titles = {}
     for manga in manga_objects:
-        if len(manga.ch_info) > 0:
+        if manga.ch_info:
             total_num_ch += len(manga.ch_info)
             found_titles[manga.series_title] = [ch for ch in manga.ch_info]
 
     print("------------------------\nChecking complete!\n")
-    if total_num_ch == 0:
+    if not total_num_ch:
         print("Found 0 chapters ready to download.")
-    elif total_num_ch > 0:
+    elif total_num_ch:
         print(f"Found {total_num_ch} chapter(s) ready to download:")
         for title in found_titles:
             print(f"{title} - {len(found_titles[title])} chapter(s):")
@@ -145,7 +145,7 @@ def filter_wanted(manga, ignore=None):
     else:
 
         # If "oneshot" selection is ignored
-        if len(manga.chapters) == 1 and list(manga.chapters)[0] == 0:
+        if len(manga.chapters) == 1 and not list(manga.chapters)[0]:
             filtered = list(manga.chapters)
         elif ARGS.latest:
             filtered = [max(list(manga.chapters))]
@@ -165,7 +165,7 @@ def filter_wanted(manga, ignore=None):
                 filtered.append(n)
         else:
             filtered = list(manga.chapters)
-    filtered = sorted(filtered)
+    filtered.sort()
 
     # Checks if the chapters that fit the selection are already downloaded
     if not manga.manga_dir.is_dir():
@@ -173,19 +173,18 @@ def filter_wanted(manga, ignore=None):
     else:
         downloaded_chapters = os.listdir(manga.manga_dir)
 
-    checked = []
+    manga.wanted = []
     if downloaded_chapters is not None:
         for n in filtered:
             chapter_name = f"Chapter {n}"
             if chapter_name not in downloaded_chapters and n in list(manga.chapters):
-                checked.append(n)
+                manga.wanted.append(n)
     else:
         for n in filtered:
             if n in list(manga.chapters):
-                checked.append(n)
+                manga.wanted.append(n)
 
-    manga.wanted = checked
-    print(f"\nFound {len(manga.wanted)} uploaded and undownloaded chapter(s)\n")
+    print(f"\nFound {len(manga.wanted)} wanted and undownloaded chapter(s)\n")
 
 
 def download(manga_objects):
