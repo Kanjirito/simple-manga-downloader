@@ -218,7 +218,7 @@ def filter_wanted(manga, ignore=None):
 
     manga.wanted = []
     if downloaded_chapters is None:
-        manga.wanted = chapter_list
+        manga.wanted = filtered
     else:
         for n in filtered:
             chapter_name = f"Chapter {n}"
@@ -258,11 +258,12 @@ def download(manga_objects):
             # Goes over every page and saves it with a small delay
             for n, img in enumerate(ch["pages"]):
                 if ch["title"] != "" and ch["title"] is not None:
-                    image_name = f"{manga.series_title} - {ch['name']} - \
-                    {html.unescape(ch['title'])} - Page {n}{Path(img).suffix}"
+                    image_name = f"{manga.series_title} - {ch['name']} - " \
+                                 f"{html.unescape(ch['title'])} - " \
+                                 f"Page {n}{Path(img).suffix}"
                 else:
-                    image_name = f"{manga.series_title} - {ch['name']} - \
-                    Page {n}{Path(img).suffix}"
+                    image_name = f"{manga.series_title} - {ch['name']} - " \
+                                 f"Page {n}{Path(img).suffix}"
 
                 # Replaces a "/" in titles to something usable
                 image_name = image_name.replace("/", "╱")

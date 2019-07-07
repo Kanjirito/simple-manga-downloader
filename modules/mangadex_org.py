@@ -106,7 +106,7 @@ class Mangadex():
 
             # Creates the chapter name and path
             chapter_name = f"Chapter {ch}"
-            print(f"\tChecking: {chapter_name}")
+            print(f"Checking: {chapter_name}")
 
             ch_id = self.chapters[ch]["ch_id"]
             r = self.scraper.get(self.ch_api_url.format(ch_id)).json()

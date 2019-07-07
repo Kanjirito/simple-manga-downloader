@@ -56,7 +56,7 @@ class Mangasee():
         # Goes over every wanted chapter
         for ch in self.wanted:
             chapter_name = f"Chapter {ch}"
-            print(f"\tChecking: {chapter_name}")
+            print(f"Checking: {chapter_name}")
 
             # Gets the chapter page and makes the soup
             pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
