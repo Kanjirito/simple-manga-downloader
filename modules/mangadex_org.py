@@ -7,6 +7,7 @@ class Mangadex():
     def __init__(self, link, directory):
         # Initializes the data
         self.cloud_flare = True
+        self.site = "mangadex.org"
         self.folder = directory
         self.scraper = cfscrape.create_scraper()
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
@@ -70,11 +71,34 @@ class Mangadex():
             self.chapters[num][ch["group_name"]] = ch
             self.chapters[num][ch["group_name"]]["ch_id"] = chapter
 
-        print("\n------------------------\n" + f"Found {len(self.chapters)} uploaded chapter(s) for {self.series_title}\n" + "------------------------")
+    def check_groups(self):
+        for ch in self.wanted:
+            if len(self.chapters[ch]) == 1:
+                self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
+                continue
+
+            print(f"\nMultiple groups for chapter {ch}, select one(1,2,3...):")
+            sorted_groups = sorted(self.chapters[ch])
+            selections = []
+            for n, g in enumerate(sorted_groups, 1):
+                print(f"{n}.{g}")
+                selections.append(n)
+            # Asks for a selection, if too high or not a number asks again
+            try:
+                select = int(input("Enter the number of the group: "))
+            except ValueError:
+                select = len(sorted_groups) + 1
+            while select not in selections:
+                try:
+                    select = int(input("Wrong input, try again: "))
+                except ValueError:
+                    select = len(sorted_groups) + 1
+            group = sorted_groups[select - 1]
+            self.chapters[ch] = self.chapters[ch][group]
 
     def get_info(self):
         '''Gets the data about the specific chapters using the mangadex API'''
-        # The dict used by the download function
+        # The list used by the download function
         self.ch_info = []
 
         # Goes over every chapter
@@ -82,39 +106,14 @@ class Mangadex():
 
             # Creates the chapter name and path
             chapter_name = f"Chapter {ch}"
-            print(f"Checking: {chapter_name}")
+            print(f"\tChecking: {chapter_name}")
 
-            # Checks if chapter has multiple groups, if yes asks which you want
-            if len(self.chapters[ch]) == 1:
-                group = list(self.chapters[ch])[0]
-            else:
-                print(f"\nMultiple groups for chapter {ch}, select one(1,2,3...):")
-                sorted_groups = sorted(self.chapters[ch])
-                selections = []
-                for n, g in enumerate(sorted_groups):
-                    print(f"{n+1}.{g}")
-                    selections.append(n + 1)
-                try:
-                    select = int(input("Enter the number of the group: "))
-                except ValueError:
-                    select = len(sorted_groups) + 1
-                while select not in selections:
-                    try:
-                        select = int(input("Wrong input, try again: "))
-                    except ValueError:
-                        select = len(sorted_groups) + 1
-                print()
-                group = sorted_groups[select - 1]
-                del select
-                del sorted_groups
-                del selections
-
-            ch_id = self.chapters[ch][group]["ch_id"]
+            ch_id = self.chapters[ch]["ch_id"]
             r = self.scraper.get(self.ch_api_url.format(ch_id)).json()
 
             # Skips chapter if the release is delayed
             if r["status"] == "delayed":
-                print("Chapter is a delayed release skipping")
+                print("\tChapter is a delayed release, ignoring it")
                 continue
 
             # Fixes the incomplete link
