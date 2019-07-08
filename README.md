@@ -71,13 +71,16 @@ SMD.py conf -r link_to_manga [more_links]
 SMD.py conf --remove-tracked link_to_manga [more_links]
 ```
 
-Removing a manga from the tracked list by index :
+Removing a manga from the tracked list by index:
 ```
 SMD.py conf -r 5 1 3
 SMD.py conf --remove-tracked 5 1 3
 ```
-Removal by index and link can be used together though it will not work well, use at your own risk.
 
+Removal by index and link can be used together (works if index and link point to the same manga):
+```
+SMD.py conf -r link_to_manga 5 link_to_manga 2
+```
 
 Clearing the tracked list:
 ```

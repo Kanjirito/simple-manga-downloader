@@ -14,10 +14,10 @@ CONFIG = None
 
 
 def main():
-    global CONFIG
     global ARGS
-    CONFIG = Config()
+    global CONFIG
     ARGS = parser()
+    CONFIG = Config()
     mode = ARGS.subparser_name
     if mode == "down":
         down_mode()
@@ -117,7 +117,7 @@ def conf_mode():
     if ARGS.m_dir is not None:
         CONFIG.change_dir(ARGS.m_dir)
     if ARGS.position:
-        CONFIG.change_order()
+        CONFIG.change_position()
 
     # Saves if config was modified
     if CONFIG.modified:

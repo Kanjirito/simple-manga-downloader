@@ -46,25 +46,27 @@ class Config():
 
     def remove_tracked(self, delete):
         '''Removes manga from the tracked list
-        Accepts only a list as a argument'''
-        delete.sort(reverse=True)
-        for s in delete:
+        Accepts only a list as an argument'''
+        to_remove = set()
+        for n in delete:
             try:
-                s = int(s) - 1
-                try:
-                    removed = self.tracked_manga.pop(s)
-                    self.modified = True
-                    print(f"Removed from tracked:  {removed}")
-                except IndexError:
-                    print("Wrong index")
+                n = int(n)
             except ValueError:
-                s = s.replace("/chapters", "")
-                if s in self.tracked_manga:
-                    self.tracked_manga.remove(s)
-                    self.modified = True
-                    print(f"Removed from tracked:  {s}")
+                if n in self.tracked_manga:
+                    to_remove.add(n)
                 else:
-                    print(f"Not tracked:  {s}")
+                    print(f"Not a proper link: {n}")
+            else:
+                try:
+                    to_remove.add(self.tracked_manga[n - 1])
+                except IndexError:
+                    print(f"Index number out of range: {n}")
+
+        for r in to_remove:
+            self.tracked_manga.remove(r)
+            print(f"Removed from tracked: {r}")
+        if to_remove:
+            self.modified = True
 
     def change_dir(self, dire):
         '''Changes the manga download directory'''
@@ -90,34 +92,34 @@ class Config():
             self.modified = True
             print("Config was reset")
 
-    def change_order(self):
+    def change_position(self):
         if len(self.tracked_manga) < 2:
             print("Less than 2 manga tracked")
             return
         self.list_tracked()
 
         try:
-            select = int(input("\nWhich manga do you want to move?: ")) - 1
+            select = int(input("Which manga do you want to move?: ")) - 1
         except ValueError:
             print("Not a number, aborting")
             return
         if select not in range(len(self.tracked_manga)):
-            print("Selection out of index range, aborting")
+            print("Number out of index range, aborting")
             return
-        else:
-            try:
-                move_index = int(input("Where do you want to move it?: ")) - 1
-            except ValueError:
-                print("Not a number, aborting")
-                return
-            if move_index not in range(len(self.tracked_manga)):
-                print("Number out of index range, aborting")
-            else:
-                # Swaps the 2 elements using tuples
-                get = self.tracked_manga[select], self.tracked_manga[move_index]
-                self.tracked_manga[move_index], self.tracked_manga[select] = get
-                self.modified = True
-                print("Order changed")
+        try:
+            move_index = int(input("Where do you want to move it?: ")) - 1
+        except ValueError:
+            print("Not a number, aborting")
+            return
+        if move_index not in range(len(self.tracked_manga)):
+            print("Number out of index range, aborting")
+            return
+
+        get = self.tracked_manga.pop(select)
+        self.tracked_manga.insert(move_index, get)
+
+        self.modified = True
+        print(f"Entry \"{get}\" moved to {move_index + 1}")
 
     def list_tracked(self):
         '''Lists the tracked manga'''
