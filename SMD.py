@@ -90,16 +90,14 @@ def down_mode():
     for link in ARGS.input:
         manga = site_detect(link)
         filter_wanted(manga)
-        manga_objects.append(manga)
-    for manga in manga_objects:
         if manga.wanted:
-            print("\n------------------------\n"
-                  f"Getting chapter info about {manga.series_title}"
-                  "\n------------------------")
-            manga.get_info()
-            download([manga])
-        else:
-            print()
+            manga_objects.append(manga)
+    for manga in manga_objects:
+        print("\n------------------------\n"
+              f"Getting: {manga.series_title}"
+              "\n------------------------")
+        chapter_getter(manga)
+        download([manga])
 
 
 def conf_mode():
@@ -142,13 +140,14 @@ def update_mode():
     # Keeps track of some information
     total_num_ch = 0
     found_titles = {}
-    print("\n------------------------\n"
-          "Getting info about chapters"
-          "\n------------------------\n")
-    for manga in manga_objects:
-        if manga.wanted:
-            print(f"Getting chapter info for \"{manga.series_title}\":")
-            manga.get_info()
+    if manga_objects:
+        print("\n------------------------\n"
+              "Getting info about chapters"
+              "\n------------------------\n")
+        for manga in manga_objects:
+            print(f"Getting chapter info for \"{manga.series_title}\"",
+                  "\n------------------------")
+            chapter_getter(manga)
             print()
             total_num_ch += len(manga.ch_info)
             found_titles[manga.series_title] = [ch for ch in manga.ch_info]
@@ -192,11 +191,8 @@ def filter_wanted(manga, ignore=None):
         elif ARGS.latest:
             filtered = [max(chapter_list)]
         elif ARGS.range is not None:
-            filtered = []
             a, b = [float(n) for n in ARGS.range]
-            for ch in chapter_list:
-                if a <= ch <= b:
-                    filtered.append(ch)
+            filtered = [ch for ch in chapter_list if a <= ch <= b]
         elif ARGS.selection is not None:
             filtered = []
             index = ARGS.selection
@@ -220,6 +216,7 @@ def filter_wanted(manga, ignore=None):
     if downloaded_chapters is None:
         manga.wanted = filtered
     else:
+        manga.wanted = []
         for n in filtered:
             chapter_name = f"Chapter {n}"
             if chapter_name not in downloaded_chapters:
@@ -231,6 +228,14 @@ def filter_wanted(manga, ignore=None):
 
     if manga.site == "mangadex.org":
         manga.check_groups()
+
+
+def chapter_getter(manga):
+    '''Calls the get_info() of the manga objects'''
+    manga.ch_info = []
+    for ch in manga.wanted:
+        print(f"Checking: Chapter{ch}")
+        manga.get_info(ch)
 
 
 def download(manga_objects):
@@ -256,26 +261,14 @@ def download(manga_objects):
             ch_dir.mkdir()
 
             # Goes over every page and saves it with a small delay
-            for n, img in enumerate(ch["pages"]):
-                if ch["title"] != "" and ch["title"] is not None:
-                    image_name = f"{manga.series_title} - {ch['name']} - " \
-                                 f"{html.unescape(ch['title'])} - " \
-                                 f"Page {n}{Path(img).suffix}"
-                else:
-                    image_name = f"{manga.series_title} - {ch['name']} - " \
-                                 f"Page {n}{Path(img).suffix}"
-
-                # Replaces a "/" in titles to something usable
-                image_name = image_name.replace("/", "╱")
-
-                print(f"Page {n}")
-
+            page_info = page_gen(manga, ch)
+            for image_name, link in page_info:
                 # If site uses cloud flare protection us the scraper
                 # Otherwise uses requests
                 if manga.cloud_flare:
-                    content = manga.scraper.get(img, stream=True)
+                    content = manga.scraper.get(link, stream=True)
                 else:
-                    content = requests.get(img, stream=True)
+                    content = requests.get(link, stream=True)
                 with open(ch_dir / image_name, "wb") as f:
                     for chunk in content.iter_content(1024):
                         f.write(chunk)
@@ -293,6 +286,23 @@ def download(manga_objects):
               f"Finished downloading {down_count} pages in {timing}!"
               "\n------------------------")
     return True
+
+
+def page_gen(manga, ch):
+    '''A generator that yields a tuple with the page name and link'''
+    for n, link in enumerate(ch["pages"]):
+        if ch["title"] != "" and ch["title"] is not None:
+            image_name = f"{manga.series_title} - {ch['name']} - " \
+                         f"{html.unescape(ch['title'])} - " \
+                         f"Page {n}{Path(link).suffix}"
+        else:
+            image_name = f"{manga.series_title} - {ch['name']} - " \
+                         f"Page {n}{Path(link).suffix}"
+
+        # Replaces a "/" in titles to something usable
+        image_name = image_name.replace("/", "╱")
+        print(f"Page {n}")
+        yield (image_name, link)
 
 
 if __name__ == '__main__':

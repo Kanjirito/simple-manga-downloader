@@ -43,7 +43,6 @@ class Mangadex():
         except KeyError:
             sys.exit("Error!\tNo chapters found.")
 
-        # Creates the chapters info dict
         self.chapters = {}
 
         for chapter, ch in data["chapter"].items():
@@ -96,37 +95,29 @@ class Mangadex():
             group = sorted_groups[select - 1]
             self.chapters[ch] = self.chapters[ch][group]
 
-    def get_info(self):
+    def get_info(self, ch):
         '''Gets the data about the specific chapters using the mangadex API'''
         # The list used by the download function
-        self.ch_info = []
 
-        # Goes over every chapter
-        for ch in self.wanted:
+        ch_id = self.chapters[ch]["ch_id"]
+        r = self.scraper.get(self.ch_api_url.format(ch_id)).json()
 
-            # Creates the chapter name and path
-            chapter_name = f"Chapter {ch}"
-            print(f"Checking: {chapter_name}")
+        # Skips chapter if the release is delayed
+        if r["status"] == "delayed":
+            print("\tChapter is a delayed release, ignoring it")
+            return
 
-            ch_id = self.chapters[ch]["ch_id"]
-            r = self.scraper.get(self.ch_api_url.format(ch_id)).json()
+        # Fixes the incomplete link
+        if r["server"] == "/data/":
+            server = "https://mangadex.org/data/"
+        else:
+            server = r["server"]
 
-            # Skips chapter if the release is delayed
-            if r["status"] == "delayed":
-                print("\tChapter is a delayed release, ignoring it")
-                continue
+        # Creates the list of page urls
+        url = f"{server}{r['hash']}/"
+        pages = [f"{url}{page}" for page in r['page_array']]
 
-            # Fixes the incomplete link
-            if r["server"] == "/data/":
-                server = "https://mangadex.org/data/"
-            else:
-                server = r["server"]
-
-            # Creates the list of page urls
-            url = f"{server}{r['hash']}/"
-            pages = [f"{url}{page}" for page in r['page_array']]
-
-            # Creates chapter info dict
-            self.ch_info.append({"pages": pages,
-                                 "name": chapter_name,
-                                 "title": r["title"]})
+        # Creates chapter info dict
+        self.ch_info.append({"pages": pages,
+                             "name": f"Chapter {ch}",
+                             "title": r["title"]})
