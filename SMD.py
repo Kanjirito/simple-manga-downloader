@@ -33,6 +33,9 @@ def site_detect(link):
         manga = Mangadex(link, CONFIG.manga_directory)
     elif "mangaseeonline.us" in link:
         manga = Mangasee(link, CONFIG.manga_directory)
+    else:
+        print(f"Wrong link: \"{link}\"")
+        return False
     return manga
 
 
@@ -89,6 +92,8 @@ def down_mode():
     manga_objects = []
     for link in ARGS.input:
         manga = site_detect(link)
+        if not manga:
+            continue
         filter_wanted(manga)
         if manga.wanted:
             manga_objects.append(manga)
