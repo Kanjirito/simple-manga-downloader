@@ -234,7 +234,7 @@ def chapter_getter(manga):
     '''Calls the get_info() of the manga objects'''
     manga.ch_info = []
     for ch in manga.wanted:
-        print(f"Checking: Chapter{ch}")
+        print(f"Checking: Chapter {ch}")
         manga.get_info(ch)
 
 

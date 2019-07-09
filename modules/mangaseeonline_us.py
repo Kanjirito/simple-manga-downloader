@@ -49,8 +49,6 @@ class Mangasee():
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
 
-        print(f"Checking: Chapter {ch}")
-
         # Gets the chapter page and makes the soup
         pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
         r = requests.get(pages_link)
