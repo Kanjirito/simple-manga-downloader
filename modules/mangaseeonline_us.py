@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 class Mangasee():
     def __init__(self, link, directory):
         self.cloud_flare = False
+        self.site = "mangaseeonline.us"
         self.folder = directory
         self.manga_link = link
         self.base_link = "https://mangaseeonline.us"
@@ -45,7 +46,6 @@ class Mangasee():
             self.chapters[num] = {"name": chapter_name,
                                   "link": link,
                                   "title": None}
-        print("\n------------------------\n" + f"Found {len(self.chapters)} uploaded chapter(s) for {self.series_title}\n" + "------------------------")
 
     def get_info(self):
         '''Gets the needed data abut the chapters from the site'''
