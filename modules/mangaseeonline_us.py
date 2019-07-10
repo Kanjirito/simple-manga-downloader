@@ -40,35 +40,26 @@ class Mangasee():
                 num = int(num)
             except ValueError:
                 num = float(num)
-            chapter_name = f"Chapter {num}"
             link = chapter["href"].replace("-page-1", "")
 
-            self.chapters[num] = {"name": chapter_name,
+            self.chapters[num] = {"name": f"Chapter {num}",
                                   "link": link,
                                   "title": None}
 
-    def get_info(self):
+    def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
 
-        # The dict used by the download function
-        self.ch_info = []
+        # Gets the chapter page and makes the soup
+        pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
+        r = requests.get(pages_link)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
 
-        # Goes over every wanted chapter
-        for ch in self.wanted:
-            chapter_name = f"Chapter {ch}"
-            print(f"Checking: {chapter_name}")
+        # Finds the page links in the page and adds them to a list
+        img_containers = soup.find_all(class_="fullchapimage")
+        pages = [div.contents[0]["src"] for div in img_containers]
 
-            # Gets the chapter page and makes the soup
-            pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
-            r = requests.get(pages_link)
-            r.raise_for_status()
-            soup = BeautifulSoup(r.text, "html.parser")
-
-            # Finds the page links in the page and adds them to a list
-            img_containers = soup.find_all(class_="fullchapimage")
-            pages = [div.contents[0]["src"] for div in img_containers]
-
-            # Saves the needed data
-            self.ch_info.append({"name": self.chapters[ch]["name"],
-                                 "title": self.chapters[ch]["title"],
-                                 "pages": pages})
+        # Saves the needed data
+        self.ch_info.append({"name": self.chapters[ch]["name"],
+                             "title": self.chapters[ch]["title"],
+                             "pages": pages})
