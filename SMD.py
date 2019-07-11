@@ -252,6 +252,7 @@ def counter(func):
         wrapper.time += time.time() - t1
     wrapper.count = 0
     wrapper.time = 0
+    wrapper.last_get_time = 0
     return wrapper
 
 
@@ -279,17 +280,26 @@ def download(manga_objects):
             # Goes over every page and saves it with a small delay
             page_info = page_gen(manga, ch)
             for image_name, link in page_info:
+
+                # Timing stuff
+                current_time = time.time()
+                difference = current_time - download.last_get_time
+                if difference < 0.5:
+                    time.sleep(0.5 - difference)
+
                 # If site uses cloud flare protection us the scraper
                 # Otherwise uses requests
                 if manga.cloud_flare:
                     content = manga.scraper.get(link, stream=True)
                 else:
                     content = requests.get(link, stream=True)
+
+                download.last_get_time = time.time()
+
                 with open(ch_dir / image_name, "wb") as f:
                     for chunk in content.iter_content(1024):
                         f.write(chunk)
                 down_count += 1
-                time.sleep(0.4)
     return down_count
 
 
