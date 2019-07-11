@@ -101,8 +101,9 @@ def down_mode():
         print("\n------------------------\n"
               f"Getting: {manga.series_title}"
               "\n------------------------")
-        chapter_getter(manga)
+        chapter_info_get(manga)
         download([manga])
+    download_info_print()
 
 
 def conf_mode():
@@ -152,7 +153,7 @@ def update_mode():
         for manga in manga_objects:
             print(f"Getting chapter info for \"{manga.series_title}\"",
                   "\n------------------------")
-            chapter_getter(manga)
+            chapter_info_get(manga)
             print()
             total_num_ch += len(manga.ch_info)
             found_titles[manga.series_title] = [ch for ch in manga.ch_info]
@@ -170,10 +171,11 @@ def update_mode():
     confirm = input(f"Start the download? "
                     "[y to confirm/anything else to cancel]: ").lower()
     if confirm == "y":
-        if download(manga_objects):
-            print("Updated titles:")
-            for title in found_titles:
-                print(f"{title} - {len(found_titles[title])} chapter(s)")
+        download(manga_objects)
+        download_info_print()
+        print("Updated titles:")
+        for title in found_titles:
+            print(f"{title} - {len(found_titles[title])} chapter(s)")
 
     else:
         print("Download cancelled")
@@ -235,7 +237,7 @@ def filter_wanted(manga, ignore=None):
         manga.check_groups()
 
 
-def chapter_getter(manga):
+def chapter_info_get(manga):
     '''Calls the get_info() of the manga objects'''
     manga.ch_info = []
     for ch in manga.wanted:
@@ -243,13 +245,22 @@ def chapter_getter(manga):
         manga.get_info(ch)
 
 
+def counter(func):
+    def wrapper(manga_objects):
+        t1 = time.time()
+        wrapper.count += func(manga_objects)
+        wrapper.time += time.time() - t1
+    wrapper.count = 0
+    wrapper.time = 0
+    return wrapper
+
+
+@counter
 def download(manga_objects):
     '''Downloads the images in the proper directories'''
 
     # Counts downloaded pages and times the download
     down_count = 0
-    t1 = time.time()
-
     for manga in manga_objects:
 
         # Creates the manga folder
@@ -279,30 +290,33 @@ def download(manga_objects):
                         f.write(chunk)
                 down_count += 1
                 time.sleep(0.4)
-    if down_count:
-        t2 = time.time()
-        delta = round(t2 - t1)
-        m, s = divmod(delta, 60)
+    return down_count
+
+
+def download_info_print():
+    '''Prints the summary of the download'''
+    if download.count:
+        m, s = divmod(round(download.time), 60)
         if m > 0:
             timing = f"{m:02}:{s:02}"
         else:
             timing = f"{s} second(s)"
         print("\n------------------------\n"
-              f"Finished downloading {down_count} pages in {timing}!"
+              f"Finished downloading {download.count} pages in {timing}!"
               "\n------------------------")
-    return True
 
 
 def page_gen(manga, ch):
     '''A generator that yields a tuple with the page name and link'''
     for n, link in enumerate(ch["pages"]):
-        if ch["title"] != "" and ch["title"] is not None:
-            image_name = f"{manga.series_title} - {ch['name']} - " \
-                         f"{html.unescape(ch['title'])} - " \
-                         f"Page {n}{Path(link).suffix}"
+        base_name = f"{manga.series_title} - {ch['name']} -"
+        extension = f"Page {n}{Path(link).suffix}"
+
+        if ch["title"]:
+            title = f"{html.unescape(ch['title'])} -"
+            image_name = " ".join([base_name, title, extension])
         else:
-            image_name = f"{manga.series_title} - {ch['name']} - " \
-                         f"Page {n}{Path(link).suffix}"
+            image_name = " ".join([base_name, extension])
 
         # Replaces a "/" in titles to something usable
         image_name = image_name.replace("/", "╱")
