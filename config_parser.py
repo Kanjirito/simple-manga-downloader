@@ -32,13 +32,14 @@ class Config():
         '''Adds manga to the tracked list
         Accepts only a list as a argument'''
         for s in new:
+            s = s.split("/chapters")[0].rstrip("/")
             # Simple input check
             if "mangadex.org" not in s and "mangaseeonline.us" not in s:
                 print(f"Not a proper link:  {s}")
                 continue
             if s not in self.tracked_manga:
                 # Removes the unwanted "/chapters" from mangadex links
-                self.tracked_manga.append(s.replace("/chapters", ""))
+                self.tracked_manga.append(s)
                 self.modified = True
                 print(f"Added to tracked:  {s}")
             else:
@@ -52,6 +53,7 @@ class Config():
             try:
                 n = int(n)
             except ValueError:
+                n = n.split("/chapters")[0].rstrip("/")
                 if n in self.tracked_manga:
                     to_remove.add(n)
                 else:
