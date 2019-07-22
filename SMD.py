@@ -36,6 +36,11 @@ def site_detect(link):
     else:
         print(f"Wrong link: \"{link}\"")
         return False
+
+    status = manga.get_chapters()
+    if status is not True:
+        print(f"\nSomething went wrong! \n{status}")
+        return False
     return manga
 
 
@@ -138,6 +143,8 @@ def update_mode():
     # Gets the main information about the manga
     for link in CONFIG.tracked_manga:
         manga = site_detect(link)
+        if not manga:
+            continue
         filter_wanted(manga, ignore=True)
         if manga.wanted:
             manga_objects.append(manga)
@@ -242,7 +249,9 @@ def chapter_info_get(manga):
     manga.ch_info = []
     for ch in manga.wanted:
         print(f"Checking: Chapter {ch}")
-        manga.get_info(ch)
+        status = manga.get_info(ch)
+        if status is not True:
+            print(f"\nSomething went wrong! \n{status}")
 
 
 def counter(func):
@@ -253,6 +262,7 @@ def counter(func):
     wrapper.count = 0
     wrapper.time = 0
     wrapper.last_get_time = 0
+    wrapper.failed = []
     return wrapper
 
 
@@ -289,10 +299,17 @@ def download(manga_objects):
 
                 # If site uses cloud flare protection us the scraper
                 # Otherwise uses requests
-                if manga.cloud_flare:
-                    content = manga.scraper.get(link, stream=True)
-                else:
-                    content = requests.get(link, stream=True)
+                try:
+                    if manga.cloud_flare:
+                        content = manga.scraper.get(link, stream=True,
+                                                    timeout=5)
+                    else:
+                        content = requests.get(link, stream=True,
+                                               timeout=5)
+                except requests.Timeout:
+                    print(f"Failed to get image, skipping to next chapter")
+                    download.failed.append(f"{manga.series_title} - {ch['name']}")
+                    break
 
                 download.last_get_time = time.time()
 
@@ -314,6 +331,9 @@ def download_info_print():
         print("\n------------------------\n"
               f"Finished downloading {download.count} pages in {timing}!"
               "\n------------------------")
+    if download.failed:
+        print("\nFailed downloads:")
+        [print(f) for f in download.failed]
 
 
 def page_gen(manga, ch):
