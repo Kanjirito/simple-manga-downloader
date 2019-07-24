@@ -1,6 +1,5 @@
 import cfscrape
 import requests.exceptions
-import sys
 import html
 
 
@@ -29,7 +28,7 @@ class Mangadex():
         try:
             r = self.scraper.get(self.mn_api_url.format(self.id),
                                  timeout=5)
-        except requests.exceptions.Timeout:
+        except requests.Timeout:
             return "Request Timeout"
         if r.status_code != 200:
             return r.status_code
@@ -43,7 +42,7 @@ class Mangadex():
         try:
             data["chapter"]
         except KeyError:
-            sys.exit("Error!\tNo chapters found.")
+            return "No chapters found!"
 
         self.chapters = {}
 
@@ -106,7 +105,7 @@ class Mangadex():
         try:
             r = self.scraper.get(self.ch_api_url.format(ch_id),
                                  timeout=5)
-        except requests.exceptions.Timeout:
+        except requests.Timeout:
             return "Request Timeout"
         if r.status_code != 200:
             return r.status_code

@@ -30,18 +30,18 @@ def main():
 def site_detect(link):
     '''Detects the site and creates a proper manga object'''
     if "mangadex.org" in link:
-        manga = Mangadex(link, CONFIG.manga_directory)
+        Manga = Mangadex(link, CONFIG.manga_directory)
     elif "mangaseeonline.us" in link:
-        manga = Mangasee(link, CONFIG.manga_directory)
+        Manga = Mangasee(link, CONFIG.manga_directory)
     else:
         print(f"Wrong link: \"{link}\"")
         return False
 
-    status = manga.get_chapters()
+    status = Manga.get_chapters()
     if status is not True:
         print(f"\nSomething went wrong! \n{status}")
         return False
-    return manga
+    return Manga
 
 
 def parser():
@@ -96,18 +96,18 @@ def parser():
 def down_mode():
     manga_objects = []
     for link in ARGS.input:
-        manga = site_detect(link)
-        if not manga:
+        Manga = site_detect(link)
+        if not Manga:
             continue
-        filter_wanted(manga)
-        if manga.wanted:
-            manga_objects.append(manga)
-    for manga in manga_objects:
+        filter_wanted(Manga)
+        if Manga.wanted:
+            manga_objects.append(Manga)
+    for Manga in manga_objects:
         print("\n------------------------\n"
-              f"Getting: {manga.series_title}"
+              f"Getting: {Manga.series_title}"
               "\n------------------------")
-        chapter_info_get(manga)
-        download([manga])
+        chapter_info_get(Manga)
+        download([Manga])
     download_info_print()
 
 
@@ -142,12 +142,12 @@ def update_mode():
 
     # Gets the main information about the manga
     for link in CONFIG.tracked_manga:
-        manga = site_detect(link)
-        if not manga:
+        Manga = site_detect(link)
+        if not Manga:
             continue
-        filter_wanted(manga, ignore=True)
-        if manga.wanted:
-            manga_objects.append(manga)
+        filter_wanted(Manga, ignore=True)
+        if Manga.wanted:
+            manga_objects.append(Manga)
 
     # Goes over every manga and gets the chapter information
     # Keeps track of some information
@@ -157,13 +157,13 @@ def update_mode():
         print("\n------------------------\n"
               "Getting info about chapters"
               "\n------------------------\n")
-        for manga in manga_objects:
-            print(f"Getting chapter info for \"{manga.series_title}\"",
+        for Manga in manga_objects:
+            print(f"Getting chapter info for \"{Manga.series_title}\"",
                   "\n------------------------")
-            chapter_info_get(manga)
+            chapter_info_get(Manga)
             print()
-            total_num_ch += len(manga.ch_info)
-            found_titles[manga.series_title] = [ch for ch in manga.ch_info]
+            total_num_ch += len(Manga.ch_info)
+            found_titles[Manga.series_title] = [ch for ch in Manga.ch_info]
 
     print("------------------------\nChecking complete!\n")
     if not total_num_ch:
@@ -188,19 +188,19 @@ def update_mode():
         print("Download cancelled")
 
 
-def filter_wanted(manga, ignore=None):
+def filter_wanted(Manga, ignore=None):
     '''Creates a list of chapters that fit the wanted criteria
     ignore=True skips argument checking, used for update mode'''
     if ignore is None:
         ignore = False
 
-    chapter_list = list(manga.chapters)
+    chapter_list = list(Manga.chapters)
     # Gets the chapter selection
     if ignore:
         filtered = chapter_list
     else:
         # If "oneshot" selection is ignored
-        if len(manga.chapters) == 1 and not chapter_list[0]:
+        if len(Manga.chapters) == 1 and not chapter_list[0]:
             filtered = chapter_list
         elif ARGS.latest:
             filtered = [max(chapter_list)]
@@ -221,35 +221,35 @@ def filter_wanted(manga, ignore=None):
     filtered.sort()
 
     # Checks if the chapters that fit the selection are already downloaded
-    if not manga.manga_dir.is_dir():
+    if not Manga.manga_dir.is_dir():
         downloaded_chapters = None
     else:
-        downloaded_chapters = os.listdir(manga.manga_dir)
+        downloaded_chapters = os.listdir(Manga.manga_dir)
 
-    manga.wanted = []
+    Manga.wanted = []
     if downloaded_chapters is None:
-        manga.wanted = filtered
+        Manga.wanted = filtered
     else:
-        manga.wanted = []
+        Manga.wanted = []
         for n in filtered:
             chapter_name = f"Chapter {n}"
             if chapter_name not in downloaded_chapters:
-                manga.wanted.append(n)
+                Manga.wanted.append(n)
 
     print("\n------------------------\n"
-          f"Found {len(manga.wanted)} wanted chapter(s) for {manga.series_title}"
+          f"Found {len(Manga.wanted)} wanted chapter(s) for {Manga.series_title}"
           "\n------------------------")
 
-    if manga.site == "mangadex.org":
-        manga.check_groups()
+    if Manga.site == "mangadex.org":
+        Manga.check_groups()
 
 
-def chapter_info_get(manga):
+def chapter_info_get(Manga):
     '''Calls the get_info() of the manga objects'''
-    manga.ch_info = []
-    for ch in manga.wanted:
+    Manga.ch_info = []
+    for ch in Manga.wanted:
         print(f"Checking: Chapter {ch}")
-        status = manga.get_info(ch)
+        status = Manga.get_info(ch)
         if status is not True:
             print(f"\nSomething went wrong! \n{status}")
 
@@ -272,23 +272,23 @@ def download(manga_objects):
 
     # Counts downloaded pages and times the download
     down_count = 0
-    for manga in manga_objects:
+    for Manga in manga_objects:
 
         # Creates the manga folder
-        if not manga.manga_dir.is_dir():
-            manga.manga_dir.mkdir()
+        if not Manga.manga_dir.is_dir():
+            Manga.manga_dir.mkdir()
 
         # Goes ever every chapter
-        for ch in manga.ch_info:
-            print(f"\nDownloading {manga.series_title} - {ch['name']}"
+        for ch in Manga.ch_info:
+            print(f"\nDownloading {Manga.series_title} - {ch['name']}"
                   "\n------------------------")
 
             # Creates the chapter folder
-            ch_dir = manga.manga_dir / ch["name"]
+            ch_dir = Manga.manga_dir / ch["name"]
             ch_dir.mkdir()
 
             # Goes over every page and saves it with a small delay
-            page_info = page_gen(manga, ch)
+            page_info = page_gen(Manga, ch)
             for image_name, link in page_info:
 
                 # Timing stuff
@@ -300,15 +300,15 @@ def download(manga_objects):
                 # If site uses cloud flare protection us the scraper
                 # Otherwise uses requests
                 try:
-                    if manga.cloud_flare:
-                        content = manga.scraper.get(link, stream=True,
+                    if Manga.cloud_flare:
+                        content = Manga.scraper.get(link, stream=True,
                                                     timeout=5)
                     else:
                         content = requests.get(link, stream=True,
                                                timeout=5)
                 except requests.Timeout:
                     print(f"Failed to get image, skipping to next chapter")
-                    download.failed.append(f"{manga.series_title} - {ch['name']}")
+                    download.failed.append(f"{Manga.series_title} - {ch['name']}")
                     break
 
                 download.last_get_time = time.time()
@@ -336,10 +336,10 @@ def download_info_print():
         [print(f) for f in download.failed]
 
 
-def page_gen(manga, ch):
+def page_gen(Manga, ch):
     '''A generator that yields a tuple with the page name and link'''
     for n, link in enumerate(ch["pages"]):
-        base_name = f"{manga.series_title} - {ch['name']} -"
+        base_name = f"{Manga.series_title} - {ch['name']} -"
         extension = f"Page {n}{Path(link).suffix}"
 
         if ch["title"]:
