@@ -1,5 +1,5 @@
 import cfscrape
-import sys
+import requests.exceptions
 import html
 
 
@@ -13,7 +13,6 @@ class Mangadex():
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)
-        self.get_chapters()
 
     def get_id(self, link):
         if "/" in link:
@@ -26,11 +25,13 @@ class Mangadex():
         '''Gets the manga data using the mangadex API'''
 
         # Gets the json
-        r = self.scraper.get(self.mn_api_url.format(self.id))
         try:
-            r.raise_for_status()
-        except Exception as e:
-            sys.exit(e)
+            r = self.scraper.get(self.mn_api_url.format(self.id),
+                                 timeout=5)
+        except requests.Timeout:
+            return "Request Timeout"
+        if r.status_code != 200:
+            return r.status_code
         data = r.json()
         self.series_title = html.unescape(data["manga"]["title"])
 
@@ -41,7 +42,7 @@ class Mangadex():
         try:
             data["chapter"]
         except KeyError:
-            sys.exit("Error!\tNo chapters found.")
+            return "No chapters found!"
 
         self.chapters = {}
 
@@ -69,6 +70,7 @@ class Mangadex():
             self.chapters.setdefault(num, {})
             self.chapters[num][ch["group_name"]] = ch
             self.chapters[num][ch["group_name"]]["ch_id"] = chapter
+        return True
 
     def check_groups(self):
         for ch in self.wanted:
@@ -100,8 +102,15 @@ class Mangadex():
         # The list used by the download function
 
         ch_id = self.chapters[ch]["ch_id"]
-        r = self.scraper.get(self.ch_api_url.format(ch_id)).json()
+        try:
+            r = self.scraper.get(self.ch_api_url.format(ch_id),
+                                 timeout=5)
+        except requests.Timeout:
+            return "Request Timeout"
+        if r.status_code != 200:
+            return r.status_code
 
+        r = r.json()
         # Skips chapter if the release is delayed
         if r["status"] == "delayed":
             print("\tChapter is a delayed release, ignoring it")
@@ -121,3 +130,4 @@ class Mangadex():
         self.ch_info.append({"pages": pages,
                              "name": f"Chapter {ch}",
                              "title": r["title"]})
+        return True

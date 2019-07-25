@@ -1,4 +1,3 @@
-import sys
 import requests
 from bs4 import BeautifulSoup
 
@@ -10,17 +9,17 @@ class Mangasee():
         self.folder = directory
         self.manga_link = link
         self.base_link = "https://mangaseeonline.us"
-        self.get_chapters()
 
     def get_chapters(self):
         '''Gets the list of available chapters'''
 
         # Gets the main page
-        r = requests.get(self.manga_link)
         try:
-            r.raise_for_status()
-        except Exception as e:
-            sys.exit(e)
+            r = requests.get(self.manga_link, timeout=5)
+        except requests.Timeout:
+            return "Request Timeout"
+        if r.status_code != 200:
+            return r.status_code
 
         # Creates the soup
         soup = BeautifulSoup(r.text, "html.parser")
@@ -45,14 +44,19 @@ class Mangasee():
             self.chapters[num] = {"name": f"Chapter {num}",
                                   "link": link,
                                   "title": None}
+        return True
 
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
 
         # Gets the chapter page and makes the soup
         pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
-        r = requests.get(pages_link)
-        r.raise_for_status()
+        try:
+            r = requests.get(pages_link, timeout=5)
+        except requests.Timeout:
+            return "Request Timeout"
+        if r.status_code != 200:
+            return r.status_code
         soup = BeautifulSoup(r.text, "html.parser")
 
         # Finds the page links in the page and adds them to a list
@@ -63,3 +67,4 @@ class Mangasee():
         self.ch_info.append({"name": self.chapters[ch]["name"],
                              "title": self.chapters[ch]["title"],
                              "pages": pages})
+        return True
