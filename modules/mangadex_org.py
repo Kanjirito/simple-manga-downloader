@@ -6,10 +6,9 @@ import html
 class Mangadex():
     def __init__(self, link, directory):
         # Initializes the data
-        self.cloud_flare = True
+        self.scraper = cfscrape.create_scraper()
         self.site = "mangadex.org"
         self.folder = directory
-        self.scraper = cfscrape.create_scraper()
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)

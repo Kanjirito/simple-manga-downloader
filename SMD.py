@@ -49,13 +49,14 @@ def parser():
     parser = argparse.ArgumentParser()
 
     # Sub-parsers for the config and download functionality
-    subparsers = parser.add_subparsers(dest="subparser_name", required=True)
+    subparsers = parser.add_subparsers(dest="subparser_name",
+                                       required=True)
     parser_conf = subparsers.add_parser("conf",
                                         help="Program will be in the config edit mode")
     parser_down = subparsers.add_parser("down",
                                         help="Program will be in the download mode")
     subparsers.add_parser("update",
-                          help="Program will download new chapters based on the config")
+                          help="Program will be in the update mode")
 
     # Parser for download mode
     parser_down.add_argument("input", nargs="*")
@@ -63,31 +64,40 @@ def parser():
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
                        help="Accepts two chapter numbers,"
-                       "both ends are inclusive. \"1 15\"", nargs=2)
+                       "both ends are inclusive. \"1 15\"",
+                       nargs=2)
     group.add_argument("-s", "--selection",
-                       help="Accepts multiple chapters \"2 10 25\"", nargs="+")
-    group.add_argument("-l", "--latest", action='store_true')
+                       help="Accepts multiple chapters \"2 10 25\"",
+                       nargs="+")
+    group.add_argument("-l", "--latest",
+                       action='store_true')
 
     # Parser for config mode
     parser_conf.add_argument("-a", "--add-tracked",
                              help="Adds manga to the tracked",
-                             dest="add", nargs="*")
+                             dest="add",
+                             nargs="*")
     parser_conf.add_argument("-r", "--remove-tracked",
                              help="Removes manga from tracked",
-                             dest="remove", nargs="*")
+                             dest="remove",
+                             nargs="*")
     parser_conf.add_argument("-c", "--clear-tracked",
                              help="Clears the tracked list",
                              action="store_true")
     parser_conf.add_argument("-s", "--save-directory",
-                             help="Changes the manga directory", dest="m_dir")
-    parser_conf.add_argument("-d", "--default", help="Resets the config to defaults",
+                             help="Changes the manga directory",
+                             dest="m_dir")
+    parser_conf.add_argument("-d", "--default",
+                             help="Resets the config to defaults",
                              action="store_true")
     parser_conf.add_argument("-l", "--list-tracked",
                              help="Lists all of the tracked shows",
-                             action="store_true", dest="list")
+                             action="store_true",
+                             dest="list")
     parser_conf.add_argument("-m", "--modify-position",
                              help="Changes the position of tracked manga",
-                             action="store_true", dest="position")
+                             action="store_true",
+                             dest="position")
 
     args = parser.parse_args()
     return args
@@ -107,7 +117,7 @@ def down_mode():
               f"Getting: {Manga.series_title}"
               "\n------------------------")
         chapter_info_get(Manga)
-        download([Manga])
+        downloader([Manga])
     download_info_print()
 
 
@@ -178,7 +188,7 @@ def update_mode():
     confirm = input(f"Start the download? "
                     "[y to confirm/anything else to cancel]: ").lower()
     if confirm == "y":
-        download(manga_objects)
+        downloader(manga_objects)
         download_info_print()
         print("Updated titles:")
         for title in found_titles:
@@ -209,8 +219,7 @@ def filter_wanted(Manga, ignore=None):
             filtered = [ch for ch in chapter_list if a <= ch <= b]
         elif ARGS.selection is not None:
             filtered = []
-            index = ARGS.selection
-            for n in index:
+            for n in ARGS.selection:
                 n = float(n)
                 if n.is_integer():
                     n = int(n)
@@ -254,27 +263,11 @@ def chapter_info_get(Manga):
             print(f"\nSomething went wrong! \n{status}")
 
 
-def counter(func):
-    def wrapper(manga_objects):
-        t1 = time.time()
-        wrapper.count += func(manga_objects)
-        wrapper.time += time.time() - t1
-    wrapper.count = 0
-    wrapper.time = 0
-    wrapper.last_get_time = 0
-    wrapper.failed = []
-    return wrapper
-
-
-@counter
-def download(manga_objects):
+def downloader(manga_objects):
     '''Downloads the images in the proper directories'''
 
-    # Counts downloaded pages and times the download
-    down_count = 0
     for Manga in manga_objects:
 
-        # Creates the manga folder
         if not Manga.manga_dir.is_dir():
             Manga.manga_dir.mkdir()
 
@@ -283,41 +276,55 @@ def download(manga_objects):
             print(f"\nDownloading {Manga.series_title} - {ch['name']}"
                   "\n------------------------")
 
-            # Creates the chapter folder
             ch_dir = Manga.manga_dir / ch["name"]
             ch_dir.mkdir()
 
-            # Goes over every page and saves it with a small delay
+            # Goes over every page using a generator
             page_info = page_gen(Manga, ch)
             for image_name, link in page_info:
 
-                # Timing stuff
-                current_time = time.time()
-                difference = current_time - download.last_get_time
-                if difference < 0.5:
-                    time.sleep(0.5 - difference)
+                content = download(link, Manga.scraper)
 
-                # If site uses cloud flare protection us the scraper
-                # Otherwise uses requests
-                try:
-                    if Manga.cloud_flare:
-                        content = Manga.scraper.get(link, stream=True,
-                                                    timeout=5)
-                    else:
-                        content = requests.get(link, stream=True,
-                                               timeout=5)
-                except requests.Timeout:
-                    print(f"Failed to get image, skipping to next chapter")
-                    download.failed.append(f"{Manga.series_title} - {ch['name']}")
+                if not content:
+                    print("Failed to get image, skipping to next chapter")
+                    failed_text = f"{Manga.series_title} - {ch['name']}"
+                    download.failed.append(failed_text)
                     break
-
-                download.last_get_time = time.time()
 
                 with open(ch_dir / image_name, "wb") as f:
                     for chunk in content.iter_content(1024):
                         f.write(chunk)
-                down_count += 1
-    return down_count
+
+
+def counter_timer(func):
+    def wrapper(link, scraper):
+        before = time.time()
+        difference = before - wrapper.last_get_time
+        if difference < 0.5:
+            time.sleep(0.5 - difference)
+        content = func(link, scraper)
+        after = time.time()
+        wrapper.last_get_time = after
+        wrapper.count += 1
+        wrapper.time += after - before
+        return content
+    wrapper.count = 0
+    wrapper.time = 0
+    wrapper.last_get_time = 0
+    wrapper.failed = []
+    return wrapper
+
+
+@counter_timer
+def download(link, scraper):
+    try:
+        if scraper:
+            content = scraper.get(link, stream=True, timeout=5)
+        else:
+            content = requests.get(link, stream=True, timeout=5)
+    except requests.Timeout:
+        return False
+    return content
 
 
 def download_info_print():
