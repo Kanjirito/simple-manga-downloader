@@ -110,7 +110,7 @@ def down_mode():
         if not Manga:
             continue
         filter_wanted(Manga)
-        if Manga.wanted:
+        if Manga.chapters:
             manga_objects.append(Manga)
     for Manga in manga_objects:
         print("\n------------------------\n"
@@ -156,7 +156,7 @@ def update_mode():
         if not Manga:
             continue
         filter_wanted(Manga, ignore=True)
-        if Manga.wanted:
+        if Manga.chapters:
             manga_objects.append(Manga)
 
     # Goes over every manga and gets the chapter information
@@ -205,6 +205,9 @@ def filter_wanted(Manga, ignore=None):
         ignore = False
 
     chapter_list = list(Manga.chapters)
+    chapter_list.sort()
+    Manga.chapters = {k: Manga.chapters[k] for k in chapter_list}
+
     # Gets the chapter selection
     if ignore:
         filtered = chapter_list
@@ -227,7 +230,6 @@ def filter_wanted(Manga, ignore=None):
                     filtered.append(n)
         else:
             filtered = chapter_list
-    filtered.sort()
 
     # Checks if the chapters that fit the selection are already downloaded
     if not Manga.manga_dir.is_dir():
@@ -235,20 +237,22 @@ def filter_wanted(Manga, ignore=None):
     else:
         downloaded_chapters = os.listdir(Manga.manga_dir)
 
-    Manga.wanted = []
+    wanted = []
     if downloaded_chapters is None:
-        Manga.wanted = filtered
+        wanted = filtered
     else:
-        Manga.wanted = []
+        wanted = []
         for n in filtered:
             chapter_name = f"Chapter {n}"
             if chapter_name not in downloaded_chapters:
-                Manga.wanted.append(n)
+                wanted.append(n)
 
     print("\n------------------------\n"
-          f"Found {len(Manga.wanted)} wanted chapter(s) for {Manga.series_title}"
+          f"Found {len(wanted)} wanted chapter(s) for {Manga.series_title}"
           "\n------------------------")
-
+    for ch in list(Manga.chapters):
+        if ch not in wanted:
+            del Manga.chapters[ch]
     if Manga.site == "mangadex.org":
         Manga.check_groups()
 
@@ -256,7 +260,7 @@ def filter_wanted(Manga, ignore=None):
 def chapter_info_get(Manga):
     '''Calls the get_info() of the manga objects'''
     Manga.ch_info = []
-    for ch in Manga.wanted:
+    for ch in Manga.chapters:
         print(f"Checking: Chapter {ch}")
         status = Manga.get_info(ch)
         if status is not True:

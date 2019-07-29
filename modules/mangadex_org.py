@@ -72,8 +72,18 @@ class Mangadex():
         return True
 
     def check_groups(self):
-        for ch in self.wanted:
-            if len(self.chapters[ch]) == 1:
+        for ch in list(self.chapters):
+            len_cond = len(self.chapters[ch]) == 1
+
+            if "MangaPlus" in self.chapters[ch]:
+                if len_cond == 1:
+                    del self.chapters[ch]
+                    print(f"Chapter {ch} only Manga Plus")
+                    continue
+                else:
+                    del self.chapters["MangaPlus"]
+
+            if len_cond:
                 self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
                 continue
 
