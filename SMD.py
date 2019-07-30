@@ -198,63 +198,67 @@ def update_mode():
         print("Download cancelled")
 
 
-def filter_wanted(Manga, ignore=None):
+def filter_wanted(Manga, ignore=False):
     '''Creates a list of chapters that fit the wanted criteria
     ignore=True skips argument checking, used for update mode'''
-    if ignore is None:
-        ignore = False
 
     chapter_list = list(Manga.chapters)
     chapter_list.sort()
     Manga.chapters = {k: Manga.chapters[k] for k in chapter_list}
 
-    # Gets the chapter selection
     if ignore:
-        filtered = chapter_list
+        wanted = (ch for ch in chapter_list)
     else:
-        # If "oneshot" selection is ignored
-        if len(Manga.chapters) == 1 and not chapter_list[0]:
-            filtered = chapter_list
-        elif ARGS.latest:
-            filtered = [max(chapter_list)]
-        elif ARGS.range is not None:
-            a, b = [float(n) for n in ARGS.range]
-            filtered = [ch for ch in chapter_list if a <= ch <= b]
-        elif ARGS.selection is not None:
-            filtered = []
-            for n in ARGS.selection:
-                n = float(n)
-                if n.is_integer():
-                    n = int(n)
-                if n in chapter_list:
-                    filtered.append(n)
-        else:
-            filtered = chapter_list
+        wanted = filter_selection(Manga, chapter_list)
 
-    # Checks if the chapters that fit the selection are already downloaded
-    if not Manga.manga_dir.is_dir():
-        downloaded_chapters = None
-    else:
-        downloaded_chapters = os.listdir(Manga.manga_dir)
-
-    wanted = []
-    if downloaded_chapters is None:
-        wanted = filtered
-    else:
-        wanted = []
-        for n in filtered:
-            chapter_name = f"Chapter {n}"
-            if chapter_name not in downloaded_chapters:
-                wanted.append(n)
+    filtered = filter_downloaded(Manga, wanted)
 
     print("\n------------------------\n"
-          f"Found {len(wanted)} wanted chapter(s) for {Manga.series_title}"
+          f"Found {len(filtered)} wanted chapter(s) for {Manga.series_title}"
           "\n------------------------")
     for ch in list(Manga.chapters):
-        if ch not in wanted:
+        if ch not in filtered:
             del Manga.chapters[ch]
     if Manga.site == "mangadex.org":
         Manga.check_groups()
+
+
+def filter_selection(Manga, chapter_list):
+    '''A generator that yields wanted chapters based on selection'''
+    if len(Manga.chapters) == 1 and not chapter_list[0]:
+        for ch in chapter_list:
+            yield ch
+    elif ARGS.latest:
+        yield max(chapter_list)
+    elif ARGS.range is not None:
+        a = float(ARGS.range[0])
+        b = float(ARGS.range[1])
+        for ch in chapter_list:
+            if a <= ch <= b:
+                yield ch
+    elif ARGS.selection is not None:
+        for n in ARGS.selection:
+            n = float(n)
+            if n.is_integer():
+                n = int(n)
+            if n in chapter_list:
+                yield n
+    else:
+        for ch in chapter_list:
+            yield ch
+
+
+def filter_downloaded(Manga, wanted):
+    '''Filters the "filtered" based on what is already downloaded'''
+    if not Manga.manga_dir.is_dir():
+        filtered = list(wanted)
+    else:
+        filtered = []
+        for n in wanted:
+            chapter_name = f"Chapter {n}"
+            if chapter_name not in os.listdir(Manga.manga_dir):
+                filtered.append(n)
+    return filtered
 
 
 def chapter_info_get(Manga):
