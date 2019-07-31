@@ -34,7 +34,9 @@ class Config():
         for s in new:
             s = s.split("/chapters")[0].rstrip("/")
             # Simple input check
-            if "mangadex.org" not in s and "mangaseeonline.us" not in s:
+            cond1 = "mangadex.org" not in s
+            cond2 = "mangaseeonline.us" not in s
+            if cond1 and cond2:
                 print(f"Not a proper link:  {s}")
                 continue
             if s not in self.tracked_manga:

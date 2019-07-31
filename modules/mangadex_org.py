@@ -6,10 +6,9 @@ import html
 class Mangadex():
     def __init__(self, link, directory):
         # Initializes the data
-        self.cloud_flare = True
+        self.scraper = cfscrape.create_scraper()
         self.site = "mangadex.org"
         self.folder = directory
-        self.scraper = cfscrape.create_scraper()
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)
@@ -73,8 +72,18 @@ class Mangadex():
         return True
 
     def check_groups(self):
-        for ch in self.wanted:
-            if len(self.chapters[ch]) == 1:
+        for ch in list(self.chapters):
+            len_cond = len(self.chapters[ch]) == 1
+
+            if "MangaPlus" in self.chapters[ch]:
+                if len_cond == 1:
+                    del self.chapters[ch]
+                    print(f"Chapter {ch} only Manga Plus")
+                    continue
+                else:
+                    del self.chapters["MangaPlus"]
+
+            if len_cond:
                 self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
                 continue
 
