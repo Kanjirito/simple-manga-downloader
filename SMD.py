@@ -27,7 +27,7 @@ def main():
         update_mode()
 
 
-def site_detect(link):
+def site_detect(link, title_return=False):
     '''Detects the site and creates a proper manga object'''
     if "mangadex.org" in link:
         Manga = Mangadex(link, CONFIG.manga_directory)
@@ -37,7 +37,7 @@ def site_detect(link):
         print(f"Wrong link: \"{link}\"")
         return False
 
-    status = Manga.get_chapters()
+    status = Manga.get_chapters(title_return)
     if status is not True:
         print(f"\nSomething went wrong! \n{status}")
         return False
@@ -128,7 +128,11 @@ def conf_mode():
         CONFIG.clear_tracked()
 
     if ARGS.add is not None:
-        CONFIG.add_tracked(ARGS.add)
+        for link in ARGS.add:
+            Manga = site_detect(link, title_return=True)
+            if Manga is False:
+                continue
+            CONFIG.add_tracked(Manga)
     if ARGS.remove is not None:
         CONFIG.remove_tracked(ARGS.remove)
     if ARGS.list:
@@ -151,7 +155,7 @@ def update_mode():
     manga_objects = []
 
     # Gets the main information about the manga
-    for link in CONFIG.tracked_manga:
+    for link in CONFIG.tracked_manga.values():
         Manga = site_detect(link)
         if not Manga:
             continue

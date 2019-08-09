@@ -10,8 +10,10 @@ class Mangasee():
         self.manga_link = link
         self.base_link = "https://mangaseeonline.us"
 
-    def get_chapters(self):
-        '''Gets the list of available chapters'''
+    def get_chapters(self, title_return):
+        '''Gets the list of available chapters
+        title_return=True will not create the chapters dict,
+        used if only title is needed'''
 
         # Gets the main page
         try:
@@ -26,6 +28,8 @@ class Mangasee():
 
         # Sets the series title and creates the manga_dir Path object
         self.series_title = soup.find(class_="SeriesName").string
+        if title_return:
+            return True
         self.manga_dir = self.folder / self.series_title
 
         # Finds all of the chapters and creates the dict
