@@ -121,14 +121,16 @@ class Config():
         self.modified = True
         print(f"Entry \"{get}\" moved to {move_index + 1}")
 
-    def list_tracked(self):
+    def list_tracked(self, verbose):
         '''Lists the tracked manga'''
         if not self.tracked_manga:
             print("No shows tracked!")
             return
         print("\nCurrently tracked manga:")
-        for n, link in enumerate(self.tracked_manga, 1):
-            print(f"{n}. {link}")
+        for n, manga in enumerate(self.tracked_manga.items(), 1):
+            print(f"{n}. {manga[0]}")
+            if verbose:
+                print(manga[1])
         print()
 
     def save_config(self):

@@ -7,6 +7,7 @@ Allows you to download manga in 4 ways:
 - all chapters of a series
 - a range of chapters (from 5 to 15)
 - a selection of chapters (5, 7, 10, 20)
+- only the newest chapter
 - check for new chapters for the tracked manga
 
 Additional features of the downloader:
@@ -77,9 +78,15 @@ SMD.py conf -r 5 1 3
 SMD.py conf --remove-tracked 5 1 3
 ```
 
-Removal by index and link can be used together (works if index and link point to the same manga):
+Removing a manga from the tracked list by title:
 ```
-SMD.py conf -r link_to_manga 5 link_to_manga 2
+SMD.py conf -r title "title with spaces"
+SMD.py conf --remove-tracked title "title with spaces"
+```
+
+Removal by index, title and link can be used together (works if multiple point to the same manga):
+```
+SMD.py conf -r link_to_manga 5 "sample title" link_to_manga 2
 ```
 
 Clearing the tracked list:
@@ -100,10 +107,10 @@ SMD.py conf -d
 SMD.py conf --default
 ```
 
-Listing all of the tracked manga:
+Listing all of the tracked manga(add -v/--verbose flag to also print the links):
 ```
-SMD.py conf -l
-SMD.py conf --list-tracked
+SMD.py conf -l (-v)
+SMD.py conf --list-tracked (--verbose)
 ```
 
 Change the position of a manga:

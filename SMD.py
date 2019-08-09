@@ -98,6 +98,10 @@ def parser():
                              help="Changes the position of tracked manga",
                              action="store_true",
                              dest="position")
+    parser_conf.add_argument("-v", "--verbose",
+                             help="Used with -l to print links",
+                             action="store_true",
+                             dest="verbose")
 
     args = parser.parse_args()
     return args
@@ -136,7 +140,7 @@ def conf_mode():
     if ARGS.remove is not None:
         CONFIG.remove_tracked(ARGS.remove)
     if ARGS.list:
-        CONFIG.list_tracked()
+        CONFIG.list_tracked(ARGS.verbose)
     if ARGS.m_dir is not None:
         CONFIG.change_dir(ARGS.m_dir)
     if ARGS.position:
