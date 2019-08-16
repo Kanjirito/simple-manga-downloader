@@ -16,7 +16,7 @@ class Config():
         else:
             self.modified = True
             config = {"manga_directory": self.config_path.parent / "Manga",
-                      "tracking": []}
+                      "tracking": {}}
 
         # Gets the useful data for easy access
         self.manga_directory = Path(config["manga_directory"])
@@ -28,46 +28,40 @@ class Config():
         except FileExistsError:
             pass
 
-    def add_tracked(self, new):
-        '''Adds manga to the tracked list
-        Accepts only a list as a argument'''
-        for s in new:
-            s = s.split("/chapters")[0].rstrip("/")
-            # Simple input check
-            cond1 = "mangadex.org" not in s
-            cond2 = "mangaseeonline.us" not in s
-            if cond1 and cond2:
-                print(f"Not a proper link:  {s}")
-                continue
-            if s not in self.tracked_manga:
-                # Removes the unwanted "/chapters" from mangadex links
-                self.tracked_manga.append(s)
-                self.modified = True
-                print(f"Added to tracked:  {s}")
-            else:
-                print(f"Already tracked:  {s}")
+    def add_tracked(self, Manga):
+        '''Adds manga to the tracked list'''
+        if Manga.series_title not in self.tracked_manga:
+            self.tracked_manga[Manga.series_title] = Manga.manga_link
+            self.modified = True
+            print(f"Added to tracked:  {Manga.series_title}")
+        else:
+            print(f"Already tracked:  {Manga.series_title}")
 
     def remove_tracked(self, delete):
         '''Removes manga from the tracked list
         Accepts only a list as an argument'''
         to_remove = set()
         for n in delete:
-            try:
-                n = int(n)
-            except ValueError:
-                n = n.split("/chapters")[0].rstrip("/")
-                if n in self.tracked_manga:
-                    to_remove.add(n)
+            if n in self.tracked_manga:
+                to_remove.add(n)
+            elif "/" in n:
+                for key, value in self.tracked_manga.items():
+                    if value == n:
+                        to_remove.add(key)
+                        break
                 else:
-                    print(f"Not a proper link: {n}")
+                    print("Link not found")
             else:
                 try:
-                    to_remove.add(self.tracked_manga[n - 1])
-                except IndexError:
-                    print(f"Index number out of range: {n}")
+                    index = int(n)
+                    if index > len(self.tracked_manga):
+                        print("Number out of index")
+                    to_remove.add(list(self.tracked_manga)[index - 1])
+                except ValueError:
+                    print("Not a index, link or title")
 
         for r in to_remove:
-            self.tracked_manga.remove(r)
+            del self.tracked_manga[r]
             print(f"Removed from tracked: {r}")
         if to_remove:
             self.modified = True
@@ -82,7 +76,7 @@ class Config():
         confirm = input("Are you sure you want to clear tracked manga? "
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
-            self.tracked_manga = []
+            self.tracked_manga = {}
             self.modified = True
             print("Tracked cleared")
 
@@ -92,7 +86,7 @@ class Config():
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
             self.manga_directory = self.config_path.parent / "Manga"
-            self.tracked_manga = []
+            self.tracked_manga = {}
             self.modified = True
             print("Config was reset")
 
@@ -119,20 +113,24 @@ class Config():
             print("Number out of index range, aborting")
             return
 
-        get = self.tracked_manga.pop(select)
-        self.tracked_manga.insert(move_index, get)
+        keys = list(self.tracked_manga)
+        get = keys.pop(select)
+        keys.insert(move_index, get)
+        self.tracked_manga = dict([(k, self.tracked_manga[k]) for k in keys])
 
         self.modified = True
         print(f"Entry \"{get}\" moved to {move_index + 1}")
 
-    def list_tracked(self):
+    def list_tracked(self, verbose):
         '''Lists the tracked manga'''
         if not self.tracked_manga:
             print("No shows tracked!")
             return
         print("\nCurrently tracked manga:")
-        for n, link in enumerate(self.tracked_manga, 1):
-            print(f"{n}. {link}")
+        for n, manga in enumerate(self.tracked_manga.items(), 1):
+            print(f"{n}. {manga[0]}")
+            if verbose:
+                print(manga[1])
         print()
 
     def save_config(self):

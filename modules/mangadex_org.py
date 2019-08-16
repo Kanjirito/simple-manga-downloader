@@ -9,6 +9,7 @@ class Mangadex():
         self.scraper = cfscrape.create_scraper()
         self.site = "mangadex.org"
         self.folder = directory
+        self.manga_link = link.split("/chapters")[0].rstrip("/")
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)
@@ -20,8 +21,10 @@ class Mangadex():
             ID = link
         return ID
 
-    def get_chapters(self):
-        '''Gets the manga data using the mangadex API'''
+    def get_chapters(self, title_return):
+        '''Gets the manga data using the mangadex API
+        title_return=True will not create the chapters dict,
+        used if only title is needed'''
 
         # Gets the json
         try:
@@ -33,6 +36,8 @@ class Mangadex():
             return r.status_code
         data = r.json()
         self.series_title = html.unescape(data["manga"]["title"])
+        if title_return:
+            return True
 
         # Series directory
         self.manga_dir = self.folder / self.series_title
@@ -116,27 +121,27 @@ class Mangadex():
                                  timeout=5)
         except requests.Timeout:
             return "Request Timeout"
-        if r.status_code != 200:
+        if r.status_code != 200 and r.status_code != 409:
             return r.status_code
 
-        r = r.json()
+        data = r.json()
         # Skips chapter if the release is delayed
-        if r["status"] == "delayed":
+        if data["status"] == "delayed":
             print("\tChapter is a delayed release, ignoring it")
-            return
+            return True
 
         # Fixes the incomplete link
-        if r["server"] == "/data/":
+        if data["server"] == "/data/":
             server = "https://mangadex.org/data/"
         else:
-            server = r["server"]
+            server = data["server"]
 
         # Creates the list of page urls
-        url = f"{server}{r['hash']}/"
-        pages = [f"{url}{page}" for page in r['page_array']]
+        url = f"{server}{data['hash']}/"
+        pages = [f"{url}{page}" for page in data['page_array']]
 
         # Creates chapter info dict
         self.ch_info.append({"pages": pages,
                              "name": f"Chapter {ch}",
-                             "title": r["title"]})
+                             "title": data["title"]})
         return True
