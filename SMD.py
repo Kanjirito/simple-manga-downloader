@@ -1,7 +1,7 @@
 #!/bin/env python3
 from modules.mangadex_org import Mangadex
 from modules.mangaseeonline_us import Mangasee
-from config_parser import Config
+from modules.config_parser import Config
 from pathlib import Path
 import argparse
 import requests
@@ -144,7 +144,7 @@ def conf_mode():
     if ARGS.m_dir is not None:
         CONFIG.change_dir(ARGS.m_dir)
     if ARGS.position:
-        CONFIG.change_position()
+        CONFIG.change_position(ARGS.verbose)
 
     # Saves if config was modified
     if CONFIG.modified:

@@ -90,11 +90,11 @@ class Config():
             self.modified = True
             print("Config was reset")
 
-    def change_position(self):
+    def change_position(self, verbose):
         if len(self.tracked_manga) < 2:
             print("Less than 2 manga tracked")
             return
-        self.list_tracked()
+        self.list_tracked(verbose)
 
         try:
             select = int(input("Which manga do you want to move?: ")) - 1
