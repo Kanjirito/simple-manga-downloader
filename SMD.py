@@ -99,7 +99,7 @@ def parser():
                              action="store_true",
                              dest="position")
     parser_conf.add_argument("-v", "--verbose",
-                             help="Used with -l to print links",
+                             help="Used with -l or -m to print links",
                              action="store_true",
                              dest="verbose")
 

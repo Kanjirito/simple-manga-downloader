@@ -81,7 +81,7 @@ class Mangadex():
             len_cond = len(self.chapters[ch]) == 1
 
             if "MangaPlus" in self.chapters[ch]:
-                if len_cond == 1:
+                if len_cond:
                     del self.chapters[ch]
                     print(f"Chapter {ch} only Manga Plus")
                     continue
