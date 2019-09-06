@@ -1,7 +1,7 @@
-#!/bin/env python3
-from modules.mangadex_org import Mangadex
-from modules.mangaseeonline_us import Mangasee
-from modules.config_parser import Config
+#!/usr/bin/env python3.7
+from simple_manga_downloader.modules.mangadex_org import Mangadex
+from simple_manga_downloader.modules.mangaseeonline_us import Mangasee
+from simple_manga_downloader.modules.config_parser import Config
 from pathlib import Path
 import argparse
 import requests
@@ -17,7 +17,7 @@ def main():
     global ARGS
     global CONFIG
     ARGS = parser()
-    CONFIG = Config()
+    CONFIG = Config(ARGS.custom_cfg)
     mode = ARGS.subparser_name
     if mode == "down":
         down_mode()
@@ -27,12 +27,15 @@ def main():
         update_mode()
 
 
-def site_detect(link, title_return=False):
+def site_detect(link, title_return=False, directory=None):
     '''Detects the site and creates a proper manga object'''
+    if directory is None:
+        directory = CONFIG.manga_directory
+
     if "mangadex.org" in link:
-        Manga = Mangadex(link, CONFIG.manga_directory)
+        Manga = Mangadex(link, directory)
     elif "mangaseeonline.us" in link:
-        Manga = Mangasee(link, CONFIG.manga_directory)
+        Manga = Mangasee(link, directory)
     else:
         print(f"Wrong link: \"{link}\"")
         return False
@@ -48,6 +51,10 @@ def parser():
     '''Parses the arguments'''
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("-c", "--custom",
+                        dest="custom_cfg",
+                        default=None)
+
     # Sub-parsers for the config and download functionality
     subparsers = parser.add_subparsers(dest="subparser_name",
                                        required=True)
@@ -60,7 +67,10 @@ def parser():
 
     # Parser for download mode
     parser_down.add_argument("input", nargs="*")
-    # parser.add_argument("-d", "--directory")
+    parser_down.add_argument("-d", "--directory",
+                             dest="custom_dire",
+                             default=None,
+                             help="Custom path for manga download")
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
                        help="Accepts two chapter numbers,"
@@ -76,11 +86,11 @@ def parser():
     parser_conf.add_argument("-a", "--add-tracked",
                              help="Adds manga to the tracked",
                              dest="add",
-                             nargs="*")
+                             nargs="+")
     parser_conf.add_argument("-r", "--remove-tracked",
                              help="Removes manga from tracked",
                              dest="remove",
-                             nargs="*")
+                             nargs="+")
     parser_conf.add_argument("-c", "--clear-tracked",
                              help="Clears the tracked list",
                              action="store_true")
@@ -102,15 +112,24 @@ def parser():
                              help="Used with -l or -m to print links",
                              action="store_true",
                              dest="verbose")
+    parser_conf.add_argument("-p", "--paths",
+                             help="Print config and manga path",
+                             action="store_true",
+                             dest="paths")
 
     args = parser.parse_args()
     return args
 
 
 def down_mode():
+    if ARGS.custom_dire:
+        directory = Path(ARGS.custom_dire)
+    else:
+        directory = CONFIG.manga_directory
+
     manga_objects = []
     for link in ARGS.input:
-        Manga = site_detect(link)
+        Manga = site_detect(link, directory=directory)
         if not Manga:
             continue
         filter_wanted(Manga)
@@ -131,20 +150,22 @@ def conf_mode():
     elif ARGS.clear_tracked:
         CONFIG.clear_tracked()
 
-    if ARGS.add is not None:
+    if ARGS.add:
         for link in ARGS.add:
             Manga = site_detect(link, title_return=True)
             if Manga is False:
                 continue
             CONFIG.add_tracked(Manga)
-    if ARGS.remove is not None:
+    elif ARGS.remove:
         CONFIG.remove_tracked(ARGS.remove)
     if ARGS.list:
         CONFIG.list_tracked(ARGS.verbose)
-    if ARGS.m_dir is not None:
+    if ARGS.m_dir:
         CONFIG.change_dir(ARGS.m_dir)
     if ARGS.position:
         CONFIG.change_position(ARGS.verbose)
+    if ARGS.paths:
+        CONFIG.print_paths()
 
     # Saves if config was modified
     if CONFIG.modified:
@@ -284,8 +305,10 @@ def downloader(manga_objects):
 
     for Manga in manga_objects:
 
-        if not Manga.manga_dir.is_dir():
-            Manga.manga_dir.mkdir()
+        try:
+            Manga.manga_dir.mkdir(parents=True)
+        except FileExistsError:
+            pass
 
         # Goes ever every chapter
         for ch in Manga.ch_info:
@@ -313,6 +336,8 @@ def downloader(manga_objects):
 
 
 def counter_timer(func):
+    '''Decorator for the download function that keeps track of stats and
+    times the download'''
     def wrapper(link, scraper):
         before = time.time()
         difference = before - wrapper.last_get_time
@@ -333,6 +358,7 @@ def counter_timer(func):
 
 @counter_timer
 def download(link, scraper):
+    '''Download function, gets the image from the link, limited by wrapper'''
     try:
         if scraper:
             content = scraper.get(link, stream=True, timeout=5)

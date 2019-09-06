@@ -1,32 +1,30 @@
 import json
 from pathlib import Path
-import __main__
 
 
 class Config():
-    def __init__(self):
+    def __init__(self, custom_conf):
         # Modified flag used for check if saving is needed
         self.modified = False
-        self.config_path = Path(__main__.__file__).parent.resolve() / "simple_manga_downloader_config.json"
+        self.exists = False
+        self.directory = Path.home() / "Simple-Manga-Downloader"
+        if custom_conf:
+            self.config_path = Path(custom_conf)
+        else:
+            self.config_path = self.directory / "simple_manga_downloader_config.json"
 
         # Loads the config or creates the base one if not present
         if self.config_path.is_file():
+            self.exists = True
             with open(self.config_path, "r") as f:
                 config = json.load(f)
         else:
-            self.modified = True
-            config = {"manga_directory": self.config_path.parent / "Manga",
+            config = {"manga_directory": self.directory / "Manga",
                       "tracking": {}}
 
         # Gets the useful data for easy access
         self.manga_directory = Path(config["manga_directory"])
         self.tracked_manga = config["tracking"]
-
-        # Creates manga download folder if not present
-        try:
-            self.manga_directory.mkdir(parents=True)
-        except FileExistsError:
-            pass
 
     def add_tracked(self, Manga):
         '''Adds manga to the tracked list'''
@@ -133,8 +131,22 @@ class Config():
                 print(manga[1])
         print()
 
+    def print_paths(self):
+        if not self.exists:
+            print("\nConfig file exists only in memory")
+        print("\nConfig path:")
+        print(self.config_path)
+        print("\nManga download path:")
+        print(self.manga_directory)
+        print()
+
     def save_config(self):
         config = {"manga_directory": str(self.manga_directory),
                   "tracking": self.tracked_manga}
+        try:
+            self.directory.mkdir(parents=True)
+        except FileExistsError:
+            pass
+
         with open(self.config_path, "w") as f:
             json.dump(config, f, indent=4)
