@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.7
 from simple_manga_downloader.modules.mangadex_org import Mangadex
 from simple_manga_downloader.modules.mangaseeonline_us import Mangasee
+from simple_manga_downloader.modules.mangatown_com import Mangatown
+from simple_manga_downloader.modules.heavenmanga_org import Heavenmanga
 from simple_manga_downloader.modules.config_parser import Config
 from pathlib import Path
 import argparse
@@ -8,6 +10,7 @@ import requests
 import time
 import html
 import os
+import imghdr
 
 ARGS = None
 CONFIG = None
@@ -36,6 +39,10 @@ def site_detect(link, title_return=False, directory=None):
         Manga = Mangadex(link, directory)
     elif "mangaseeonline.us" in link:
         Manga = Mangasee(link, directory)
+    elif "heavenmanga.org" in link:
+        Manga = Heavenmanga(link, directory)
+    elif "mangatown.com" in link:
+        Manga = Mangatown(link, directory)
     else:
         print(f"Wrong link: \"{link}\"")
         return False
@@ -209,11 +216,12 @@ def update_mode():
         print("Found 0 chapters ready to download.")
         return
 
-    print(f"Found {total_num_ch} chapter(s) ready to download:")
+    print(f"Chapters to download:")
     for title, chapter in found_titles.items():
         print(f"{title} - {len(chapter)} chapter(s):")
         for ch in chapter:
             print(f"    {ch['name']}")
+    print(f"{total_num_ch} chapter(s) ready to download")
     confirm = input(f"Start the download? "
                     "[y to confirm/anything else to cancel]: ").lower()
     if confirm == "y":
@@ -322,16 +330,17 @@ def downloader(manga_objects):
             page_info = page_gen(Manga, ch)
             for image_name, link in page_info:
 
-                content = download(link, Manga.scraper)
-
-                if not content:
+                image = download(link, Manga.scraper)
+                if not image:
                     print("Failed to get image, skipping to next chapter")
                     failed_text = f"{Manga.series_title} - {ch['name']}"
                     download.failed.append(failed_text)
                     break
 
-                with open(ch_dir / image_name, "wb") as f:
-                    for chunk in content.iter_content(1024):
+                file_type = imghdr.what("", h=image.content)
+                full_image_name = f"{image_name}.{file_type}"
+                with open(ch_dir / full_image_name, "wb") as f:
+                    for chunk in image.iter_content(1024):
                         f.write(chunk)
 
 
@@ -382,20 +391,21 @@ def download_info_print():
               "\n------------------------")
     if download.failed:
         print("\nFailed downloads:")
-        [print(f) for f in download.failed]
+        for f in download.failed:
+            print(f)
 
 
 def page_gen(Manga, ch):
     '''A generator that yields a tuple with the page name and link'''
     for n, link in enumerate(ch["pages"]):
         base_name = f"{Manga.series_title} - {ch['name']} -"
-        extension = f"Page {n}{Path(link).suffix}"
+        page_string = f"Page {n}"
 
         if ch["title"]:
             title = f"{html.unescape(ch['title'])} -"
-            image_name = " ".join([base_name, title, extension])
+            image_name = " ".join([base_name, title, page_string])
         else:
-            image_name = " ".join([base_name, extension])
+            image_name = " ".join([base_name, page_string])
 
         # Replaces a "/" in titles to something usable
         image_name = image_name.replace("/", "╱")
