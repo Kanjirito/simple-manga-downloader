@@ -11,7 +11,7 @@ required = [
 
 setuptools.setup(
     name="simple-manga-downloader",
-    version="1.0.1",
+    version="1.1.1",
     author="Kanjirito",
     author_email="kanjirito@protonmail.com",
     license="GPLv3",
@@ -26,10 +26,10 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Environment :: Console"
     ],
-    python_requires='>=3',
+    python_requires=">=3",
     entry_points={
-        'console_scripts': [
-            'SMD=simple_manga_downloader.SMD:main'
+        "console_scripts": [
+            "SMD=simple_manga_downloader.SMD:main"
         ]
     }
 )

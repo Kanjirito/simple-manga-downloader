@@ -9,6 +9,3 @@ simple-manga-downloader = {editable = true,path = "."}
 [packages]
 cfscrape = "*"
 beautifulsoup4 = "*"
-
-[requires]
-python_version = "3.7"

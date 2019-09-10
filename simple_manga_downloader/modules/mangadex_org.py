@@ -1,6 +1,7 @@
 import cfscrape
 import requests.exceptions
 import html
+import re
 
 
 class Mangadex():
@@ -15,18 +16,14 @@ class Mangadex():
         self.id = self.get_id(link)
 
     def get_id(self, link):
-        if "/" in link:
-            ID = link.split("/")[4]
-        else:
-            ID = link
-        return ID
+        reg = re.compile(r"title/(\d*)/")
+        return reg.search(link).group(1)
 
     def get_chapters(self, title_return):
         '''Gets the manga data using the mangadex API
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        # Gets the json
         try:
             r = self.scraper.get(self.mn_api_url.format(self.id),
                                  timeout=5)
@@ -39,7 +36,6 @@ class Mangadex():
         if title_return:
             return True
 
-        # Series directory
         self.manga_dir = self.folder / self.series_title
 
         # Checks if chapters exist
@@ -136,11 +132,9 @@ class Mangadex():
         else:
             server = data["server"]
 
-        # Creates the list of page urls
         url = f"{server}{data['hash']}/"
         pages = [f"{url}{page}" for page in data['page_array']]
 
-        # Creates chapter info dict
         self.ch_info.append({"pages": pages,
                              "name": f"Chapter {ch}",
                              "title": data["title"]})
