@@ -90,9 +90,9 @@ class Heavenmanga:
         try:
             test = requests.get(pages[0], stream=True, timeout=5)
         except requests.ConnectionError:
-            return f"Chapter is proably broken\n{link}\n"
+            return f"Chapter is probably broken\n{link}\n"
         if not test:
-            return f"Chapter is proably broken\n{link}\n"
+            return f"Chapter is probably broken\n{link}\n"
 
         self.chapters[ch]["pages"] = pages
         return True
