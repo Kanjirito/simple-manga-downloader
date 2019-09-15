@@ -11,7 +11,7 @@ required = [
 
 setuptools.setup(
     name="simple-manga-downloader",
-    version="1.1.1",
+    version="1.2.0",
     author="Kanjirito",
     author_email="kanjirito@protonmail.com",
     license="GPLv3",
