@@ -51,8 +51,7 @@ class Mangatown():
             except ValueError:
                 ch_num = float(num)
 
-            self.chapters[ch_num] = {"name": f"Chapter {ch_num}",
-                                     "link": chapter_link,
+            self.chapters[ch_num] = {"link": chapter_link,
                                      "title": chapter_title}
         return True
 
@@ -83,7 +82,5 @@ class Mangatown():
             image_links.append(img_link)
 
         # Saves the needed data
-        self.ch_info.append({"name": self.chapters[ch]["name"],
-                             "title": self.chapters[ch]["title"],
-                             "pages": image_links})
+        self.chapters[ch]["pages"] = image_links
         return True

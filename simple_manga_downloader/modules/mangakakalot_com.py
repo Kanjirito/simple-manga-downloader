@@ -1,14 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 
-class Mangasee():
+class Mangakakalot:
     def __init__(self, link, directory):
         self.scraper = None
-        self.site = "mangaseeonline.us"
+        self.site = "mangakakalot.com"
         self.folder = directory
         self.manga_link = link
-        self.base_link = "https://mangaseeonline.us"
+        self.base_link = "https://mangakakalot.com"
 
     def get_chapters(self, title_return):
         '''Gets the list of available chapters
@@ -24,40 +25,54 @@ class Mangasee():
 
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.series_title = soup.find(class_="SeriesName").string
+        self.series_title = soup.find(class_="manga-info-text").find("h1").text
+        self.manga_dir = self.folder / self.series_title
         if title_return:
             return True
-        self.manga_dir = self.folder / self.series_title
 
-        chapters = soup.find_all(class_="list-group-item")
+        found_chapters = soup.find_all(class_="row")[1:]
 
         self.chapters = {}
-        for chapter in chapters:
-            num = chapter["chapter"]
+        for chapter in found_chapters:
+            a_div = chapter.find("a")
+
+            reg = re.compile(r"[\w:]* (\d+[\.\d]*)")
+            result = reg.search(a_div.text)
+            if result is None:
+                continue
+
+            num = result.group(1)
             try:
                 num = int(num)
             except ValueError:
                 num = float(num)
-            link = chapter["href"].replace("-page-1", "")
+            link = a_div["href"]
+
+            title_reg = re.compile(r"\d ?: (.*)")
+            title_result = title_reg.search(a_div.text)
+            if title_result:
+                title = title_result.group(1)
+            else:
+                title = None
 
             self.chapters[num] = {"link": link,
-                                  "title": None}
+                                  "title": title}
         return True
 
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
-
-        pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
+        link = self.chapters[ch]["link"]
         try:
-            r = requests.get(pages_link, timeout=5)
+            r = requests.get(link, timeout=5)
         except requests.Timeout:
             return "Request Timeout"
         if r.status_code != 200:
             return r.status_code
-        soup = BeautifulSoup(r.text, "html.parser")
 
-        img_containers = soup.find_all(class_="fullchapimage")
-        pages = [div.contents[0]["src"] for div in img_containers]
+        soup = BeautifulSoup(r.text, "html.parser")
+        reader = soup.find(id="vungdoc")
+
+        pages = [image["src"] for image in reader.find_all("img")]
 
         self.chapters[ch]["pages"] = pages
         return True

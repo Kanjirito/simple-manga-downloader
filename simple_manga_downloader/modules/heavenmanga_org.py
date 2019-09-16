@@ -67,8 +67,7 @@ class Heavenmanga:
             except ValueError:
                 ch_num = float(num)
 
-            self.chapters[ch_num] = {"name": f"Chapter {ch_num}",
-                                     "link": chapter_link,
+            self.chapters[ch_num] = {"link": chapter_link,
                                      "title": None}
         return True
 
@@ -84,18 +83,16 @@ class Heavenmanga:
 
         soup = BeautifulSoup(r.text, "html.parser")
         viewer = soup.find("center")
-        image_links = [img["src"] for img in viewer.find_all("img")]
+        pages = [img["src"] for img in viewer.find_all("img")]
 
         # The site has sometimes broken chapters
         # Getting the first one to check if they work
         try:
-            test = requests.get(image_links[0], stream=True, timeout=5)
-        except requests.ConnectionError:
-            return f"Chapter is proably broken\n{link}\n"
+            test = requests.get(pages[0], stream=True, timeout=5)
+        except (requests.ConnectionError, requests.Timeout):
+            return f"Chapter is probably broken\n{link}\n"
         if not test:
-            return f"Chapter is proably broken\n{link}\n"
+            return f"Chapter is probably broken\n{link}\n"
 
-        self.ch_info.append({"name": self.chapters[ch]["name"],
-                             "title": self.chapters[ch]["title"],
-                             "pages": image_links})
+        self.chapters[ch]["pages"] = pages
         return True

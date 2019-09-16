@@ -1,14 +1,20 @@
+# Cloud flare
+import cfscrape
+import requests.exceptions
+
+# No cloudflare
 import requests
+
 from bs4 import BeautifulSoup
 
 
-class Mangasee():
+class ClassName:
     def __init__(self, link, directory):
         self.scraper = None
-        self.site = "mangaseeonline.us"
+        self.site = "site.com"
         self.folder = directory
         self.manga_link = link
-        self.base_link = "https://mangaseeonline.us"
+        self.base_link = "https://site.com"
 
     def get_chapters(self, title_return):
         '''Gets the list of available chapters
@@ -24,21 +30,22 @@ class Mangasee():
 
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.series_title = soup.find(class_="SeriesName").string
+        self.series_title = "find title"
+        self.manga_dir = self.folder / self.series_title
         if title_return:
             return True
-        self.manga_dir = self.folder / self.series_title
 
-        chapters = soup.find_all(class_="list-group-item")
+        found_chapters = "finding all chapter links in the soup"
 
         self.chapters = {}
-        for chapter in chapters:
-            num = chapter["chapter"]
+        for chapter in found_chapters:
+
+            num = "finding chapter number in soup"
             try:
                 num = int(num)
             except ValueError:
                 num = float(num)
-            link = chapter["href"].replace("-page-1", "")
+            link = "finding chapter link in soup"
 
             self.chapters[num] = {"link": link,
                                   "title": None}
@@ -46,18 +53,17 @@ class Mangasee():
 
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
-
-        pages_link = f"{self.base_link}{self.chapters[ch]['link']}"
+        link = self.chapters[ch]["link"]
         try:
-            r = requests.get(pages_link, timeout=5)
+            r = requests.get(link, timeout=5)
         except requests.Timeout:
             return "Request Timeout"
         if r.status_code != 200:
             return r.status_code
+
         soup = BeautifulSoup(r.text, "html.parser")
 
-        img_containers = soup.find_all(class_="fullchapimage")
-        pages = [div.contents[0]["src"] for div in img_containers]
+        pages = ["list of found image links"]
 
         self.chapters[ch]["pages"] = pages
         return True

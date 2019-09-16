@@ -53,7 +53,7 @@ class Mangadex():
 
             # Creates the number of the chapter
             # Uses chapter number if present
-            # Sets to 1 if oneshot
+            # Sets to 0 if oneshot
             # Slices title if "Chapter XX"
             if ch["chapter"]:
                 num = float(ch["chapter"])
@@ -63,13 +63,21 @@ class Mangadex():
                 num = float(ch["chapter"].split()[-1])
             else:
                 num = 0.0
-
             if num.is_integer():
                 num = int(num)
 
+            all_groups = []
+            if ch["group_name"]:
+                all_groups.append(ch["group_name"])
+            if ch["group_name_2"]:
+                all_groups.append(ch["group_name_2"])
+            if ch["group_name_3"]:
+                all_groups.append(ch["group_name_3"])
+
+            all_groups_str = " | ".join(all_groups)
             self.chapters.setdefault(num, {})
-            self.chapters[num][ch["group_name"]] = ch
-            self.chapters[num][ch["group_name"]]["ch_id"] = chapter
+            self.chapters[num][all_groups_str] = {"ch_id": chapter,
+                                                  "title": ch["title"]}
         return True
 
     def check_groups(self):
@@ -109,7 +117,6 @@ class Mangadex():
 
     def get_info(self, ch):
         '''Gets the data about the specific chapters using the mangadex API'''
-        # The list used by the download function
 
         ch_id = self.chapters[ch]["ch_id"]
         try:
@@ -123,8 +130,7 @@ class Mangadex():
         data = r.json()
         # Skips chapter if the release is delayed
         if data["status"] == "delayed":
-            print("\tChapter is a delayed release, ignoring it")
-            return True
+            return "\tChapter is a delayed release, ignoring it"
 
         # Fixes the incomplete link
         if data["server"] == "/data/":
@@ -134,8 +140,6 @@ class Mangadex():
 
         url = f"{server}{data['hash']}/"
         pages = [f"{url}{page}" for page in data['page_array']]
+        self.chapters[ch]["pages"] = pages
 
-        self.ch_info.append({"pages": pages,
-                             "name": f"Chapter {ch}",
-                             "title": data["title"]})
         return True

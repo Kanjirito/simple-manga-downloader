@@ -1,8 +1,9 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3
 from simple_manga_downloader.modules.mangadex_org import Mangadex
 from simple_manga_downloader.modules.mangaseeonline_us import Mangasee
 from simple_manga_downloader.modules.mangatown_com import Mangatown
 from simple_manga_downloader.modules.heavenmanga_org import Heavenmanga
+from simple_manga_downloader.modules.mangakakalot_com import Mangakakalot
 from simple_manga_downloader.modules.config_parser import Config
 from pathlib import Path
 import argparse
@@ -43,6 +44,8 @@ def site_detect(link, title_return=False, directory=None):
         Manga = Heavenmanga(link, directory)
     elif "mangatown.com" in link:
         Manga = Mangatown(link, directory)
+    elif "mangakakalot.com" in link:
+        Manga = Mangakakalot(link, directory)
     else:
         print(f"Wrong link: \"{link}\"")
         return False
@@ -78,14 +81,21 @@ def parser():
                              dest="custom_dire",
                              default=None,
                              help="Custom path for manga download")
+    parser_down.add_argument("-e", "--exclude",
+                             help="Chapters to exclude \"1 5 10 15\"",
+                             nargs="+",
+                             type=float,
+                             default=[])
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
                        help="Accepts two chapter numbers,"
                        "both ends are inclusive. \"1 15\"",
-                       nargs=2)
+                       nargs=2,
+                       type=float)
     group.add_argument("-s", "--selection",
                        help="Accepts multiple chapters \"2 10 25\"",
-                       nargs="+")
+                       nargs="+",
+                       type=float)
     group.add_argument("-l", "--latest",
                        action='store_true')
 
@@ -208,8 +218,8 @@ def update_mode():
                   "\n------------------------")
             chapter_info_get(Manga)
             print()
-            total_num_ch += len(Manga.ch_info)
-            found_titles[Manga.series_title] = [ch for ch in Manga.ch_info]
+            total_num_ch += len(Manga.chapters)
+            found_titles[Manga.series_title] = [ch for ch in Manga.chapters]
 
     print("------------------------\nChecking complete!\n")
     if not total_num_ch:
@@ -220,7 +230,7 @@ def update_mode():
     for title, chapter in found_titles.items():
         print(f"{title} - {len(chapter)} chapter(s):")
         for ch in chapter:
-            print(f"    {ch['name']}")
+            print(f"    Chapter {ch}")
     print(f"{total_num_ch} chapter(s) ready to download")
     confirm = input(f"Start the download? "
                     "[y to confirm/anything else to cancel]: ").lower()
@@ -241,71 +251,67 @@ def filter_wanted(Manga, ignore=False):
 
     chapter_list = list(Manga.chapters)
     chapter_list.sort()
-    Manga.chapters = {k: Manga.chapters[k] for k in chapter_list}
 
     if ignore:
         wanted = (ch for ch in chapter_list)
     else:
-        wanted = filter_selection(Manga, chapter_list)
+        wanted = filter_selection(chapter_list)
 
-    filtered = filter_downloaded(Manga, wanted)
+    filtered = filter_downloaded(Manga.manga_dir, wanted)
 
     print("\n------------------------\n"
           f"Found {len(filtered)} wanted chapter(s) for {Manga.series_title}"
           "\n------------------------")
-    for ch in list(Manga.chapters):
-        if ch not in filtered:
-            del Manga.chapters[ch]
+
+    Manga.chapters = {k: Manga.chapters[k] for k in filtered}
     if Manga.site == "mangadex.org":
         Manga.check_groups()
 
 
-def filter_selection(Manga, chapter_list):
+def filter_selection(chapter_list):
     '''A generator that yields wanted chapters based on selection'''
-    if len(Manga.chapters) == 1 and not chapter_list[0]:
-        for ch in chapter_list:
-            yield ch
-    elif ARGS.latest:
+
+    if ARGS.latest:
         yield max(chapter_list)
-    elif ARGS.range is not None:
-        a = float(ARGS.range[0])
-        b = float(ARGS.range[1])
+    elif ARGS.range:
+        a = ARGS.range[0]
+        b = ARGS.range[1]
         for ch in chapter_list:
-            if a <= ch <= b:
+            if a <= ch <= b and ch not in ARGS.exclude:
                 yield ch
-    elif ARGS.selection is not None:
+    elif ARGS.selection:
         for n in ARGS.selection:
-            n = float(n)
             if n.is_integer():
                 n = int(n)
-            if n in chapter_list:
+            if n in chapter_list and n not in ARGS.exclude:
                 yield n
     else:
         for ch in chapter_list:
-            yield ch
+            if ch not in ARGS.exclude:
+                yield ch
 
 
-def filter_downloaded(Manga, wanted):
+def filter_downloaded(manga_dir, wanted):
     '''Filters the "filtered" based on what is already downloaded'''
-    if not Manga.manga_dir.is_dir():
+    if not manga_dir.is_dir():
         filtered = list(wanted)
     else:
         filtered = []
         for n in wanted:
             chapter_name = f"Chapter {n}"
-            if chapter_name not in os.listdir(Manga.manga_dir):
+            if chapter_name not in os.listdir(manga_dir):
                 filtered.append(n)
     return filtered
 
 
 def chapter_info_get(Manga):
     '''Calls the get_info() of the manga objects'''
-    Manga.ch_info = []
-    for ch in Manga.chapters:
+    for ch in list(Manga.chapters):
         print(f"Checking: Chapter {ch}")
         status = Manga.get_info(ch)
         if status is not True:
-            print(f"\nSomething went wrong! \n{status}")
+            del Manga.chapters[ch]
+            print(status)
 
 
 def downloader(manga_objects):
@@ -319,26 +325,32 @@ def downloader(manga_objects):
             pass
 
         # Goes ever every chapter
-        for ch in Manga.ch_info:
-            print(f"\nDownloading {Manga.series_title} - {ch['name']}"
+        for ch in Manga.chapters.items():
+            chapter_name = f"Chapter {ch[0]}"
+
+            print(f"\nDownloading {Manga.series_title} - {chapter_name}"
                   "\n------------------------")
 
-            ch_dir = Manga.manga_dir / ch["name"]
+            ch_dir = Manga.manga_dir / chapter_name
             ch_dir.mkdir()
 
             # Goes over every page using a generator
-            page_info = page_gen(Manga, ch)
+            page_info = page_gen(Manga, ch, chapter_name)
             for image_name, link in page_info:
 
                 image = download(link, Manga.scraper)
                 if not image:
                     print("Failed to get image, skipping to next chapter")
-                    failed_text = f"{Manga.series_title} - {ch['name']}"
+                    failed_text = f"{Manga.series_title} - {chapter_name}"
                     download.failed.append(failed_text)
                     break
 
                 file_type = imghdr.what("", h=image.content)
+                if not file_type:
+                    header = image.headers["Content-Type"]
+                    file_type = header.split("/")[1].split(";")[0]
                 full_image_name = f"{image_name}.{file_type}"
+
                 with open(ch_dir / full_image_name, "wb") as f:
                     for chunk in image.iter_content(1024):
                         f.write(chunk)
@@ -395,14 +407,14 @@ def download_info_print():
             print(f)
 
 
-def page_gen(Manga, ch):
+def page_gen(Manga, ch, chapter_name):
     '''A generator that yields a tuple with the page name and link'''
-    for n, link in enumerate(ch["pages"]):
-        base_name = f"{Manga.series_title} - {ch['name']} -"
+    for n, link in enumerate(ch[1]["pages"]):
+        base_name = f"{Manga.series_title} - {chapter_name} -"
         page_string = f"Page {n}"
 
-        if ch["title"]:
-            title = f"{html.unescape(ch['title'])} -"
+        if ch[1]["title"]:
+            title = f"{html.unescape(ch[1]['title'])} -"
             image_name = " ".join([base_name, title, page_string])
         else:
             image_name = " ".join([base_name, page_string])

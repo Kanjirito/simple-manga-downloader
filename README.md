@@ -7,6 +7,7 @@ Currently supports:
 - [mangaseeonline.us](https://mangaseeonline.us/)
 - [mangatown.com](https://www.mangatown.com/)
 - [heavenmanga.org](https://ww2.heavenmanga.org/)
+- [mangakakalot.com](https://mangakakalot.com/page)
 
 
 Allows you to download manga in 5 ways:
@@ -87,6 +88,13 @@ Download the newest chapter (based on chapter number not time of upload):
 ```
 SMD down link_to_manga [more_links] -l
 SMD down link_to_manga [more_links] --latest
+```
+
+Exclude chapters from download (works together with -r and -s):
+
+```
+SMD down link_to_manga [more_links] -e 5 10 1
+SMD down link_to_manga [more_links] --exclude 5 10 1
 ```
 
 Download into a different directory:
