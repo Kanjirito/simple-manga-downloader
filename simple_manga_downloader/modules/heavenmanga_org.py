@@ -89,7 +89,7 @@ class Heavenmanga:
         # Getting the first one to check if they work
         try:
             test = requests.get(pages[0], stream=True, timeout=5)
-        except requests.ConnectionError:
+        except (requests.ConnectionError, requests.Timeout):
             return f"Chapter is probably broken\n{link}\n"
         if not test:
             return f"Chapter is probably broken\n{link}\n"

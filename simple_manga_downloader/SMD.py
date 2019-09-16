@@ -347,7 +347,8 @@ def downloader(manga_objects):
 
                 file_type = imghdr.what("", h=image.content)
                 if not file_type:
-                    file_type = image.headers["Content-Type"].split("/")[1]
+                    header = image.headers["Content-Type"]
+                    file_type = header.split("/")[1].split(";")[0]
                 full_image_name = f"{image_name}.{file_type}"
 
                 with open(ch_dir / full_image_name, "wb") as f:
