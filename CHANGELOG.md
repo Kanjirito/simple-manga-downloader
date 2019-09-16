@@ -16,6 +16,8 @@
 ### Fixes
 - manga that only has 1 chapter with chapter number 0 will no longer ignore selection
 - fixed images saving as .None when imghdr.what() did not find the file type, the response header will be used in that case
+- heavenmanga_org module exception
+- file extension fix
 
 ## v1.1.1 (19-09-10)
 
