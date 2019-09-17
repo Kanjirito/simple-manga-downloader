@@ -29,6 +29,8 @@ class Mangadex():
                                  timeout=5)
         except requests.Timeout:
             return "Request Timeout"
+        except requests.ConnectionError:
+            return "ConnectionError"
         if r.status_code != 200:
             return r.status_code
         data = r.json()

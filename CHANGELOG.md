@@ -1,5 +1,10 @@
 # Release History
 
+## v1.2.1 (19-09-17)
+
+### Fixes
+- requests.ConnectionError crash fix
+
 ## v1.2.0 (19-09-15)
 
 ### New
