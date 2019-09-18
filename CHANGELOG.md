@@ -1,5 +1,14 @@
 # Release History
 
+## Pre-release (v1.3.0)
+
+### Changes
+- new get_handler() function that handles all request exceptions, meaning all site modules don't have to catch them and can just raise them when needed
+- shorter import statements
+
+### Fixes
+- fixed the mangatown_com module continuing to look for chapter pages even though one was not working, now raises a exception and stops the loop as expected
+
 ## v1.2.1 (19-09-17)
 
 ### Fixes

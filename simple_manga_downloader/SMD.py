@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-from simple_manga_downloader.modules.mangadex_org import Mangadex
-from simple_manga_downloader.modules.mangaseeonline_us import Mangasee
-from simple_manga_downloader.modules.mangatown_com import Mangatown
-from simple_manga_downloader.modules.heavenmanga_org import Heavenmanga
-from simple_manga_downloader.modules.mangakakalot_com import Mangakakalot
-from simple_manga_downloader.modules.config_parser import Config
+from .modules.mangadex_org import Mangadex
+from .modules.mangaseeonline_us import Mangasee
+from .modules.mangatown_com import Mangatown
+from .modules.heavenmanga_org import Heavenmanga
+from .modules.mangakakalot_com import Mangakakalot
+from .modules.config_parser import Config
 from pathlib import Path
 import argparse
 import requests
@@ -37,24 +37,48 @@ def site_detect(link, title_return=False, directory=None):
         directory = CONFIG.manga_directory
 
     if "mangadex.org" in link:
-        Manga = Mangadex(link, directory)
+        site = Mangadex
     elif "mangaseeonline.us" in link:
-        Manga = Mangasee(link, directory)
+        site = Mangasee
     elif "heavenmanga.org" in link:
-        Manga = Heavenmanga(link, directory)
+        site = Heavenmanga
     elif "mangatown.com" in link:
-        Manga = Mangatown(link, directory)
+        site = Mangatown
     elif "mangakakalot.com" in link:
-        Manga = Mangakakalot(link, directory)
+        site = Mangakakalot
     else:
         print(f"Wrong link: \"{link}\"")
         return False
 
-    status = Manga.get_chapters(title_return)
-    if status is not True:
-        print(f"\nSomething went wrong! \n{status}")
+    Manga = site(link, directory)
+    status = get_handler(Manga.manga_link, Manga.get_chapters, title_return)
+    if status:
+        return Manga
+    else:
         return False
-    return Manga
+
+
+def get_handler(manga_link, func, arg):
+    '''
+    Runs the given func with given arg and handles all request exceptions
+    Returns True if nothing failed, prints error and returns False otherwise
+    '''
+    try:
+        status = func(arg)
+    except requests.Timeout:
+        status = "Request Timeout"
+    except requests.ConnectionError:
+        status = "Connection Error"
+    except requests.HTTPError:
+        status = "HTTP code error"
+    except requests.RequestException as e:
+        status = f"A unexpected problem {e}"
+
+    if status is not True:
+        print(f"\nSomething went wrong! \n{status}\n{manga_link}")
+        return False
+    else:
+        return True
 
 
 def parser():
@@ -305,13 +329,13 @@ def filter_downloaded(manga_dir, wanted):
 
 
 def chapter_info_get(Manga):
-    '''Calls the get_info() of the manga objects'''
+    '''Calls the get_info() of the manga objects and handles the exceptions'''
     for ch in list(Manga.chapters):
         print(f"Checking: Chapter {ch}")
-        status = Manga.get_info(ch)
-        if status is not True:
+        status = get_handler(Manga, Manga.get_info, ch)
+        if not status:
             del Manga.chapters[ch]
-            print(status)
+            print()
 
 
 def downloader(manga_objects):
