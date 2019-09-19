@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release (v1.3.0)
+## v1.3.0 (19-09-19)
 
 ### Changes
 - new get_handler() function that handles all request exceptions, meaning all site modules don't have to catch them and can just raise them when needed
