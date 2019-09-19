@@ -16,15 +16,8 @@ class Mangatown():
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        try:
-            r = requests.get(self.manga_link, timeout=5)
-        except requests.Timeout:
-            return "Request Timeout"
-        except requests.ConnectionError:
-            return "ConnectionError"
-        if r.status_code != 200:
-            return r.status_code
-
+        r = requests.get(self.manga_link, timeout=5)
+        r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
         self.series_title = soup.find(class_="title-top").string
@@ -59,12 +52,9 @@ class Mangatown():
 
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
-        try:
-            r = requests.get(self.chapters[ch]["link"], timeout=5)
-        except requests.Timeout:
-            return "Request Timeout"
-        if r.status_code != 200:
-            return r.status_code
+
+        r = requests.get(self.chapters[ch]["link"], timeout=5)
+        r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
         links = soup.find(class_="page_select").find_all("option")
@@ -72,13 +62,8 @@ class Mangatown():
 
         image_links = []
         for page in pages:
-            try:
-                page_r = requests.get(page, timeout=5)
-            except requests.Timeout:
-                return "Request Timeout"
-            if page_r.status_code != 200:
-                print("Chapter page error")
-                continue
+            page_r = requests.get(page, timeout=5)
+            page_r.raise_for_status()
             page_soup = BeautifulSoup(page_r.text, "html.parser")
             img_link = page_soup.find(id="image")["src"]
             image_links.append(img_link)

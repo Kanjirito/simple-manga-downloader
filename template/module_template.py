@@ -21,15 +21,8 @@ class ClassName:
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        try:
-            r = requests.get(self.manga_link, timeout=5)
-        except requests.Timeout:
-            return "Request Timeout"
-        except requests.ConnectionError:
-            return "ConnectionError"
-        if r.status_code != 200:
-            return r.status_code
-
+        r = requests.get(self.manga_link, timeout=5)
+        r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
         self.series_title = "find title"
@@ -56,13 +49,9 @@ class ClassName:
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
         link = self.chapters[ch]["link"]
-        try:
-            r = requests.get(link, timeout=5)
-        except requests.Timeout:
-            return "Request Timeout"
-        if r.status_code != 200:
-            return r.status_code
 
+        r = requests.get(link, timeout=5)
+        r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
         pages = ["list of found image links"]

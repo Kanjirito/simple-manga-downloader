@@ -24,20 +24,12 @@ class Mangadex():
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        try:
-            r = self.scraper.get(self.mn_api_url.format(self.id),
-                                 timeout=5)
-        except requests.Timeout:
-            return "Request Timeout"
-        except requests.ConnectionError:
-            return "ConnectionError"
-        if r.status_code != 200:
-            return r.status_code
+        r = self.scraper.get(self.mn_api_url.format(self.id), timeout=5)
+        r.raise_for_status()
         data = r.json()
         self.series_title = html.unescape(data["manga"]["title"])
         if title_return:
             return True
-
         self.manga_dir = self.folder / self.series_title
 
         # Checks if chapters exist
@@ -121,13 +113,9 @@ class Mangadex():
         '''Gets the data about the specific chapters using the mangadex API'''
 
         ch_id = self.chapters[ch]["ch_id"]
-        try:
-            r = self.scraper.get(self.ch_api_url.format(ch_id),
-                                 timeout=5)
-        except requests.Timeout:
-            return "Request Timeout"
+        r = self.scraper.get(self.ch_api_url.format(ch_id), timeout=5)
         if r.status_code != 200 and r.status_code != 409:
-            return r.status_code
+            raise requests.HTTPError
 
         data = r.json()
         # Skips chapter if the release is delayed
