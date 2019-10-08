@@ -2,34 +2,42 @@ import cfscrape
 import requests.exceptions
 import html
 import re
+from ..decorators import request_exception_handler
 
 
 class Mangadex():
     def __init__(self, link, directory):
         # Initializes the data
-        self.scraper = cfscrape.create_scraper()
+        self.session = cfscrape.create_scraper()
         self.site = "mangadex.org"
         self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")
         self.mn_api_url = "https://mangadex.org/api/manga/{}"
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)
+        self.cover_url = None
 
     def get_id(self, link):
         reg = re.compile(r"title/(\d*)/")
         return reg.search(link).group(1)
 
-    def get_chapters(self, title_return):
+    @request_exception_handler
+    def get_chapters(self, title_return=False):
         '''Gets the manga data using the mangadex API
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        r = self.scraper.get(self.mn_api_url.format(self.id), timeout=5)
+        r = self.session.get(self.mn_api_url.format(self.id), timeout=5)
         r.raise_for_status()
         data = r.json()
         self.series_title = html.unescape(data["manga"]["title"])
         if title_return:
             return True
+        cover = data["manga"].get("cover_url")
+        if cover:
+            self.cover_url = f"https://mangadex.org{cover}"
+        else:
+            self.cover_url = None
         self.manga_dir = self.folder / self.series_title
 
         # Checks if chapters exist
@@ -109,11 +117,12 @@ class Mangadex():
             group = sorted_groups[select - 1]
             self.chapters[ch] = self.chapters[ch][group]
 
+    @request_exception_handler
     def get_info(self, ch):
         '''Gets the data about the specific chapters using the mangadex API'''
 
         ch_id = self.chapters[ch]["ch_id"]
-        r = self.scraper.get(self.ch_api_url.format(ch_id), timeout=5)
+        r = self.session.get(self.ch_api_url.format(ch_id), timeout=5)
         if r.status_code != 200 and r.status_code != 409:
             raise requests.HTTPError
 

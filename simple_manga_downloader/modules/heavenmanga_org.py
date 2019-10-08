@@ -1,22 +1,25 @@
-import requests
+import cfscrape
 from bs4 import BeautifulSoup
 import re
+from ..decorators import request_exception_handler
 
 
 class Heavenmanga:
     def __init__(self, link, directory):
-        self.scraper = None
+        self.session = cfscrape.create_scraper()
         self.site = "heavenmanga.org"
         self.folder = directory
         self.manga_link = link
-        self.base_link = "http://ww2.heavenmanga.org/"
+        self.base_link = "https://ww4.heavenmanga.org/"
+        self.cover_url = None
 
-    def get_chapters(self, title_return):
+    @request_exception_handler
+    def get_chapters(self, title_return=False):
         '''Gets the list of available chapters
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        r = requests.get(self.manga_link, timeout=5)
+        r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
@@ -24,6 +27,9 @@ class Heavenmanga:
         if title_return:
             return True
         self.manga_dir = self.folder / self.series_title
+        thumb = soup.find(alt="Cover Image")
+        if thumb:
+            self.cover_url = thumb["src"]
 
         chapter_divs = soup.find_all(class_="two-rows go-border")
 
@@ -36,7 +42,7 @@ class Heavenmanga:
             else:
                 break
 
-            page = requests.get(next_page, timeout=5)
+            page = self.session.get(next_page, timeout=5)
             page.raise_for_status()
             soup = BeautifulSoup(page.text, "html.parser")
             chapter_divs += soup.find_all(class_="two-rows go-border")
@@ -61,10 +67,11 @@ class Heavenmanga:
                                      "title": None}
         return True
 
+    @request_exception_handler
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
         link = self.chapters[ch]["link"]
-        r = requests.get(link, timeout=5)
+        r = self.session.get(link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
         viewer = soup.find("center")
@@ -72,7 +79,7 @@ class Heavenmanga:
 
         # The site has sometimes broken chapters
         # Getting the first one to check if they work
-        test = requests.get(pages[0], stream=True, timeout=5)
+        test = self.session.get(pages[0], stream=True, timeout=5)
         test.raise_for_status()
         self.chapters[ch]["pages"] = pages
         return True

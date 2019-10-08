@@ -1,29 +1,35 @@
 import requests
 from bs4 import BeautifulSoup
+from ..decorators import request_exception_handler
 import re
 
 
 class Mangakakalot:
     def __init__(self, link, directory):
-        self.scraper = None
+        self.session = requests.Session()
         self.site = "mangakakalot.com"
         self.folder = directory
         self.manga_link = link
         self.base_link = "https://mangakakalot.com"
+        self.cover_url = None
 
-    def get_chapters(self, title_return):
+    @request_exception_handler
+    def get_chapters(self, title_return=False):
         '''Gets the list of available chapters
         title_return=True will not create the chapters dict,
         used if only title is needed'''
 
-        r = requests.get(self.manga_link, timeout=5)
+        r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
         self.series_title = soup.find(class_="manga-info-text").find("h1").text
-        self.manga_dir = self.folder / self.series_title
         if title_return:
             return True
+        thumb = soup.find(class_="manga-info-pic")
+        if thumb:
+            self.cover_url = thumb.img["src"]
+        self.manga_dir = self.folder / self.series_title
 
         found_chapters = soup.find_all(class_="row")[1:]
 
@@ -54,11 +60,12 @@ class Mangakakalot:
                                   "title": title}
         return True
 
+    @request_exception_handler
     def get_info(self, ch):
         '''Gets the needed data abut the chapters from the site'''
         link = self.chapters[ch]["link"]
 
-        r = requests.get(link, timeout=5)
+        r = self.session.get(link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
         reader = soup.find(id="vungdoc")
