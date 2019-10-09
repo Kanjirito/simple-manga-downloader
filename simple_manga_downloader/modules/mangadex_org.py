@@ -76,50 +76,53 @@ class Mangadex():
             if ch["group_name_3"]:
                 all_groups.append(ch["group_name_3"])
 
-            all_groups_str = " | ".join(all_groups)
+            all_groups_str = html.unescape(" | ".join(all_groups))
             self.chapters.setdefault(num, {})
             self.chapters[num][all_groups_str] = {"ch_id": chapter,
                                                   "title": ch["title"]}
         return True
 
-    def check_groups(self):
-        for ch in list(self.chapters):
-            len_cond = len(self.chapters[ch]) == 1
+    def check_groups(self, ch):
+        len_cond = len(self.chapters[ch]) == 1
 
-            if "MangaPlus" in self.chapters[ch]:
-                if len_cond:
-                    del self.chapters[ch]
-                    print(f"Chapter {ch} only Manga Plus")
-                    continue
-                else:
-                    del self.chapters["MangaPlus"]
-
+        if "MangaPlus" in self.chapters[ch]:
             if len_cond:
-                self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
-                continue
+                return "Only Manga Plus releases"
+            else:
+                del self.chapters["MangaPlus"]
 
-            print(f"\nMultiple groups for chapter {ch}, select one(1,2,3...):")
-            sorted_groups = sorted(self.chapters[ch])
-            selections = []
-            for n, g in enumerate(sorted_groups, 1):
-                print(f"{n}.{g}")
-                selections.append(n)
-            # Asks for a selection, if too high or not a number asks again
-            try:
-                select = int(input("Enter the number of the group: "))
-            except ValueError:
-                select = len(sorted_groups) + 1
-            while select not in selections:
-                try:
-                    select = int(input("Wrong input, try again: "))
-                except ValueError:
-                    select = len(sorted_groups) + 1
-            group = sorted_groups[select - 1]
-            self.chapters[ch] = self.chapters[ch][group]
+        if len_cond:
+            self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
+            return True
+
+        print(f"Multiple groups for chapter {ch}, select one(1,2,3...):")
+        sorted_groups = sorted(self.chapters[ch])
+        selections = []
+        for n, g in enumerate(sorted_groups, 1):
+            print(f"{n}.{g}")
+            selections.append(n)
+        # Asks for a selection, if too high or not a number asks again
+        try:
+            in_str = "Enter the number of the group [invalid input will skip chapter]:"
+            select = int(input(in_str))
+        except ValueError:
+            select = len(sorted_groups) + 1
+        if select not in selections:
+            return "Wrong input, skipping chapter"
+
+        print()
+        group = sorted_groups[select - 1]
+        self.chapters[ch] = self.chapters[ch][group]
+        return True
 
     @request_exception_handler
     def get_info(self, ch):
         '''Gets the data about the specific chapters using the mangadex API'''
+
+        groups = self.check_groups(ch)
+
+        if groups is not True:
+            return groups
 
         ch_id = self.chapters[ch]["ch_id"]
         r = self.session.get(self.ch_api_url.format(ch_id), timeout=5)

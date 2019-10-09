@@ -6,6 +6,7 @@
 - covers, a new config setting that allows to download the covers for the manga, defaults to false
 - conf -c/--covers flag to toggle the cover option
 - after download lists what chapters have failed/succeeded
+- invalid input in mangadex multiple groups selection will now skip the chapter instead of forcing a choice
 
 ## Changes
 - every module now uses request sessions
@@ -23,6 +24,7 @@
 - heavenmanga switched to cfscrape and url changed
 - conf -r index errors
 - default download path when using custom config
+- html entities in group names
 
 ## v1.3.0 (19-09-19)
 

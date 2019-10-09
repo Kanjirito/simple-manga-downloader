@@ -192,6 +192,7 @@ def handle_manga(Manga, covers, args):
     filter_wanted(Manga, args)
 
     if not Manga.chapters:
+        print("Found 0 wanted chapters")
         return False
 
     message2 = f"Getting info about {len(Manga.chapters)} wanted chapter(s)"
@@ -217,8 +218,6 @@ def filter_wanted(Manga, args):
     filtered = filter_downloaded(Manga.manga_dir, wanted)
 
     Manga.chapters = {k: Manga.chapters[k] for k in filtered}
-    if Manga.site == "mangadex.org":
-        Manga.check_groups()
 
 
 def make_line(string):
