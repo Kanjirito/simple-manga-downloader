@@ -148,7 +148,7 @@ SMD conf -r link_to_manga 5 "sample title" link_to_manga 2
 
 Clearing the tracked list:
 ```
-SMD conf -c
+SMD conf -t
 SMD conf --clear-tracked
 ```
 
@@ -156,6 +156,12 @@ Changing the save directory:
 ```
 SMD conf -s path/to/directory
 SMD conf --save-directory path/to/directory
+```
+
+Toggle the covers setting:
+```
+SMD conf -c
+SMD conf --covers
 ```
 
 Reset the config to the default:

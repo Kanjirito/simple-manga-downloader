@@ -13,18 +13,20 @@ class Config():
         else:
             self.config_path = self.directory / "simple_manga_downloader_config.json"
 
+        default_directory = self.directory / "Manga"
         # Loads the config or creates the base one if not present
         if self.config_path.is_file():
             self.exists = True
             with open(self.config_path, "r") as f:
                 config = json.load(f)
         else:
-            config = {"manga_directory": self.directory / "Manga",
+            config = {"manga_directory": default_directory,
                       "tracking": {}}
 
         # Gets the useful data for easy access
-        self.manga_directory = Path(config["manga_directory"])
-        self.tracked_manga = config["tracking"]
+        self.manga_directory = Path(config.get("manga_directory", default_directory))
+        self.tracked_manga = config.get("tracking", [])
+        self.covers = config.get("covers", False)
 
     def add_tracked(self, Manga):
         '''Adds manga to the tracked list'''
@@ -36,8 +38,13 @@ class Config():
             print(f"Already tracked:  {Manga.series_title}")
 
     def remove_tracked(self, delete):
-        '''Removes manga from the tracked list
-        Accepts only a list as an argument'''
+        '''
+        Removes manga from the tracked list
+        Accepts only a list as an argument
+        '''
+        if not self.tracked_manga:
+            print("Nothing to remove")
+            return
         to_remove = set()
         for n in delete:
             if n in self.tracked_manga:
@@ -52,11 +59,12 @@ class Config():
             else:
                 try:
                     index = int(n)
-                    if index > len(self.tracked_manga):
-                        print("Number out of index")
-                    to_remove.add(list(self.tracked_manga)[index - 1])
+                    if 0 < index <= len(self.tracked_manga):
+                        to_remove.add(list(self.tracked_manga)[index - 1])
+                    else:
+                        print("Index out of range")
                 except ValueError:
-                    print("Not a index, link or title")
+                    print("Not an index, link or title")
 
         for r in to_remove:
             del self.tracked_manga[r]
@@ -83,8 +91,9 @@ class Config():
         confirm = input("Are you sure you want to reset the config file to the defaults? "
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
-            self.manga_directory = self.config_path.parent / "Manga"
+            self.manga_directory = self.directory.parent / "Manga"
             self.tracked_manga = {}
+            self.covers = False
             self.modified = True
             print("Config was reset")
 
@@ -131,6 +140,15 @@ class Config():
                 print(manga[1])
         print()
 
+    def toogle_covers(self):
+        if self.covers:
+            self.covers = False
+            print("Cover download turned off!")
+        else:
+            self.covers = True
+            print("Cover download turned on!")
+        self.modified = True
+
     def print_paths(self):
         if not self.exists:
             print("\nConfig file exists only in memory")
@@ -142,6 +160,7 @@ class Config():
 
     def save_config(self):
         config = {"manga_directory": str(self.manga_directory),
+                  "covers": self.covers,
                   "tracking": self.tracked_manga}
         try:
             self.directory.mkdir(parents=True)

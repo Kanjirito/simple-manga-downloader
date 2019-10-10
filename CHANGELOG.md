@@ -1,5 +1,31 @@
 # Release History
 
+## v1.4.0(19-10-10)
+
+## New
+- covers, a new config setting that allows to download the covers for the manga, defaults to false
+- conf -c/--covers flag to toggle the cover option
+- after download lists what chapters have failed/succeeded
+- invalid input in mangadex multiple groups selection will now skip the chapter instead of forcing a choice
+
+## Changes
+- every module now uses request sessions
+- changed get_handler() into a decorator
+- modules now use the new exception handler decorator 
+- moved decorators into a separate file
+- conf -c/--clear-tracked had the short flag changed to -t
+- config parser now falls back to defaults if setting is missing
+- changed the download chunk size
+- output changes
+- down and update mode now have the same order of action
+- a lot of code changes/clean-up
+
+## Fixes
+- heavenmanga switched to cfscrape and url changed
+- conf -r index errors
+- default download path when using custom config
+- html entities in group names
+
 ## v1.3.0 (19-09-19)
 
 ### Changes
