@@ -1,6 +1,6 @@
 # Release History
 
-## v1.4.0(pre-release)
+## v1.4.0(19-10-10)
 
 ## New
 - covers, a new config setting that allows to download the covers for the manga, defaults to false
