@@ -1,5 +1,15 @@
 # Release History
 
+## v1.4.1(19-10-29)
+
+## Changes
+- selected chapters are now checked in a sorted order
+
+## Fixes
+- mangadex get_id crash when link did not end with a slash
+- delayed chapters being included in the "to download" summary
+- crash if trying to download multiple chapters for a manga
+
 ## v1.4.0(19-10-10)
 
 ## New

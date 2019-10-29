@@ -18,7 +18,7 @@ class Mangadex():
         self.cover_url = None
 
     def get_id(self, link):
-        reg = re.compile(r"title/(\d*)/")
+        reg = re.compile(r"title/(\d*)/?")
         return reg.search(link).group(1)
 
     @request_exception_handler
@@ -132,7 +132,7 @@ class Mangadex():
         data = r.json()
         # Skips chapter if the release is delayed
         if data["status"] == "delayed":
-            return "\tChapter is a delayed release, ignoring it"
+            return "Chapter is a delayed release, ignoring it"
 
         # Fixes the incomplete link
         if data["server"] == "/data/":

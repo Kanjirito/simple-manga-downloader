@@ -198,8 +198,7 @@ def handle_manga(Manga, covers, args):
     message2 = f"Getting info about {len(Manga.chapters)} wanted chapter(s)"
     line_break2 = make_line(message2)
     print(f"{message2}\n{line_break2}")
-    chapter_info_get(Manga)
-    return True
+    return chapter_info_get(Manga)
 
 
 def filter_wanted(Manga, args):
@@ -236,7 +235,8 @@ def filter_selection(chapter_list, args):
             if a <= ch <= b and ch not in args.exclude:
                 yield ch
     elif args.selection:
-        for n in args.selection:
+        to_get = sorted(args.selection)
+        for n in to_get:
             if n.is_integer():
                 n = int(n)
             if n in chapter_list and n not in args.exclude:
@@ -261,7 +261,7 @@ def filter_downloaded(manga_dir, wanted):
 
 
 def chapter_info_get(Manga):
-    '''Calls the get_info() of the manga objects and handles the exceptions'''
+    '''Calls the get_info() of the manga objects'''
     for ch in list(Manga.chapters):
         print(f"    Chapter {ch}")
         status = Manga.get_info(ch)
@@ -269,6 +269,7 @@ def chapter_info_get(Manga):
             print(f"{status}")
             del Manga.chapters[ch]
             print()
+    return True
 
 
 def downloader(manga_objects):
