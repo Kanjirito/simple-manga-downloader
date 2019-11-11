@@ -7,6 +7,10 @@
 - if a mangadex chapter has no chapter number the downloader will ask for one
 - divided get\_chapters() into 2 methods (get\_main() and get\_chapters()) so that the downloader first prints what manga it's working on and then actually does the work (this will allow better handling of edge cases like the mangadex one listed above)
 - added \_\_len\_\_() and \_\_bool\_\_() to manga classes
+- added manganelo.com url support for the mangakakalot module
+
+## Fixes
+- another heavenmanga base url change
 
 ## v1.4.1(19-10-29)
 

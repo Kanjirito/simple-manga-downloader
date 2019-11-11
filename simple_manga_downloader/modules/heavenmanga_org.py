@@ -10,7 +10,7 @@ class Heavenmanga:
         self.site = "heavenmanga.org"
         self.folder = directory
         self.manga_link = link
-        self.base_link = "https://ww4.heavenmanga.org/"
+        self.base_link = "https://ww5.heavenmanga.org/"
         self.cover_url = None
         self.chapters = {}
 

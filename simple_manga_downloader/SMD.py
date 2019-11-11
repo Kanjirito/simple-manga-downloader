@@ -49,10 +49,12 @@ def site_detect(link, args, config):
         site = Heavenmanga
     elif "mangatown.com" in link:
         site = Mangatown
-    elif "mangakakalot.com" in link:
+    elif "mangakakalot.com" in link or "manganelo.com" in link:
         site = Mangakakalot
     else:
-        print(f"Wrong link: \"{link}\"")
+        msg = f"Wrong link: \"{link}\""
+        line = make_line(msg)
+        print(f"\n{line}\n{msg}\n{line}")
         return False
 
     Manga = site(link, directory)
@@ -223,6 +225,9 @@ def filter_wanted(Manga, args):
 
 
 def make_line(string):
+    '''
+    Returns a string of "-" with the same length as the given string
+    '''
     return "-" * len(string)
 
 
