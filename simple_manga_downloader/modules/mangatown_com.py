@@ -12,13 +12,24 @@ class Mangatown():
         self.manga_link = link
         self.base_link = "https://www.mangatown.com/"
         self.cover_url = None
+        self.chapters = {}
+
+    @property
+    def manga_dir(self):
+        return self.folder / self.series_title
+
+    def __bool__(self):
+        return True
+
+    def __len__(self):
+        return len(self.chapters)
 
     @request_exception_handler
-    def get_chapters(self, title_return=False):
-        '''Gets the list of available chapters
-        title_return=True will not create the chapters dict,
-        used if only title is needed'''
-
+    def get_main(self, title_return=False):
+        '''
+        Gets the main manga info like title, cover url and chapter links
+        title_return=True will only get the title and return
+        '''
         r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
@@ -29,12 +40,15 @@ class Mangatown():
         thumb = soup.find(class_="detail_info")
         if thumb:
             self.cover_url = thumb.img["src"]
-        self.manga_dir = self.folder / self.series_title
 
-        chapters_soup = soup.find(class_="chapter_list").find_all("li")
+        self.data = soup.find(class_="chapter_list").find_all("li")
+        return True
 
-        self.chapters = {}
-        for chapter in chapters_soup:
+    def get_chapters(self):
+        '''Gets the list of available chapters
+        title_return=True will not create the chapters dict,
+        used if only title is needed'''
+        for chapter in self.data:
             chapter_link = f"https:{chapter.find('a')['href']}"
             try:
                 if chapter.find("span")["class"] != ["time"]:
@@ -75,6 +89,5 @@ class Mangatown():
             img_link = page_soup.find(id="image")["src"]
             image_links.append(img_link)
 
-        # Saves the needed data
         self.chapters[ch]["pages"] = image_links
         return True

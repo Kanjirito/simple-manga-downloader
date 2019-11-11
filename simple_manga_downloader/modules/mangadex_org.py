@@ -7,7 +7,6 @@ from ..decorators import request_exception_handler
 
 class Mangadex():
     def __init__(self, link, directory):
-        # Initializes the data
         self.session = cfscrape.create_scraper()
         self.site = "mangadex.org"
         self.folder = directory
@@ -16,17 +15,29 @@ class Mangadex():
         self.ch_api_url = "https://mangadex.org/api/chapter/{}"
         self.id = self.get_id(link)
         self.cover_url = None
+        self.chapters = {}
+
+    @property
+    def manga_dir(self):
+        return self.folder / self.series_title
+
+    def __bool__(self):
+        return True
+
+    def __len__(self):
+        return len(self.chapters)
 
     def get_id(self, link):
         reg = re.compile(r"title/(\d*)/?")
         return reg.search(link).group(1)
 
     @request_exception_handler
-    def get_chapters(self, title_return=False):
-        '''Gets the manga data using the mangadex API
-        title_return=True will not create the chapters dict,
-        used if only title is needed'''
-
+    def get_main(self, title_return=False):
+        '''
+        Gets the main manga info like title, cover url and chapter links
+        using the mangadex API
+        title_return=True will only get the title and return
+        '''
         r = self.session.get(self.mn_api_url.format(self.id), timeout=5)
         r.raise_for_status()
         data = r.json()
@@ -36,9 +47,6 @@ class Mangadex():
         cover = data["manga"].get("cover_url")
         if cover:
             self.cover_url = f"https://mangadex.org{cover}"
-        else:
-            self.cover_url = None
-        self.manga_dir = self.folder / self.series_title
 
         # Checks if chapters exist
         try:
@@ -46,9 +54,15 @@ class Mangadex():
         except KeyError:
             return "No chapters found!"
 
-        self.chapters = {}
+        self.data = data
+        return True
 
-        for chapter, ch in data["chapter"].items():
+    def get_chapters(self):
+        '''
+        Handles the chapter data by assigning chapter numbers
+        '''
+
+        for chapter, ch in self.data["chapter"].items():
             # Only English
             if ch["lang_code"] != "gb":
                 continue
@@ -56,13 +70,25 @@ class Mangadex():
             # Creates the number of the chapter
             # Uses chapter number if present
             # Sets to 0 if oneshot
-            # Slices title if "Chapter XX"
+            # Checks for chapter number in title
+            # Asks for number if title present
+            # Else skips the chapter
             if ch["chapter"]:
                 num = float(ch["chapter"])
             elif ch["title"].lower() == "oneshot":
                 num = 0.0
             elif ch["title"].lower().startswith("chapter"):
                 num = float(ch["chapter"].split()[-1])
+            elif ch["title"]:
+                print(f"No chapter number for: \"{ch['title']}\"")
+                inp = input("Assign a unused chapter number to it "
+                            "(invalid input will ignore this chapter): ")
+                try:
+                    num = float(inp)
+                except ValueError:
+                    print("Skipping\n")
+                    continue
+                print()
             else:
                 num = 0.0
             if num.is_integer():
@@ -101,7 +127,7 @@ class Mangadex():
         for n, g in enumerate(sorted_groups, 1):
             print(f"{n}.{g}")
             selections.append(n)
-        # Asks for a selection, if too high or not a number asks again
+
         try:
             in_str = "Enter the number of the group [invalid input will skip chapter]:"
             select = int(input(in_str))

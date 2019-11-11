@@ -17,13 +17,24 @@ class ClassName:
         self.manga_link = link
         self.base_link = "https://site.com"
         self.cover_url = None
+        self.chapters = {}
+
+    @property
+    def manga_dir(self):
+        return self.folder / self.series_title
+
+    def __bool__(self):
+        return True
+
+    def __len__(self):
+        return len(self.chapters)
 
     @request_exception_handler
-    def get_chapters(self, title_return=False):
-        '''Gets the list of available chapters
-        title_return=True will not create the chapters dict,
-        used if only title is needed'''
-
+    def get_main(self, title_return=False):
+        '''
+        Gets the main manga info like title, cover url and chapter links
+        title_return=True will only get the title and return
+        '''
         r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
@@ -31,14 +42,17 @@ class ClassName:
         self.cover_url = "get cover here"
 
         self.series_title = "find title"
-        self.manga_dir = self.folder / self.series_title
         if title_return:
             return True
 
-        found_chapters = "finding all chapter links in the soup"
+        self.data = "finding all chapter links in the soup"
+        return True
 
-        self.chapters = {}
-        for chapter in found_chapters:
+    def get_chapters(self):
+        '''
+        Handles the chapter data by assigning chapter numbers
+        '''
+        for chapter in self.data:
 
             num = "finding chapter number in soup"
             try:
