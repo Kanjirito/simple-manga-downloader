@@ -108,7 +108,7 @@ SMD down link_to_manga -n Some new name
 SMD down link_to_manga --name Some new name
 ```
 **Warning:**
-*Using a custom name when downloading multiple manga at once will cause overwriting of the files*
+*Using a custom name when downloading multiple manga at once will cause overwriting of the files since all of them will be assigned the same name*
 
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter
