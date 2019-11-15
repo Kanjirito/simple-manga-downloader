@@ -10,15 +10,26 @@ class Heavenmanga:
         self.site = "heavenmanga.org"
         self.folder = directory
         self.manga_link = link
-        self.base_link = "https://ww4.heavenmanga.org/"
+        self.base_link = "https://ww5.heavenmanga.org/"
         self.cover_url = None
+        self.chapters = {}
+
+    @property
+    def manga_dir(self):
+        return self.folder / self.series_title
+
+    def __bool__(self):
+        return True
+
+    def __len__(self):
+        return len(self.chapters)
 
     @request_exception_handler
-    def get_chapters(self, title_return=False):
-        '''Gets the list of available chapters
-        title_return=True will not create the chapters dict,
-        used if only title is needed'''
-
+    def get_main(self, title_return=False):
+        '''
+        Gets the main manga info like title, cover url and chapter links
+        title_return=True will only get the title and return
+        '''
         r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
@@ -26,7 +37,6 @@ class Heavenmanga:
         self.series_title = soup.find(class_="name bigger").string
         if title_return:
             return True
-        self.manga_dir = self.folder / self.series_title
         thumb = soup.find(alt="Cover Image")
         if thumb:
             self.cover_url = thumb["src"]
@@ -47,8 +57,14 @@ class Heavenmanga:
             soup = BeautifulSoup(page.text, "html.parser")
             chapter_divs += soup.find_all(class_="two-rows go-border")
 
-        self.chapters = {}
-        for chapter in chapter_divs:
+        self.data = chapter_divs
+        return True
+
+    def get_chapters(self):
+        '''
+        Handles the chapter data by assigning chapter numbers
+        '''
+        for chapter in self.data:
             a_div = chapter.find("a")
             chapter_link = a_div["href"]
 

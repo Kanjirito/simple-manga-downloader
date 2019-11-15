@@ -49,10 +49,12 @@ def site_detect(link, args, config):
         site = Heavenmanga
     elif "mangatown.com" in link:
         site = Mangatown
-    elif "mangakakalot.com" in link:
+    elif "mangakakalot.com" in link or "manganelo.com" in link:
         site = Mangakakalot
     else:
-        print(f"Wrong link: \"{link}\"")
+        msg = f"Wrong link: \"{link}\""
+        line = make_line(msg)
+        print(f"\n{line}\n{msg}\n{line}")
         return False
 
     Manga = site(link, directory)
@@ -90,7 +92,7 @@ def conf_mode(args, config):
             Manga = site_detect(link, args, config)
             if Manga is False:
                 continue
-            title = Manga.get_chapters(title_return=True)
+            title = Manga.get_main(title_return=True)
             if title is True:
                 config.add_tracked(Manga)
             else:
@@ -135,7 +137,7 @@ def main_pipeline(links, args, config):
         status = handle_manga(Manga, config.covers, args)
         if status:
             ready.append(Manga)
-            total_num_ch += len(Manga.chapters)
+            total_num_ch += len(Manga)
             found_titles[Manga.series_title] = [ch for ch in Manga.chapters]
         else:
             continue
@@ -167,12 +169,14 @@ def handle_manga(Manga, covers, args):
     Handles all stuff related to the Manga
     returns True if everything fine
     '''
-    ch_status = Manga.get_chapters()
-    if ch_status is not True:
+    main_status = Manga.get_main()
+    if main_status is not True:
         print("\nSomething went wrong!"
-              f"\n{ch_status}\n{Manga.manga_link}")
+              f"\n{main_status}\n{Manga.manga_link}")
         return False
 
+    if hasattr(args, "name") and args.name:
+        Manga.series_title = " ".join(args.name)
     message = f"Checking \"{Manga.series_title}\""
     line_break = make_line(message)
     print(f"\n{line_break}\n{message}\n{line_break}\n")
@@ -189,13 +193,14 @@ def handle_manga(Manga, covers, args):
                   "Failed to get cover"
                   f"\n{cov}"
                   f"\n{cov_line}\n")
+    Manga.get_chapters()
     filter_wanted(Manga, args)
 
     if not Manga.chapters:
         print("Found 0 wanted chapters")
         return False
 
-    message2 = f"Getting info about {len(Manga.chapters)} wanted chapter(s)"
+    message2 = f"Getting info about {len(Manga)} wanted chapter(s)"
     line_break2 = make_line(message2)
     print(f"{message2}\n{line_break2}")
     return chapter_info_get(Manga)
@@ -220,6 +225,9 @@ def filter_wanted(Manga, args):
 
 
 def make_line(string):
+    '''
+    Returns a string of "-" with the same length as the given string
+    '''
     return "-" * len(string)
 
 
@@ -408,9 +416,11 @@ def parser():
     subparsers = parser.add_subparsers(dest="subparser_name",
                                        required=True)
     parser_conf = subparsers.add_parser("conf",
-                                        help="Program will be in the config edit mode")
+                                        help=("Program will be in "
+                                              "the config edit mode"))
     parser_down = subparsers.add_parser("down",
-                                        help="Program will be in the download mode")
+                                        help=("Program will be in "
+                                              "the download mode"))
     subparsers.add_parser("update",
                           help="Program will be in the update mode")
 
@@ -425,6 +435,12 @@ def parser():
                              nargs="+",
                              type=float,
                              default=[])
+    parser_down.add_argument("-n", "--name",
+                             default=None,
+                             nargs="+",
+                             help=("Download the manga with a custom name. "
+                                   "Not recommended to use with multiple "
+                                   "downloads at once."))
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
                        help="Accepts two chapter numbers,"
