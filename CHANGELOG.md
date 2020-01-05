@@ -1,5 +1,12 @@
 # Release History
 
+## v1.5.1(20-01-05)
+
+## Fixes
+- mangadex moved (temporarily) from .org to .cc (added error message to remind about the change if given a .org link)
+- mangatown module fixed
+- another heavenmanga url change 
+
 ## v1.5.0(19-11-15)
 
 ## New

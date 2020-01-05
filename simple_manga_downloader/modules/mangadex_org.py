@@ -8,11 +8,11 @@ from ..decorators import request_exception_handler
 class Mangadex():
     def __init__(self, link, directory):
         self.session = cfscrape.create_scraper()
-        self.site = "mangadex.org"
+        self.site = "mangadex.cc"
         self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")
-        self.mn_api_url = "https://mangadex.org/api/manga/{}"
-        self.ch_api_url = "https://mangadex.org/api/chapter/{}"
+        self.mn_api_url = f"https://{self.site}/api/manga/"
+        self.ch_api_url = f"https://{self.site}/api/chapter/"
         self.id = self.get_id(link)
         self.cover_url = None
         self.chapters = {}
@@ -38,7 +38,7 @@ class Mangadex():
         using the mangadex API
         title_return=True will only get the title and return
         '''
-        r = self.session.get(self.mn_api_url.format(self.id), timeout=5)
+        r = self.session.get(f"{self.mn_api_url}{self.id}", timeout=5)
         r.raise_for_status()
         data = r.json()
         self.series_title = html.unescape(data["manga"]["title"])
@@ -46,7 +46,7 @@ class Mangadex():
             return True
         cover = data["manga"].get("cover_url")
         if cover:
-            self.cover_url = f"https://mangadex.org{cover}"
+            self.cover_url = f"https://{self.site}{cover}"
 
         # Checks if chapters exist
         try:
@@ -151,7 +151,7 @@ class Mangadex():
             return groups
 
         ch_id = self.chapters[ch]["ch_id"]
-        r = self.session.get(self.ch_api_url.format(ch_id), timeout=5)
+        r = self.session.get(f"{self.ch_api_url}{ch_id}", timeout=5)
         if r.status_code != 200 and r.status_code != 409:
             raise requests.HTTPError
 
@@ -162,7 +162,7 @@ class Mangadex():
 
         # Fixes the incomplete link
         if data["server"] == "/data/":
-            server = "https://mangadex.org/data/"
+            server = f"https://{self.site}/data/"
         else:
             server = data["server"]
 

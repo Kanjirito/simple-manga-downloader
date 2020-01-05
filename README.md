@@ -3,11 +3,11 @@ Simple manga console downloader written in python.
 
 Currently supports:
 
-- [mangadex.org](https://mangadex.org/)
-- [mangaseeonline.us](https://mangaseeonline.us/)
-- [mangatown.com](https://www.mangatown.com/)
-- [heavenmanga.org](https://ww2.heavenmanga.org/)
-- [mangakakalot.com](https://mangakakalot.com/page)
+- [mangadex](https://mangadex.cc/)
+- [mangaseeonline.](https://mangaseeonline.us/)
+- [mangatown](https://www.mangatown.com/)
+- [heavenmanga](http://ww7.heavenmanga.org/)
+- [mangakakalot](https://mangakakalot.com/page)
 
 
 Allows you to download manga in 5 ways:

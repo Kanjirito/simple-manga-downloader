@@ -41,7 +41,7 @@ def site_detect(link, args, config):
 
     directory = Path(path)
 
-    if "mangadex.org" in link:
+    if "mangadex.cc" in link:
         site = Mangadex
     elif "mangaseeonline.us" in link:
         site = Mangasee
@@ -54,7 +54,11 @@ def site_detect(link, args, config):
     else:
         msg = f"Wrong link: \"{link}\""
         line = make_line(msg)
-        print(f"\n{line}\n{msg}\n{line}")
+        print(line)
+        print(msg)
+        if "mangadex.org" in link:
+            print("Mangadex changed from .org to .cc")
+        print(line)
         return False
 
     Manga = site(link, directory)

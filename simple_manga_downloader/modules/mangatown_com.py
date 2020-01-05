@@ -45,14 +45,16 @@ class Mangatown():
         return True
 
     def get_chapters(self):
-        '''Gets the list of available chapters
-        title_return=True will not create the chapters dict,
-        used if only title is needed'''
+        '''
+        Gets the list of available chapters
+        '''
         for chapter in self.data:
-            chapter_link = f"https:{chapter.find('a')['href']}"
+            chapter_link = f"{self.base_link}{chapter.find('a')['href']}"
             try:
                 if chapter.find("span")["class"] != ["time"]:
                     chapter_title = chapter.find("span").text
+                    if chapter_title == "new":
+                        chapter_title = None
                 else:
                     chapter_title = None
             except KeyError:
@@ -79,7 +81,7 @@ class Mangatown():
         soup = BeautifulSoup(r.text, "html.parser")
 
         links = soup.find(class_="page_select").find_all("option")
-        pages = [f"https:{p['value']}" for p in links if "Featured" not in p]
+        pages = [f"{self.base_link}{p['value']}" for p in links if "Featured" not in p]
 
         image_links = []
         for page in pages:
@@ -87,7 +89,7 @@ class Mangatown():
             page_r.raise_for_status()
             page_soup = BeautifulSoup(page_r.text, "html.parser")
             img_link = page_soup.find(id="image")["src"]
-            image_links.append(img_link)
+            image_links.append(f"https:{img_link}")
 
         self.chapters[ch]["pages"] = image_links
         return True
