@@ -1,5 +1,22 @@
 # Release History
 
+## v1.6.0(pre-release)
+
+## New
+- mangadex language code selection
+- `version` mode that prints the current version
+- deletes failed chapters
+
+## Changes
+- the "to download" summary now includes chapter titles when possible
+- help message improvements
+- config file gets created even if no settings were changed (`conf` mode still needs to be used at least once for it to be created)
+- `down` mode now requires a link
+- downloader will abort if config failed to load
+
+## Fixes
+- crash if using `down -l` and no manga fits the criteria
+
 ## v1.5.1(20-01-05)
 
 ## Fixes

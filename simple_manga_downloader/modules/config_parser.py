@@ -7,26 +7,40 @@ class Config():
         # Modified flag used for check if saving is needed
         self.modified = False
         self.exists = False
+        self.status = False
         self.directory = Path.home() / "Simple-Manga-Downloader"
         if custom_conf:
             self.config_path = Path(custom_conf)
         else:
             self.config_path = self.directory / "simple_manga_downloader_config.json"
 
-        default_directory = self.directory / "Manga"
-        # Loads the config or creates the base one if not present
+        self.load_config()
+
+    def __bool__(self):
+        return self.status
+
+    def load_config(self):
+        '''
+        Loads the config if present, uses defaults if missing setting
+        '''
         if self.config_path.is_file():
             self.exists = True
-            with open(self.config_path, "r") as f:
-                config = json.load(f)
+            try:
+                with open(self.config_path, "r") as f:
+                    config = json.load(f)
+            except json.decoder.JSONDecodeError:
+                print("\nCould not load config file! Fix or remove it!")
+                print(f"Config located at: \"{self.config_path}\"")
+                return
         else:
-            config = {"manga_directory": default_directory,
-                      "tracking": {}}
+            config = {}
 
-        # Gets the useful data for easy access
-        self.manga_directory = Path(config.get("manga_directory", default_directory))
+        default_dir = self.directory / "Manga"
+        self.manga_directory = Path(config.get("manga_directory", default_dir))
         self.tracked_manga = config.get("tracking", [])
         self.covers = config.get("covers", False)
+        self.lang_code = config.get("lang_code", "gb")
+        self.status = True
 
     def add_tracked(self, Manga):
         '''Adds manga to the tracked list'''
@@ -158,14 +172,22 @@ class Config():
         print(self.manga_directory)
         print()
 
-    def save_config(self):
-        config = {"manga_directory": str(self.manga_directory),
-                  "covers": self.covers,
-                  "tracking": self.tracked_manga}
-        try:
-            self.directory.mkdir(parents=True)
-        except FileExistsError:
-            pass
+    def change_lang(self, code):
+        if code.lower() != self.lang_code.lower():
+            self.lang_code = code
+            self.modified = True
+        print(f"Language changed to \"{code}\"")
 
-        with open(self.config_path, "w") as f:
-            json.dump(config, f, indent=4)
+    def save_config(self):
+        if self.modified or not self.exists:
+            config = {"manga_directory": str(self.manga_directory),
+                      "covers": self.covers,
+                      "lang_code": self.lang_code,
+                      "tracking": self.tracked_manga}
+            try:
+                self.directory.mkdir(parents=True)
+            except FileExistsError:
+                pass
+
+            with open(self.config_path, "w") as f:
+                json.dump(config, f, indent=4)

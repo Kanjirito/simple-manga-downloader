@@ -6,6 +6,8 @@ from ..decorators import request_exception_handler
 
 
 class Mangadex():
+    lang_code = "gb"
+
     def __init__(self, link, directory):
         self.session = cfscrape.create_scraper()
         self.site = "mangadex.cc"
@@ -63,8 +65,7 @@ class Mangadex():
         '''
 
         for chapter, ch in self.data["chapter"].items():
-            # Only English
-            if ch["lang_code"] != "gb":
+            if ch["lang_code"].lower() != self.lang_code.lower():
                 continue
 
             # Creates the number of the chapter
