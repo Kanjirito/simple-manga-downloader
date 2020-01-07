@@ -8,6 +8,7 @@ Currently supports:
 - [mangatown](https://www.mangatown.com/)
 - [heavenmanga](http://ww7.heavenmanga.org/)
 - [mangakakalot](https://mangakakalot.com/page)
+- [manganelo](https://manganelo.com/)
 
 
 Allows you to download manga in 5 ways:
@@ -21,7 +22,9 @@ Allows you to download manga in 5 ways:
 Additional features of the downloader:
 
 - It will check if a chapter on mangadex.org has multiple uploads by different groups and ask which one to download
-- It handles the MangaPlus chapters
+- It handles the MangaPlus chapters on mangadex
+- You can specify the language (mangadex only)
+- You can specify which chapters to exclude from the download
 - You can change the directory where the manga is saved
 - You can add ongoing manga to the tracked list for a easy way to check for new chapters
 - Config is saved as a .json for readability and easy modification
@@ -48,7 +51,9 @@ pip install simple-manga-downloader
 
 # USAGE
 
-You can specify a different config to be used like this:
+## General info
+
+The default manga download directory is `~/Manga` this can be changed in the config file or in the command. The config directory is `~/.config/SMD`, you can specify a different config to be used like this:
 
 ```
 SMD -c "path/to/config" mode arguments
@@ -59,6 +64,17 @@ Examples:
 SMD -c "~/Downloader/config.json" down link_to_manga -l
 SMD -c "~/Downloader/config.json" update
 ```
+To create the config file the downloader needs to successfully finish. If you want to have the config created before you use the downloader you can do:
+```
+SMD conf
+```
+
+To check the current version of the downloader:
+```
+SMD -v
+SMD --version
+```
+
 
 ## Download mode
 This mode will download the manga from the link based on your selection, accepts multiple links.
@@ -99,7 +115,7 @@ SMD down link_to_manga [more_links] --exclude 5 10 1
 
 Download into a different directory:
 ```
-SMD down link_to_manga -d "some/path"
+SMD down link_to_manga -d "some/custom/path"
 ```
 
 Download using a custom name:
@@ -119,6 +135,16 @@ SMD update
 
 ## Config mode
 This mode allows the modification of the config file.
+
+Changing the mangadex language:
+```
+SMD conf --change_lang code
+```
+
+Listing available language codes:
+```
+SMD conf --list_lang
+```
 
 Adding a manga to the tracked list:
 ```
@@ -160,7 +186,7 @@ SMD conf -t
 SMD conf --clear-tracked
 ```
 
-Changing the save directory:
+Changing the manga download directory:
 ```
 SMD conf -s path/to/directory
 SMD conf --save-directory path/to/directory
@@ -190,8 +216,8 @@ SMD conf -m
 SMD conf --modify-position
 ```
 
-Print the config and download paths:
+Print the current settings:
 ```
 SMD conf -p
-SMD conf --paths
+SMD conf --print_conf
 ```

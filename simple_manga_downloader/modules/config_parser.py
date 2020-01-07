@@ -4,15 +4,53 @@ from pathlib import Path
 
 class Config():
     def __init__(self, custom_conf):
-        # Modified flag used for check if saving is needed
-        self.modified = False
-        self.exists = False
+        self.lang_codes = {
+            "sa": "Arabic",
+            "bd": "Bengali",
+            "bg": "Bulgarian",
+            "mm": "Burmese",
+            "ct": "Catalan",
+            "cn": "Chinese (Simple)",
+            "hk": "Chinese (Traditional)",
+            "cz": "Czech",
+            "dk": "Danish",
+            "nl": "Dutch",
+            "gb": "English",
+            "ph": "Filipino",
+            "fi": "Finnish",
+            "fr": "French",
+            "de": "German",
+            "gr": "Greek",
+            "il": "Hebrew",
+            "hu": "Hungarian",
+            "id": "Indonesian",
+            "it": "Italian",
+            "jp": "Japanese",
+            "kr": "Korean",
+            "lt": "Lithuanian",
+            "my": "Malay",
+            "mn": "Mongolian",
+            "ir": "Persian",
+            "pl": "Polish",
+            "br": "Portuguese (Brazil)",
+            "pt": "Portuguese (Portugal)",
+            "ro": "Romanian",
+            "ru": "Russian",
+            "rs": "Serbo-Croatian",
+            "es": "Spanish (Spain)",
+            "mx": "Spanish (Latin America)",
+            "se": "Swedish",
+            "th": "Thai",
+            "tr": "Turkish",
+            "ua": "Ukrainian",
+            "vn": "Vietnamese",
+        }
         self.status = False
-        self.directory = Path.home() / "Simple-Manga-Downloader"
+        self.home = Path.home()
         if custom_conf:
             self.config_path = Path(custom_conf)
         else:
-            self.config_path = self.directory / "simple_manga_downloader_config.json"
+            self.config_path = self.home / ".config" / "SMD" / "SMD_conf.json"
 
         self.load_config()
 
@@ -24,7 +62,6 @@ class Config():
         Loads the config if present, uses defaults if missing setting
         '''
         if self.config_path.is_file():
-            self.exists = True
             try:
                 with open(self.config_path, "r") as f:
                     config = json.load(f)
@@ -35,7 +72,7 @@ class Config():
         else:
             config = {}
 
-        default_dir = self.directory / "Manga"
+        default_dir = self.home / "Manga"
         self.manga_directory = Path(config.get("manga_directory", default_dir))
         self.tracked_manga = config.get("tracking", [])
         self.covers = config.get("covers", False)
@@ -46,7 +83,6 @@ class Config():
         '''Adds manga to the tracked list'''
         if Manga.series_title not in self.tracked_manga:
             self.tracked_manga[Manga.series_title] = Manga.manga_link
-            self.modified = True
             print(f"Added to tracked:  {Manga.series_title}")
         else:
             print(f"Already tracked:  {Manga.series_title}")
@@ -83,13 +119,10 @@ class Config():
         for r in to_remove:
             del self.tracked_manga[r]
             print(f"Removed from tracked: {r}")
-        if to_remove:
-            self.modified = True
 
     def change_dir(self, dire):
         '''Changes the manga download directory'''
         self.manga_directory = Path(dire).resolve()
-        self.modified = True
 
     def clear_tracked(self):
         '''Clears the tracked shows'''
@@ -97,7 +130,6 @@ class Config():
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
             self.tracked_manga = {}
-            self.modified = True
             print("Tracked cleared")
 
     def reset_config(self):
@@ -105,10 +137,10 @@ class Config():
         confirm = input("Are you sure you want to reset the config file to the defaults? "
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
-            self.manga_directory = self.directory.parent / "Manga"
+            self.manga_directory = self.home / "Manga"
             self.tracked_manga = {}
             self.covers = False
-            self.modified = True
+            self.lang_code = "gb"
             print("Config was reset")
 
     def change_position(self, verbose):
@@ -139,7 +171,6 @@ class Config():
         keys.insert(move_index, get)
         self.tracked_manga = dict([(k, self.tracked_manga[k]) for k in keys])
 
-        self.modified = True
         print(f"Entry \"{get}\" moved to {move_index + 1}")
 
     def list_tracked(self, verbose):
@@ -161,33 +192,46 @@ class Config():
         else:
             self.covers = True
             print("Cover download turned on!")
-        self.modified = True
 
     def print_paths(self):
-        if not self.exists:
-            print("\nConfig file exists only in memory")
         print("\nConfig path:")
         print(self.config_path)
         print("\nManga download path:")
         print(self.manga_directory)
+        print("\nCovers:")
+        print(self.covers)
+        print("\nMangadex language code:")
+        print(self.lang_code)
         print()
 
     def change_lang(self, code):
-        if code.lower() != self.lang_code.lower():
-            self.lang_code = code
-            self.modified = True
-        print(f"Language changed to \"{code}\"")
+        new_code = code.lower()
+        cur_code = self.lang_code.lower()
+        if new_code != cur_code:
+            if new_code in self.lang_codes:
+                self.lang_code = code
+                code_desc = self.lang_codes[new_code]
+                print(f"Language changed to \"{new_code}\" - {code_desc}")
+            else:
+                print(f"Invalid language code: \"{new_code}\"")
+                print("Use \"SMD conf --list_lang\" to list available codes")
+        else:
+            print(f"\"{new_code}\" already set as current language")
+
+    def list_lang(self):
+        print("Available language codes:")
+        for code, desc in self.lang_codes.items():
+            print(f"\"{code}\" - {desc}")
 
     def save_config(self):
-        if self.modified or not self.exists:
-            config = {"manga_directory": str(self.manga_directory),
-                      "covers": self.covers,
-                      "lang_code": self.lang_code,
-                      "tracking": self.tracked_manga}
-            try:
-                self.directory.mkdir(parents=True)
-            except FileExistsError:
-                pass
+        config = {"manga_directory": str(self.manga_directory),
+                  "covers": self.covers,
+                  "lang_code": self.lang_code,
+                  "tracking": self.tracked_manga}
+        try:
+            self.config_path.parent.mkdir(parents=True)
+        except FileExistsError:
+            pass
 
-            with open(self.config_path, "w") as f:
-                json.dump(config, f, indent=4)
+        with open(self.config_path, "w") as f:
+            json.dump(config, f, indent=4)

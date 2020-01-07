@@ -4,18 +4,25 @@
 
 ## New
 - mangadex language code selection
-- `version` mode that prints the current version
+- `conf --list_lang` to list available codes
+- `conf --change_lang` to change the language
+- `SMD -v (--version)` prints current version
 - deletes failed chapters
 
 ## Changes
-- the "to download" summary now includes chapter titles when possible
+- the "to download" and after download summaries now include chapter titles when possible
 - help message improvements
-- config file gets created even if no settings were changed (`conf` mode still needs to be used at least once for it to be created)
+- moved config file to `~/.config/SMD`
+- default download folder changed to `~/Manga`
+- config file always gets created
+- `conf -p (--print_conf)` now prints all settings
 - `down` mode now requires a link
 - downloader will abort if config failed to load
+- manganelo moved to it's separate module
 
 ## Fixes
 - crash if using `down -l` and no manga fits the criteria
+- `conf -d (--default)` now sets the proper download directory
 
 ## v1.5.1(20-01-05)
 

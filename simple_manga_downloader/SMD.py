@@ -4,6 +4,7 @@ from .modules import Mangasee
 from .modules import Mangatown
 from .modules import Heavenmanga
 from .modules import Mangakakalot
+from .modules import Manganelo
 from .modules import Config
 from .decorators import limiter, request_exception_handler
 from . import __version__
@@ -19,10 +20,6 @@ import time
 def main():
     args = parser()
     mode = args.subparser_name
-    if mode == "version":
-        print_ver()
-        return
-
     config = Config(args.custom_cfg)
     if not config:
         return
@@ -35,9 +32,7 @@ def main():
     elif mode == "conf":
         conf_mode(args, config)
 
-
-def print_ver():
-    print(f"Current version: v{__version__}")
+    config.save_config()
 
 
 def site_detect(link, args, directory):
@@ -53,8 +48,10 @@ def site_detect(link, args, directory):
         site = Heavenmanga
     elif "mangatown.com" in link:
         site = Mangatown
-    elif "mangakakalot.com" in link or "manganelo.com" in link:
+    elif "mangakakalot.com" in link:
         site = Mangakakalot
+    elif "manganelo.com" in link:
+        site = Manganelo
     else:
         msg = f"Wrong link: \"{link}\""
         line = make_line(msg)
@@ -119,8 +116,8 @@ def conf_mode(args, config):
         config.toogle_covers()
     if args.lang_code:
         config.change_lang(args.lang_code)
-
-    config.save_config()
+    if args.list_lang:
+        config.list_lang()
 
 
 def main_pipeline(links, args, config):
@@ -441,12 +438,20 @@ def page_name_gen(manga_title, data, chapter_name):
 
 def parser():
     '''Parses the arguments'''
-    parser = argparse.ArgumentParser()
+    desc = ("SMD is a command line manga downloader. For more information "
+            "read the README file in the GitHub repo.\n"
+            "https://github.com/Kanjirito/simple-manga-downloader/blob/master/README.md")
+    parser = argparse.ArgumentParser(description=desc,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("-c", "--custom",
                         dest="custom_cfg",
                         metavar="PATH/TO/CONFIG",
+                        help="Sets a custom config to use",
                         default=None)
+    parser.add_argument("-v", "--version",
+                        action="version",
+                        version=f"SMD v{__version__}")
 
     # Sub-parsers for the config and download functionality
     subparsers = parser.add_subparsers(dest="subparser_name",
@@ -454,44 +459,53 @@ def parser():
                                        required=True)
     parser_conf = subparsers.add_parser("conf",
                                         help=("Program will be in "
-                                              "the config edit mode"))
+                                              "the config edit mode"),
+                                        description="Changes the settings")
     parser_down = subparsers.add_parser("down",
                                         help=("Program will be in "
-                                              "the download mode"))
+                                              "the download mode"),
+                                        description=("Downloads the given manga. "
+                                                     "Supports multiple links at once."))
     subparsers.add_parser("update",
-                          help="Program will be in the update mode")
-    subparsers.add_parser("version",
-                          help="Displays the downloader version")
+                          help="Program will be in the update mode",
+                          description="Download new chapters from tracked list")
 
     # Parser for download mode
     parser_down.add_argument("input", nargs="+",
-                             metavar="MANGA URL")
+                             metavar="manga url")
     parser_down.add_argument("-d", "--directory",
                              dest="custom_dire",
+                             metavar="PATH/TO/DIRECTORY",
                              default=None,
                              help="Custom path for manga download")
     parser_down.add_argument("-e", "--exclude",
                              help="Chapters to exclude \"1 5 10 15\"",
+                             metavar="NUMBER",
                              nargs="+",
                              type=float,
                              default=[])
     parser_down.add_argument("-n", "--name",
                              default=None,
+                             metavar="NEW NAME",
                              nargs="+",
                              help=("Download the manga with a custom name. "
                                    "Not recommended to use with multiple "
                                    "downloads at once."))
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
-                       help="Accepts two chapter numbers,"
-                       "both ends are inclusive. \"1 15\"",
+                       help=("Specifies the range of chapters to download, "
+                             "both ends are inclusive. \"1 15\""),
+                       metavar="NUMBER",
                        nargs=2,
                        type=float)
     group.add_argument("-s", "--selection",
-                       help="Accepts multiple chapters \"2 10 25\"",
+                       help=("Specifies which chapters to download. "
+                             "Accepts multiple chapters \"2 10 25\""),
+                       metavar="NUMBER",
                        nargs="+",
                        type=float)
     group.add_argument("-l", "--latest",
+                       help="Download only the latest chapter",
                        action='store_true')
 
     # Parser for config mode
@@ -528,18 +542,22 @@ def parser():
                              help="Used with -l or -m to also print links",
                              action="store_true",
                              dest="verbose")
-    parser_conf.add_argument("-p", "--paths",
-                             help="Print config and manga path",
+    parser_conf.add_argument("-p", "--print_conf",
+                             help="Print config settings",
                              action="store_true",
                              dest="paths")
     parser_conf.add_argument("-c", "--covers",
                              help="Toggles the cover download setting",
                              action="store_true",
                              dest="cover")
-    parser_conf.add_argument("--lang_code",
+    parser_conf.add_argument("--change_lang",
                              help="Changes the mangadex language code",
                              metavar="LANGUAGE CODE",
                              dest="lang_code")
+    parser_conf.add_argument("--list_lang",
+                             help="Lists all of the mangadex language codes",
+                             action="store_true",
+                             dest="list_lang")
 
     args = parser.parse_args()
     return args
