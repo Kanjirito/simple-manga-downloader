@@ -1,4 +1,5 @@
 import setuptools
+from simple_manga_downloader import __version__
 
 
 with open("README.md", "r") as fh:
@@ -11,7 +12,7 @@ required = [
 
 setuptools.setup(
     name="simple-manga-downloader",
-    version="1.5.1",
+    version=__version__,
     author="Kanjirito",
     author_email="kanjirito@protonmail.com",
     license="GPLv3",

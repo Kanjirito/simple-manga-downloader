@@ -6,13 +6,15 @@ from ..decorators import request_exception_handler
 
 
 class Mangadex():
+    lang_code = "gb"
+
     def __init__(self, link, directory):
         self.session = cfscrape.create_scraper()
-        self.site = "mangadex.cc"
+        self.base_link = "https://mangadex.cc"
         self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")
-        self.mn_api_url = f"https://{self.site}/api/manga/"
-        self.ch_api_url = f"https://{self.site}/api/chapter/"
+        self.mn_api_url = f"{self.base_link}/api/manga/"
+        self.ch_api_url = f"{self.base_link}/api/chapter/"
         self.id = self.get_id(link)
         self.cover_url = None
         self.chapters = {}
@@ -46,7 +48,7 @@ class Mangadex():
             return True
         cover = data["manga"].get("cover_url")
         if cover:
-            self.cover_url = f"https://{self.site}{cover}"
+            self.cover_url = f"{self.base_link}{cover}"
 
         # Checks if chapters exist
         try:
@@ -63,8 +65,7 @@ class Mangadex():
         '''
 
         for chapter, ch in self.data["chapter"].items():
-            # Only English
-            if ch["lang_code"] != "gb":
+            if ch["lang_code"].lower() != self.lang_code.lower():
                 continue
 
             # Creates the number of the chapter
@@ -162,7 +163,7 @@ class Mangadex():
 
         # Fixes the incomplete link
         if data["server"] == "/data/":
-            server = f"https://{self.site}/data/"
+            server = f"{self.base_link}/data/"
         else:
             server = data["server"]
 
