@@ -34,7 +34,7 @@ class Manganelo:
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.cover_url = soup.find(class_="img-loading")["src"]
+        self.cover_url = soup.find(class_="info-image").img["src"]
 
         self.series_title = soup.find(class_="story-info-right").find("h1").text
         if title_return:
