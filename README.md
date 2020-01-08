@@ -49,6 +49,15 @@ Additional features of the downloader:
 pip install simple-manga-downloader
 ```
 
+## Using the git repo
+
+Copy the repo and use the entry script in the main repo directory
+```
+cd path/to/repo
+chmod +x SMD.py
+./SMD.py [mode] [arguments]
+```
+
 
 # USAGE
 

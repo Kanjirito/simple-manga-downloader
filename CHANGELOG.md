@@ -1,6 +1,6 @@
 # Release History
 
-## v1.6.0(pre-release)
+## v1.6.0(20-01-08)
 
 ## New
 - mangadex language code selection
