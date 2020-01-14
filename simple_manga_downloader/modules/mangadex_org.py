@@ -10,7 +10,7 @@ class Mangadex():
 
     def __init__(self, link, directory):
         self.session = cfscrape.create_scraper()
-        self.base_link = "https://mangadex.cc"
+        self.base_link = "https://mangadex.org"
         self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")
         self.mn_api_url = f"{self.base_link}/api/manga/"

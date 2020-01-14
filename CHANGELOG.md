@@ -1,5 +1,10 @@
 # Release History
 
+## v1.6.1(20-01-14)
+
+## Changes
+- mangadex is back to it's .org domain (.cc links will still work)
+
 ## v1.6.0(20-01-08)
 
 ## New

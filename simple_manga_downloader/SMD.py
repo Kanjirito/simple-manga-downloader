@@ -40,7 +40,7 @@ def site_detect(link, args, directory):
     Detects the site and creates a proper manga object
     '''
 
-    if "mangadex.cc" in link:
+    if "mangadex.org" in link or "mangadex.cc" in link:
         site = Mangadex
     elif "mangaseeonline.us" in link:
         site = Mangasee
@@ -57,8 +57,6 @@ def site_detect(link, args, directory):
         line = make_line(msg)
         print(line)
         print(msg)
-        if "mangadex.org" in link:
-            print("Mangadex changed from .org to .cc")
         print(line)
         return False
 
