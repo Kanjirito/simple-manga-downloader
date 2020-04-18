@@ -1,5 +1,4 @@
-import cfscrape
-import requests.exceptions
+import requests
 import html
 import re
 from ..decorators import request_exception_handler
@@ -9,7 +8,7 @@ class Mangadex():
     lang_code = "gb"
 
     def __init__(self, link, directory):
-        self.session = cfscrape.create_scraper()
+        self.session = requests.Session()
         self.base_link = "https://mangadex.org"
         self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")

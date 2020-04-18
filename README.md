@@ -6,10 +6,10 @@ Currently supports:
 - [mangadex](https://mangadex.org)
 - [mangaseeonline](https://mangaseeonline.us)
 - [mangatown](https://www.mangatown.com)
-- [heavenmanga](http://ww7.heavenmanga.org)
 - [mangakakalot](https://mangakakalot.com/page)
 - [manganelo](https://manganelo.com)
 
+*Note:* mangadex and mangasee are the main supported sites, the others will be maintained but they are not my top priority.
 
 Allows you to download manga in 5 ways:
 
@@ -37,12 +37,7 @@ Additional features of the downloader:
 
 ## Requirements
 - BeautifulSoup 4
-- cfscrape
-
-**IMPORTANT!**
-
-[cfscrape requires Node.js to be installed](https://github.com/Anorov/cloudflare-scrape#nodejs-dependency)
-
+- requests
 
 ## pip
 ```
@@ -230,4 +225,9 @@ Print the current settings:
 ```
 SMD conf -p
 SMD conf --print_conf
+```
+
+Change the page download timeout (in seconds):
+```
+SMD conf --timeout seconds
 ```

@@ -2,7 +2,6 @@
 from .modules import Mangadex
 from .modules import Mangasee
 from .modules import Mangatown
-from .modules import Heavenmanga
 from .modules import Mangakakalot
 from .modules import Manganelo
 from .modules import Config
@@ -18,24 +17,25 @@ import time
 
 
 def main():
-    args = parser()
-    mode = args.subparser_name
-    config = Config(args.custom_cfg)
-    if not config:
+    global CONFIG
+    parser()
+    mode = ARGS.subparser_name
+    CONFIG = Config(ARGS.custom_cfg)
+    if not CONFIG:
         return
-    Mangadex.lang_code = config.lang_code
+    Mangadex.lang_code = CONFIG.lang_code
 
     if mode == "down":
-        main_pipeline(args.input, args, config)
+        main_pipeline(ARGS.input)
     elif mode == "update":
-        main_pipeline(config.tracked_manga.values(), args, config)
+        main_pipeline(CONFIG.tracked_manga.values())
     elif mode == "conf":
-        conf_mode(args, config)
+        conf_mode()
 
-    config.save_config()
+    CONFIG.save_config()
 
 
-def site_detect(link, args, directory):
+def site_detect(link, directory):
     '''
     Detects the site and creates a proper manga object
     '''
@@ -44,8 +44,6 @@ def site_detect(link, args, directory):
         site = Mangadex
     elif "mangaseeonline.us" in link:
         site = Mangasee
-    elif "heavenmanga.org" in link:
-        site = Heavenmanga
     elif "mangatown.com" in link:
         site = Mangatown
     elif "mangakakalot.com" in link:
@@ -83,53 +81,56 @@ def get_cover(Manga):
     return download_image(Manga.cover_url, Manga.session, no_ext)
 
 
-def conf_mode(args, config):
-    if args.default:
-        config.reset_config()
-    elif args.clear_tracked:
-        config.clear_tracked()
+def conf_mode():
+    if ARGS.default:
+        CONFIG.reset_CONFIG()
+    elif ARGS.clear_tracked:
+        CONFIG.clear_tracked()
 
-    if args.add:
-        for link in args.add:
+    if ARGS.add:
+        for link in ARGS.add:
             print()
-            Manga = site_detect(link, args, config)
+            Manga = site_detect(link, ARGS, CONFIG)
             if Manga is False:
                 continue
             title = Manga.get_main(title_return=True)
             if title is True:
-                config.add_tracked(Manga)
+                CONFIG.add_tracked(Manga)
             else:
                 print(f"{title} for:\n{link}")
-    elif args.remove:
-        config.remove_tracked(args.remove)
-    if args.list:
-        config.list_tracked(args.verbose)
-    if args.m_dir:
-        config.change_dir(args.m_dir)
-    if args.position:
-        config.change_position(args.verbose)
-    if args.paths:
-        config.print_paths()
-    if args.cover:
-        config.toogle_covers()
-    if args.lang_code:
-        config.change_lang(args.lang_code)
-    if args.list_lang:
-        config.list_lang()
+    elif ARGS.remove:
+        CONFIG.remove_tracked(ARGS.remove)
+    if ARGS.list:
+        CONFIG.list_tracked(ARGS.verbose)
+    if ARGS.m_dir:
+        CONFIG.change_dir(ARGS.m_dir)
+    if ARGS.position:
+        CONFIG.change_position(ARGS.verbose)
+    if ARGS.cover:
+        CONFIG.toogle_covers()
+    if ARGS.lang_code:
+        CONFIG.change_lang(ARGS.lang_code)
+    if ARGS.list_lang:
+        CONFIG.list_lang()
+    if ARGS.timeout is not None:
+        CONFIG.change_timeout(ARGS.timeout)
+    if ARGS.print:
+        CONFIG.print_config()
 
 
-def main_pipeline(links, args, config):
+def main_pipeline(links):
     '''
     Takes a list of manga links and does all of the required stuff
     '''
+
     try:
-        custom = args.custom_dire
+        custom = ARGS.custom_dire
         if custom:
             path = custom
         else:
-            path = config.manga_directory
+            path = CONFIG.manga_directory
     except AttributeError:
-        path = config.manga_directory
+        path = CONFIG.manga_directory
     directory = Path(path).resolve()
 
     if not links:
@@ -144,11 +145,11 @@ def main_pipeline(links, args, config):
     total_num_ch = 0
     found_titles = {}
     for link in links:
-        Manga = site_detect(link, args, directory)
+        Manga = site_detect(link, directory)
         if not Manga:
             continue
 
-        status = handle_manga(Manga, config.covers, args)
+        status = handle_manga(Manga)
         if status:
             ready.append(Manga)
             total_num_ch += len(Manga)
@@ -170,14 +171,14 @@ def main_pipeline(links, args, config):
         print("Found 0 chapters ready to download.")
         return
 
-    print(f"Chapters to download:")
+    print("Chapters to download:")
     for title, chapter in found_titles.items():
         print(f"{title} - {len(chapter)} chapter(s):")
         for ch in chapter:
             print(f"    Chapter {ch}")
 
     print(f"\n{total_num_ch} chapter(s) ready to download")
-    confirm = input(f"Start the download? "
+    confirm = input("Start the download? "
                     "[y to confirm/anything else to cancel]: "
                     ).lower()
     if confirm == "y":
@@ -186,7 +187,7 @@ def main_pipeline(links, args, config):
         print("Aborting!")
 
 
-def handle_manga(Manga, covers, args):
+def handle_manga(Manga):
     '''
     Handles all stuff related to the Manga
     returns True if everything fine
@@ -197,13 +198,13 @@ def handle_manga(Manga, covers, args):
               f"\n{main_status}\n{Manga.manga_link}")
         return False
 
-    if hasattr(args, "name") and args.name:
-        Manga.series_title = " ".join(args.name)
+    if hasattr(ARGS, "name") and ARGS.name:
+        Manga.series_title = " ".join(ARGS.name)
     message = f"Checking \"{Manga.series_title}\""
     line_break = make_line(message)
     print(f"\n{line_break}\n{message}\n{line_break}\n")
 
-    if covers and Manga.cover_url:
+    if CONFIG.covers and Manga.cover_url:
         cov = get_cover(Manga)
         if cov is True:
             print("-----------\n"
@@ -216,7 +217,7 @@ def handle_manga(Manga, covers, args):
                   f"\n{cov}"
                   f"\n{cov_line}\n")
     Manga.get_chapters()
-    filter_wanted(Manga, args)
+    filter_wanted(Manga)
 
     if not Manga.chapters:
         print("Found 0 wanted chapters")
@@ -228,7 +229,7 @@ def handle_manga(Manga, covers, args):
     return chapter_info_get(Manga)
 
 
-def filter_wanted(Manga, args):
+def filter_wanted(Manga):
     '''
     Filters the chapters dict to match the criteria
     '''
@@ -236,10 +237,10 @@ def filter_wanted(Manga, args):
     chapter_list = list(Manga.chapters)
     chapter_list.sort()
 
-    if args.subparser_name == "update":
+    if ARGS.subparser_name == "update":
         wanted = (ch for ch in chapter_list)
     else:
-        wanted = filter_selection(chapter_list, args)
+        wanted = filter_selection(chapter_list)
 
     filtered = filter_downloaded(Manga.manga_dir, wanted)
 
@@ -253,30 +254,30 @@ def make_line(string):
     return "-" * len(string)
 
 
-def filter_selection(chapter_list, args):
+def filter_selection(chapter_list):
     '''A generator that yields wanted chapters based on selection'''
 
-    if args.latest:
+    if ARGS.latest:
         try:
             yield max(chapter_list)
         except ValueError:
             pass
-    elif args.range:
-        a = args.range[0]
-        b = args.range[1]
+    elif ARGS.range:
+        a = ARGS.range[0]
+        b = ARGS.range[1]
         for ch in chapter_list:
-            if a <= ch <= b and ch not in args.exclude:
+            if a <= ch <= b and ch not in ARGS.exclude:
                 yield ch
-    elif args.selection:
-        to_get = sorted(args.selection)
+    elif ARGS.selection:
+        to_get = sorted(ARGS.selection)
         for n in to_get:
             if n.is_integer():
                 n = int(n)
-            if n in chapter_list and n not in args.exclude:
+            if n in chapter_list and n not in ARGS.exclude:
                 yield n
     else:
         for ch in chapter_list:
-            if ch not in args.exclude:
+            if ch not in ARGS.exclude:
                 yield ch
 
 
@@ -343,7 +344,8 @@ def download_image(link, session, no_ext):
     Download function, gets the image from the link, limited by wrapper
     no_ext = save target Path object with no file extension
     '''
-    content = session.get(link, stream=True, timeout=5)
+    content = session.get(link, stream=True,
+                          timeout=CONFIG.download_timeout)
 
     file_type = imghdr.what("", h=content.content)
     if not file_type:
@@ -408,6 +410,7 @@ def get_chapter(Manga, num):
         image = download_image(link, Manga.session, no_ext)
         if image is not True:
             print("Failed to get image, skipping to next chapter")
+            print(image)
             failed = True
             shutil.rmtree(ch_dir)
             break
@@ -543,7 +546,7 @@ def parser():
     parser_conf.add_argument("-p", "--print_conf",
                              help="Print config settings",
                              action="store_true",
-                             dest="paths")
+                             dest="print")
     parser_conf.add_argument("-c", "--covers",
                              help="Toggles the cover download setting",
                              action="store_true",
@@ -556,9 +559,14 @@ def parser():
                              help="Lists all of the mangadex language codes",
                              action="store_true",
                              dest="list_lang")
+    parser_conf.add_argument("--timeout",
+                             help="Change the download timeout",
+                             metavar="SECONDS",
+                             type=int,
+                             dest="timeout")
 
-    args = parser.parse_args()
-    return args
+    global ARGS
+    ARGS = parser.parse_args()
 
 
 if __name__ == '__main__':

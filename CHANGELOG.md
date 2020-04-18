@@ -1,5 +1,22 @@
 # Release History
 
+## v1.7.0(pre-release)
+
+## New
+- failed page download now shows the reason
+- `page_download_timeout` setting to change the timeout for downloading images (in seconds)
+- `conf --timeout` to change the timeout setting
+
+## Removed
+- removed heaven manga support because it constantly keeps creating new problems (domain changes, cloudflare problems)
+- removed cfscrape from the requirements (this also removes the node.js dependency)
+
+## Changes
+- config and args variables changed back to globals to ovoid passing them around all the time
+
+## Fixes
+- `conf -p` now prints the absolute path (only matters when using a custom config path)
+
 ## v1.6.1(20-01-14)
 
 ## Changes

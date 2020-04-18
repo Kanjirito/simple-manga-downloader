@@ -1,8 +1,3 @@
-# Cloud flare
-# import cfscrape
-# import requests.exceptions
-
-# No cloudflare
 import requests
 
 from bs4 import BeautifulSoup
