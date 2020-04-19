@@ -30,6 +30,7 @@ Additional features of the downloader:
 - You can add ongoing manga to the tracked list for a easy way to check for new chapters
 - Config is saved as a .json for readability and easy modification
 - The downloader has a config "mode" that allows the modification of the config file without having to edit the .json manually
+- It can check for new available versions
 
 
 # Installation
@@ -131,11 +132,22 @@ SMD down link_to_manga --name Some new name
 **Warning:**
 *Using a custom name when downloading multiple manga at once will cause overwriting of the files since all of them will be assigned the same name*
 
+Download a manga from the tracked list by index:
+```
+SMD down 1 3 5
+```
+
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter
 
 ```
 SMD update
+```
+
+To only check for new chapters without downloading or needing input:
+```
+SMD update -c
+SMD update --check
 ```
 
 ## Config mode
@@ -230,4 +242,17 @@ SMD conf --print_conf
 Change the page download timeout (in seconds):
 ```
 SMD conf --timeout seconds
+```
+
+
+## Version mode
+To print the current version:
+```
+SMD version
+```
+
+To check for new versions
+```
+SMD version -c
+SMD version --check
 ```

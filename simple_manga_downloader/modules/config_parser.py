@@ -75,7 +75,7 @@ class Config():
 
         default_dir = self.home / "Manga"
         self.manga_directory = Path(config.get("manga_directory", default_dir))
-        self.tracked_manga = config.get("tracking", [])
+        self.tracked_manga = config.get("tracking", {})
         self.covers = config.get("covers", False)
         self.lang_code = config.get("lang_code", "gb")
         self.download_timeout = config.get("page_download_timeout", 5)

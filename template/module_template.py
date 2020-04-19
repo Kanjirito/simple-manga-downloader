@@ -5,7 +5,7 @@ from ..decorators import request_exception_handler
 
 
 class ClassName:
-    def __init__(self, link, directory):
+    def __init__(self, link, directory, *args, **kwargs):
         self.session = requests.Session()
         self.site = "site.com"
         self.folder = directory

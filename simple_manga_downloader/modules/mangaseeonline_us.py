@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 
 class Mangasee():
-    def __init__(self, link, directory):
+    def __init__(self, link, directory, *args, **kwargs):
         self.session = requests.Session()
         self.site = "mangaseeonline.us"
         self.folder = directory

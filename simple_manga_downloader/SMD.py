@@ -14,31 +14,44 @@ import html
 import os
 import imghdr
 import time
+import requests
 
 
 def main():
-    global CONFIG
-    parser()
-    mode = ARGS.subparser_name
-    CONFIG = Config(ARGS.custom_cfg)
-    if not CONFIG:
-        return
-    Mangadex.lang_code = CONFIG.lang_code
+    try:
+        global CONFIG
+        parser()
+        mode = ARGS.subparser_name
+        CONFIG = Config(ARGS.custom_cfg)
+        if not CONFIG:
+            return
+        Mangadex.lang_code = CONFIG.lang_code
 
-    if mode == "down":
-        main_pipeline(ARGS.input)
-    elif mode == "update":
-        main_pipeline(CONFIG.tracked_manga.values())
-    elif mode == "conf":
-        conf_mode()
+        if mode == "down":
+            main_pipeline(ARGS.input)
+        elif mode == "update":
+            main_pipeline(CONFIG.tracked_manga.values())
+        elif mode == "conf":
+            conf_mode()
+        elif mode == "version":
+            version_mode()
 
-    CONFIG.save_config()
+        CONFIG.save_config()
+    except KeyboardInterrupt:
+        print("\nKeyboard Interrupt detected, stopping!")
 
 
-def site_detect(link, directory):
+def site_detect(link, directory, check_only=False):
     '''
     Detects the site and creates a proper manga object
     '''
+    try:
+        tracked_num = int(link)
+        if 0 < tracked_num <= len(CONFIG.tracked_manga):
+            key = list(CONFIG.tracked_manga.keys())[tracked_num - 1]
+            link = CONFIG.tracked_manga[key]
+    except ValueError:
+        pass
 
     if "mangadex.org" in link or "mangadex.cc" in link:
         site = Mangadex
@@ -58,7 +71,7 @@ def site_detect(link, directory):
         print(line)
         return False
 
-    Manga = site(link, directory)
+    Manga = site(link, directory, check_only)
 
     return Manga
 
@@ -81,6 +94,37 @@ def get_cover(Manga):
     return download_image(Manga.cover_url, Manga.session, no_ext)
 
 
+def version_mode():
+    '''
+    Version mode of the downloader
+    '''
+    print(f"SMD v{__version__}")
+
+    if ARGS.version_check:
+        check = check_for_update()
+        if check is not True:
+            print("Failed to check version!")
+            print(check)
+
+
+@request_exception_handler
+def check_for_update():
+    '''
+    Checks for new versions using the PyPI API
+    '''
+
+    r = requests.get("https://pypi.org/pypi/simple-manga-downloader/json")
+    r.raise_for_status()
+    releases = r.json()["releases"]
+    lastes_version = max(releases)
+    if lastes_version > __version__:
+        date = releases[lastes_version][0]["upload_time"].split("T")[0]
+        print(f"New version available: {lastes_version} ({date})")
+    else:
+        print("No new versions found")
+    return True
+
+
 def conf_mode():
     if ARGS.default:
         CONFIG.reset_CONFIG()
@@ -90,7 +134,7 @@ def conf_mode():
     if ARGS.add:
         for link in ARGS.add:
             print()
-            Manga = site_detect(link, ARGS, CONFIG)
+            Manga = site_detect(link, CONFIG.manga_directory)
             if Manga is False:
                 continue
             title = Manga.get_main(title_return=True)
@@ -133,6 +177,11 @@ def main_pipeline(links):
         path = CONFIG.manga_directory
     directory = Path(path).resolve()
 
+    if hasattr(ARGS, "check_only") and ARGS.check_only:
+        check_only = True
+    else:
+        check_only = False
+
     if not links:
         print("\nNo manga to download!")
         return
@@ -145,7 +194,7 @@ def main_pipeline(links):
     total_num_ch = 0
     found_titles = {}
     for link in links:
-        Manga = site_detect(link, directory)
+        Manga = site_detect(link, directory, check_only)
         if not Manga:
             continue
 
@@ -178,6 +227,10 @@ def main_pipeline(links):
             print(f"    Chapter {ch}")
 
     print(f"\n{total_num_ch} chapter(s) ready to download")
+
+    if check_only:
+        return
+
     confirm = input("Start the download? "
                     "[y to confirm/anything else to cancel]: "
                     ).lower()
@@ -198,8 +251,10 @@ def handle_manga(Manga):
               f"\n{main_status}\n{Manga.manga_link}")
         return False
 
+    # Checks if a custom name was given
     if hasattr(ARGS, "name") and ARGS.name:
         Manga.series_title = " ".join(ARGS.name)
+
     message = f"Checking \"{Manga.series_title}\""
     line_break = make_line(message)
     print(f"\n{line_break}\n{message}\n{line_break}\n")
@@ -216,6 +271,7 @@ def handle_manga(Manga):
                   "Failed to get cover"
                   f"\n{cov}"
                   f"\n{cov_line}\n")
+
     Manga.get_chapters()
     filter_wanted(Manga)
 
@@ -402,20 +458,25 @@ def get_chapter(Manga, num):
     ch_dir = Manga.manga_dir / chapter_name
     ch_dir.mkdir()
 
-    name_gen = page_name_gen(title,
-                             Manga.chapters[num],
-                             chapter_name)
-    for page_name, link in name_gen:
-        no_ext = ch_dir / page_name
-        image = download_image(link, Manga.session, no_ext)
-        if image is not True:
-            print("Failed to get image, skipping to next chapter")
-            print(image)
-            failed = True
-            shutil.rmtree(ch_dir)
-            break
-        else:
-            count += 1
+    try:
+        name_gen = page_name_gen(title,
+                                 Manga.chapters[num],
+                                 chapter_name)
+        for page_name, link in name_gen:
+            no_ext = ch_dir / page_name
+            image = download_image(link, Manga.session, no_ext)
+            if image is not True:
+                print("Failed to get image, skipping to next chapter")
+                print(image)
+                failed = True
+                count = 0
+                shutil.rmtree(ch_dir)
+                break
+            else:
+                count += 1
+    except KeyboardInterrupt:
+        shutil.rmtree(ch_dir)
+        raise KeyboardInterrupt
     return (count, failed)
 
 
@@ -450,26 +511,26 @@ def parser():
                         metavar="PATH/TO/CONFIG",
                         help="Sets a custom config to use",
                         default=None)
-    parser.add_argument("-v", "--version",
-                        action="version",
-                        version=f"SMD v{__version__}")
 
     # Sub-parsers for the config and download functionality
     subparsers = parser.add_subparsers(dest="subparser_name",
                                        metavar="mode",
                                        required=True)
     parser_conf = subparsers.add_parser("conf",
-                                        help=("Program will be in "
+                                        help=("Downloader will be in "
                                               "the config edit mode"),
                                         description="Changes the settings")
     parser_down = subparsers.add_parser("down",
-                                        help=("Program will be in "
+                                        help=("Downloader will be in "
                                               "the download mode"),
                                         description=("Downloads the given manga. "
                                                      "Supports multiple links at once."))
-    subparsers.add_parser("update",
-                          help="Program will be in the update mode",
-                          description="Download new chapters from tracked list")
+    parser_update = subparsers.add_parser("update",
+                                          help="Downloader will be in the update mode",
+                                          description="Download new chapters from tracked list")
+    parser_version = subparsers.add_parser("version",
+                                           help="Downloader will be in version mode",
+                                           description="Prints the downloader version")
 
     # Parser for download mode
     parser_down.add_argument("input", nargs="+",
@@ -564,6 +625,19 @@ def parser():
                              metavar="SECONDS",
                              type=int,
                              dest="timeout")
+
+    # Update options
+    parser_update.add_argument("-c", "--check",
+                               help="Only check for new chapters"
+                               "without downloading and asking for input",
+                               action="store_true",
+                               dest="check_only")
+
+    # Version options
+    parser_version.add_argument("-c", "--check",
+                                help="Checks if there is a new version available",
+                                action="store_true",
+                                dest="version_check")
 
     global ARGS
     ARGS = parser.parse_args()
