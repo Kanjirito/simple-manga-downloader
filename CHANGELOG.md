@@ -1,5 +1,29 @@
 # Release History
 
+## v1.7.0(pre-release)
+
+## New
+- a failed page download now shows the reason
+- `page_download_timeout` setting to change the timeout for downloading images (in seconds)
+- `conf --timeout` to change the timeout setting
+- `down` now accepts int to download manga from the tracked list with the given index
+- Keyboard Interruptions are now caught
+- `update -c/--check` to only check for new chapters without downloading or needing input
+- `version` mode, prints the current version
+- `version -c/--check` checks if a new version is available
+
+## Removed
+- removed heaven manga support because it constantly keeps creating new problems (domain changes, cloudflare problems)
+- removed cfscrape from the requirements (this also removes the node.js dependency)
+- `-v/--version` flag, replaced by version mode
+
+## Changes
+- config and args variables changed back to globals to avoid passing them around all the time
+
+## Fixes
+- `conf -p` now prints the absolute path (only matters when using a custom config path)
+- config_parser now properly creates a dict for the tracked manga if no config was present
+
 ## v1.6.1(20-01-14)
 
 ## Changes

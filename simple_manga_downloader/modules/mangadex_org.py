@@ -1,5 +1,4 @@
-import cfscrape
-import requests.exceptions
+import requests
 import html
 import re
 from ..decorators import request_exception_handler
@@ -8,8 +7,8 @@ from ..decorators import request_exception_handler
 class Mangadex():
     lang_code = "gb"
 
-    def __init__(self, link, directory):
-        self.session = cfscrape.create_scraper()
+    def __init__(self, link, directory, check_only, *args, **kwargs):
+        self.session = requests.Session()
         self.base_link = "https://mangadex.org"
         self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")
@@ -18,6 +17,7 @@ class Mangadex():
         self.id = self.get_id(link)
         self.cover_url = None
         self.chapters = {}
+        self.check_only = check_only
 
     @property
     def manga_dir(self):
@@ -81,6 +81,8 @@ class Mangadex():
             elif ch["title"].lower().startswith("chapter"):
                 num = float(ch["chapter"].split()[-1])
             elif ch["title"]:
+                if self.check_only:
+                    continue
                 print(f"No chapter number for: \"{ch['title']}\"")
                 inp = input("Assign a unused chapter number to it "
                             "(invalid input will ignore this chapter): ")
@@ -122,22 +124,25 @@ class Mangadex():
             self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
             return True
 
-        print(f"Multiple groups for chapter {ch}, select one(1,2,3...):")
         sorted_groups = sorted(self.chapters[ch])
-        selections = []
-        for n, g in enumerate(sorted_groups, 1):
-            print(f"{n}.{g}")
-            selections.append(n)
+        if self.check_only:
+            select = 1
+        else:
+            print(f"Multiple groups for chapter {ch}, select one(1,2,3...):")
+            selections = []
+            for n, g in enumerate(sorted_groups, 1):
+                print(f"{n}.{g}")
+                selections.append(n)
 
-        try:
-            in_str = "Enter the number of the group [invalid input will skip chapter]:"
-            select = int(input(in_str))
-        except ValueError:
-            select = len(sorted_groups) + 1
-        if select not in selections:
-            return "Wrong input, skipping chapter"
+            try:
+                in_str = "Enter the number of the group [invalid input will skip chapter]:"
+                select = int(input(in_str))
+            except ValueError:
+                select = len(sorted_groups) + 1
+            if select not in selections:
+                return "Invalid input, skipping chapter"
+            print()
 
-        print()
         group = sorted_groups[select - 1]
         self.chapters[ch] = self.chapters[ch][group]
         return True

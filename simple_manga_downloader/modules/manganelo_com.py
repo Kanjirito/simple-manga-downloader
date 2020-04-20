@@ -5,7 +5,7 @@ from ..decorators import request_exception_handler
 
 
 class Manganelo:
-    def __init__(self, link, directory):
+    def __init__(self, link, directory, *args, **kwargs):
         self.session = requests.Session()
         self.site = "manganelo.com"
         self.folder = directory

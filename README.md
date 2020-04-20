@@ -6,10 +6,10 @@ Currently supports:
 - [mangadex](https://mangadex.org)
 - [mangaseeonline](https://mangaseeonline.us)
 - [mangatown](https://www.mangatown.com)
-- [heavenmanga](http://ww7.heavenmanga.org)
 - [mangakakalot](https://mangakakalot.com/page)
 - [manganelo](https://manganelo.com)
 
+*Note:* mangadex and mangasee are the main supported sites, the others will be maintained but they are not my top priority.
 
 Allows you to download manga in 5 ways:
 
@@ -30,6 +30,7 @@ Additional features of the downloader:
 - You can add ongoing manga to the tracked list for a easy way to check for new chapters
 - Config is saved as a .json for readability and easy modification
 - The downloader has a config "mode" that allows the modification of the config file without having to edit the .json manually
+- It can check for new available versions
 
 
 # Installation
@@ -37,12 +38,7 @@ Additional features of the downloader:
 
 ## Requirements
 - BeautifulSoup 4
-- cfscrape
-
-**IMPORTANT!**
-
-[cfscrape requires Node.js to be installed](https://github.com/Anorov/cloudflare-scrape#nodejs-dependency)
-
+- requests
 
 ## pip
 ```
@@ -136,11 +132,22 @@ SMD down link_to_manga --name Some new name
 **Warning:**
 *Using a custom name when downloading multiple manga at once will cause overwriting of the files since all of them will be assigned the same name*
 
+Download a manga from the tracked list by index:
+```
+SMD down 1 3 5
+```
+
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter
 
 ```
 SMD update
+```
+
+To only check for new chapters without downloading or needing input:
+```
+SMD update -c
+SMD update --check
 ```
 
 ## Config mode
@@ -230,4 +237,22 @@ Print the current settings:
 ```
 SMD conf -p
 SMD conf --print_conf
+```
+
+Change the page download timeout (in seconds):
+```
+SMD conf --timeout seconds
+```
+
+
+## Version mode
+To print the current version:
+```
+SMD version
+```
+
+To check for new versions
+```
+SMD version -c
+SMD version --check
 ```

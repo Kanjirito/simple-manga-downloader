@@ -5,7 +5,7 @@ import re
 
 
 class Mangakakalot:
-    def __init__(self, link, directory):
+    def __init__(self, link, directory, *args, **kwargs):
         self.session = requests.Session()
         self.site = "mangakakalot.com"
         self.folder = directory

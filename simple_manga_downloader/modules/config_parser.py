@@ -48,7 +48,7 @@ class Config():
         self.status = False
         self.home = Path.home()
         if custom_conf:
-            self.config_path = Path(custom_conf)
+            self.config_path = Path(custom_conf).resolve()
         else:
             self.config_path = self.home / ".config" / "SMD" / "SMD_conf.json"
 
@@ -65,8 +65,9 @@ class Config():
             try:
                 with open(self.config_path, "r") as f:
                     config = json.load(f)
-            except json.decoder.JSONDecodeError:
+            except json.decoder.JSONDecodeError as e:
                 print("\nCould not load config file! Fix or remove it!")
+                print(f"\"{e}\"")
                 print(f"Config located at: \"{self.config_path}\"")
                 return
         else:
@@ -74,9 +75,10 @@ class Config():
 
         default_dir = self.home / "Manga"
         self.manga_directory = Path(config.get("manga_directory", default_dir))
-        self.tracked_manga = config.get("tracking", [])
+        self.tracked_manga = config.get("tracking", {})
         self.covers = config.get("covers", False)
         self.lang_code = config.get("lang_code", "gb")
+        self.download_timeout = config.get("page_download_timeout", 5)
         self.status = True
 
     def add_tracked(self, Manga):
@@ -141,6 +143,7 @@ class Config():
             self.tracked_manga = {}
             self.covers = False
             self.lang_code = "gb"
+            self.download_timeout = 5
             print("Config was reset")
 
     def change_position(self, verbose):
@@ -193,7 +196,7 @@ class Config():
             self.covers = True
             print("Cover download turned on!")
 
-    def print_paths(self):
+    def print_config(self):
         print("\nConfig path:")
         print(self.config_path)
         print("\nManga download path:")
@@ -202,6 +205,8 @@ class Config():
         print(self.covers)
         print("\nMangadex language code:")
         print(self.lang_code)
+        print("\nPage download timeout (s):")
+        print(self.download_timeout)
         print()
 
     def change_lang(self, code):
@@ -219,14 +224,29 @@ class Config():
             print(f"\"{new_code}\" already set as current language")
 
     def list_lang(self):
+        '''
+        Prints all of the language codes
+        '''
         print("Available language codes:")
         for code, desc in self.lang_codes.items():
             print(f"\"{code}\" - {desc}")
+
+    def change_timeout(self, seconds):
+        '''
+        Changes the download timeout to given seconds
+        '''
+
+        if seconds <= 0:
+            print("Value must be bigger than 0!")
+            return
+        self.download_timeout = seconds
+        print(f"Timeout changed to {seconds} seconds!")
 
     def save_config(self):
         config = {"manga_directory": str(self.manga_directory),
                   "covers": self.covers,
                   "lang_code": self.lang_code,
+                  "page_download_timeout": self.download_timeout,
                   "tracking": self.tracked_manga}
         try:
             self.config_path.parent.mkdir(parents=True)
