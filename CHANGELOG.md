@@ -1,6 +1,6 @@
 # Release History
 
-## v1.7.0(pre-release)
+## v1.7.0(2020-04-20)
 
 ## New
 - a failed page download now shows the reason
