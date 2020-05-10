@@ -35,22 +35,33 @@ Additional features of the downloader:
 
 # Installation
 
-
 ## Requirements
 - BeautifulSoup 4
 - requests
 
 ## pip
+
+Installing using pip will handle the requirements automatically
+
+#### PyPI
 ```
 pip install simple-manga-downloader
 ```
 
+#### Git
+
+Copy the repo, cd into it and run
+```
+pip install .
+```
+
 ## Using the git repo
 
-Copy the repo and use the entry script in the main repo directory
+Copy the repo, install the requirements and use the entry script in the main repo directory
 ```
 cd path/to/repo
 chmod +x SMD.py
+pip install -r requirements.txt
 ./SMD.py [mode] [arguments]
 ```
 
@@ -74,13 +85,6 @@ To create the config file the downloader needs to successfully finish. If you wa
 ```
 SMD conf
 ```
-
-To check the current version of the downloader:
-```
-SMD -v
-SMD --version
-```
-
 
 ## Download mode
 This mode will download the manga from the link based on your selection, accepts multiple links.
