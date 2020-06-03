@@ -41,8 +41,9 @@ def request_exception_handler(func):
             status = "Request Timeout"
         except requests.ConnectionError:
             status = "Connection Error"
-        except requests.HTTPError:
-            status = "HTTP code error"
+        except requests.HTTPError as e:
+            error_code = str(e).split(":", 1)[0]
+            status = f"HTTP code error: {error_code}"
         except requests.RequestException as e:
             status = f"A unexpected problem {e}"
 

@@ -8,10 +8,12 @@
 
 ### Changes
 - use sets instead of lists to remove duplicates from arguments
+- additional and more verbose exception handling
 
 ### Fixes
 - crash when trying to reset config
 - spelling mistakes
+- Manganelo chapters with no chapter number will now ask for one
 
 ## v1.7.0(2020-04-20)
 

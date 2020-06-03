@@ -5,7 +5,7 @@ from ..decorators import request_exception_handler
 
 
 class Manganelo:
-    def __init__(self, link, directory, *args, **kwargs):
+    def __init__(self, link, directory, check_only, *args, **kwargs):
         self.session = requests.Session()
         self.site = "manganelo.com"
         self.folder = directory
@@ -13,6 +13,7 @@ class Manganelo:
         self.base_link = "https://manganelo.com/"
         self.cover_url = None
         self.chapters = {}
+        self.check_only = check_only
 
     @property
     def manga_dir(self):
@@ -34,7 +35,10 @@ class Manganelo:
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.cover_url = soup.find(class_="info-image").img["src"]
+        try:
+            self.cover_url = soup.find(class_="info-image").img["src"]
+        except AttributeError:
+            return "Failed to get page"
 
         self.series_title = soup.find(class_="story-info-right").find("h1").text
         if title_return:
@@ -53,14 +57,25 @@ class Manganelo:
             try:
                 num = search_reg.group(1)
                 title = search_reg.group(2)
+                try:
+                    num = int(num)
+                except ValueError:
+                    num = float(num)
             except AttributeError:
-                continue
-            try:
-                num = int(num)
-            except ValueError:
-                num = float(num)
-            link = chapter["href"]
+                if self.check_only:
+                    continue
+                print(f"No chapter number for: \"{chapter.text}\"")
+                inp = input("Assign a unused chapter number to it "
+                            "(invalid input will ignore this chapter): ")
+                title = chapter.text
+                try:
+                    num = float(inp)
+                except ValueError:
+                    print("Skipping\n")
+                    continue
+                print()
 
+            link = chapter["href"]
             self.chapters[num] = {"link": link,
                                   "title": title}
         return True
@@ -76,7 +91,10 @@ class Manganelo:
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        pages = soup.find(class_="container-chapter-reader").find_all("img")
+        try:
+            pages = soup.find(class_="container-chapter-reader").find_all("img")
+        except AttributeError:
+            return "Failed to find reader, most likely server error"
 
         page_links = [p["src"] for p in pages]
 

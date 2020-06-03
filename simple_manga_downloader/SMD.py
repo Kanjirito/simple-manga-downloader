@@ -209,7 +209,7 @@ def main_pipeline(links):
     print("\n-----------------------------\n"
           "All manga checking complete!"
           "\n-----------------------------\n")
-    if not ready:
+    if not total_num_ch:
         print("Found 0 chapters ready to download.")
         return
 
@@ -351,7 +351,10 @@ def chapter_info_get(Manga):
             print(f"{status}")
             del Manga.chapters[ch]
             print()
-    return True
+    if Manga.chapters:
+        return True
+    else:
+        return False
 
 
 def downloader(manga_objects):
@@ -395,6 +398,7 @@ def download_image(link, session, no_ext):
     content = session.get(link, stream=True,
                           timeout=CONFIG.download_timeout)
 
+    content.raise_for_status()
     file_type = imghdr.what("", h=content.content)
     if not file_type:
         header = content.headers["Content-Type"]
