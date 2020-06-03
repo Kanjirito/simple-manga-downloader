@@ -20,7 +20,7 @@ import requests
 def main():
     try:
         global CONFIG
-        parser_arguments()
+        parse_arguments()
         mode = ARGS.subparser_name
         CONFIG = Config(ARGS.custom_cfg)
         if not CONFIG:
@@ -178,11 +178,16 @@ def main_pipeline(links):
           f"    Getting {len(links)} manga"
           "\n------------------------")
 
+    if ARGS.check_only or ARGS.ignore_input:
+        check_only = True
+    else:
+        check_only = False
+
     ready = []
     total_num_ch = 0
     found_titles = {}
     for link in links:
-        Manga = site_detect(link, directory, ARGS.check_only)
+        Manga = site_detect(link, directory, check_only)
         if not Manga:
             continue
 
@@ -219,9 +224,12 @@ def main_pipeline(links):
     if ARGS.check_only:
         return
 
-    confirm = input("Start the download? "
-                    "[y to confirm/anything else to cancel]: "
-                    ).lower()
+    if ARGS.ignore_input:
+        confirm = "y"
+    else:
+        confirm = input("Start the download? "
+                        "[y to confirm/anything else to cancel]: "
+                        ).lower()
     if confirm == "y":
         downloader(ready)
     else:
@@ -482,7 +490,7 @@ def page_name_gen(manga_title, data, chapter_name):
         yield (image_name, link)
 
 
-def parser_arguments():
+def parse_arguments():
     """Parses the arguments"""
 
     class MakeSetAction(argparse.Action):
@@ -507,14 +515,14 @@ def parser_arguments():
                                        metavar="mode",
                                        required=True)
     parser_conf = subparsers.add_parser("conf",
-                                        help="Downloader will be in the config edit mode",
+                                        help="Downloader will be in config edit mode",
                                         description="Changes the settings")
     parser_down = subparsers.add_parser("down",
-                                        help="Downloader will be inthe download mode",
+                                        help="Downloader will be in download mode",
                                         description=("Downloads the given manga. "
                                                      "Supports multiple links at once."))
     parser_update = subparsers.add_parser("update",
-                                          help="Downloader will be in the update mode",
+                                          help="Downloader will be in update mode",
                                           description="Download new chapters from tracked list")
     parser_version = subparsers.add_parser("version",
                                            help="Downloader will be in version mode",
@@ -523,7 +531,8 @@ def parser_arguments():
     # Parser for download mode
     parser_down.add_argument("input", nargs="+",
                              metavar="manga url",
-                             action=MakeSetAction)
+                             action=MakeSetAction,
+                             help="URL or tracked manga index to download")
     parser_down.add_argument("-d", "--directory",
                              dest="custom_dire",
                              metavar="PATH/TO/DIRECTORY",
@@ -545,9 +554,13 @@ def parser_arguments():
                                    "downloads at once."))
     parser_down.add_argument("-c", "--check",
                              help=("Only check for new chapters "
-                                   "without downloading and asking for input"),
+                                   "without downloading and asking for any input"),
                              action="store_true",
                              dest="check_only")
+    parser_down.add_argument("-i", "--ignore_input",
+                             help="Downloads without asking for any input",
+                             action="store_true",
+                             dest="ignore_input")
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
                        help=("Specifies the range of chapters to download, "
@@ -575,7 +588,7 @@ def parser_arguments():
                              action=MakeSetAction)
     parser_conf.add_argument("-r", "--remove-tracked",
                              help=("Removes manga from tracked. "
-                                   "Supports deletion by url, title or number"),
+                                   "Supports deletion by url, title or tracked index"),
                              dest="remove",
                              metavar="MANGA URL|MANGA TITLE|NUMBER",
                              nargs="+",
@@ -627,10 +640,13 @@ def parser_arguments():
     # Update options
     parser_update.add_argument("-c", "--check",
                                help=("Only check for new chapters "
-                                     "without downloading and asking for input"),
+                                     "without downloading and asking for any input"),
                                action="store_true",
                                dest="check_only")
-
+    parser_update.add_argument("-i", "--ignore_input",
+                               help="Downloads without asking for any input",
+                               action="store_true",
+                               dest="ignore_input")
     # Version options
     parser_version.add_argument("-c", "--check",
                                 help="Checks if there is a new version available",

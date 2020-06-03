@@ -2,19 +2,20 @@
 
 ## Pre-release
 
-## New
+### New
 - `down -c/--check` to only check for what's available without downloading or asking for input
+- `-i/--ignore_input` for both down and update mode, downloader will not ask for input but will start downloading
 
-## Changes
+### Changes
 - use sets instead of lists to remove duplicates from arguments
 
-## Fixes
+### Fixes
 - crash when trying to reset config
 - spelling mistakes
 
 ## v1.7.0(2020-04-20)
 
-## New
+### New
 - a failed page download now shows the reason
 - `page_download_timeout` setting to change the timeout for downloading images (in seconds)
 - `conf --timeout` to change the timeout setting
@@ -24,33 +25,33 @@
 - `version` mode, prints the current version
 - `version -c/--check` checks if a new version is available
 
-## Removed
+### Removed
 - removed heaven manga support because it constantly keeps creating new problems (domain changes, cloudflare problems)
 - removed cfscrape from the requirements (this also removes the node.js dependency)
 - `-v/--version` flag, replaced by version mode
 
-## Changes
+### Changes
 - config and args variables changed back to globals to avoid passing them around all the time
 
-## Fixes
+### Fixes
 - `conf -p` now prints the absolute path (only matters when using a custom config path)
 - config_parser now properly creates a dict for the tracked manga if no config was present
 
 ## v1.6.1(20-01-14)
 
-## Changes
+### Changes
 - mangadex is back to it's .org domain (.cc links will still work)
 
 ## v1.6.0(20-01-08)
 
-## New
+### New
 - mangadex language code selection
 - `conf --list_lang` to list available codes
 - `conf --change_lang` to change the language
 - `SMD -v (--version)` prints current version
 - deletes failed chapters
 
-## Changes
+### Changes
 - the "to download" and after download summaries now include chapter titles when possible
 - help message improvements
 - moved config file to `~/.config/SMD`
@@ -61,50 +62,50 @@
 - downloader will abort if config failed to load
 - manganelo moved to it's separate module
 
-## Fixes
+### Fixes
 - crash if using `down -l` and no manga fits the criteria
 - `conf -d (--default)` now sets the proper download directory
 
 ## v1.5.1(20-01-05)
 
-## Fixes
+### Fixes
 - mangadex moved (temporarily) from .org to .cc (added error message to remind about the change if given a .org link)
 - mangatown module fixed
 - another heavenmanga url change 
 
 ## v1.5.0(19-11-15)
 
-## New
+### New
 - down -n/--name flag, downloads the given manga using a custom name
 - if a mangadex chapter has no chapter number the downloader will ask for one
 
-## Changes
+### Changes
 - divided get\_chapters() into 2 methods (get\_main() and get\_chapters()) so that the downloader first prints what manga it's working on and then actually does the work (this will allow better handling of edge cases like the mangadex one listed above)
 - added \_\_len\_\_() and \_\_bool\_\_() to manga classes
 - added manganelo.com url support for the mangakakalot module
 
-## Fixes
+### Fixes
 - another heavenmanga base url change
 
 ## v1.4.1(19-10-29)
 
-## Changes
+### Changes
 - selected chapters are now checked in a sorted order
 
-## Fixes
+### Fixes
 - mangadex get_id crash when link did not end with a slash
 - delayed chapters being included in the "to download" summary
 - crash if trying to download multiple chapters for a manga
 
 ## v1.4.0(19-10-10)
 
-## New
+### New
 - covers, a new config setting that allows to download the covers for the manga, defaults to false
 - conf -c/--covers flag to toggle the cover option
 - after download lists what chapters have failed/succeeded
 - invalid input in mangadex multiple groups selection will now skip the chapter instead of forcing a choice
 
-## Changes
+### Changes
 - every module now uses request sessions
 - changed get_handler() into a decorator
 - modules now use the new exception handler decorator 
@@ -116,7 +117,7 @@
 - down and update mode now have the same order of action
 - a lot of code changes/clean-up
 
-## Fixes
+### Fixes
 - heavenmanga switched to cfscrape and url changed
 - conf -r index errors
 - default download path when using custom config
