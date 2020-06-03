@@ -20,7 +20,7 @@ import requests
 def main():
     try:
         global CONFIG
-        parser()
+        parser_arguments()
         mode = ARGS.subparser_name
         CONFIG = Config(ARGS.custom_cfg)
         if not CONFIG:
@@ -42,9 +42,7 @@ def main():
 
 
 def site_detect(link, directory, check_only=False):
-    '''
-    Detects the site and creates a proper manga object
-    '''
+    """Detects the site and creates a proper manga object"""
     try:
         tracked_num = int(link)
         if 0 < tracked_num <= len(CONFIG.tracked_manga):
@@ -77,10 +75,10 @@ def site_detect(link, directory, check_only=False):
 
 
 def get_cover(Manga):
-    '''
+    """
     Gets the cover for given Manga
     Skips if cover already saved
-    '''
+    """
     try:
         for file in Manga.manga_dir.iterdir():
             if Manga.series_title in file.stem:
@@ -95,9 +93,7 @@ def get_cover(Manga):
 
 
 def version_mode():
-    '''
-    Version mode of the downloader
-    '''
+    """Version mode of the downloader """
     print(f"SMD v{__version__}")
 
     if ARGS.version_check:
@@ -109,9 +105,7 @@ def version_mode():
 
 @request_exception_handler
 def check_for_update():
-    '''
-    Checks for new versions using the PyPI API
-    '''
+    """Checks for new versions using the PyPI API"""
 
     r = requests.get("https://pypi.org/pypi/simple-manga-downloader/json")
     r.raise_for_status()
@@ -126,8 +120,9 @@ def check_for_update():
 
 
 def conf_mode():
+    """Config mode for the downloader"""
     if ARGS.default:
-        CONFIG.reset_CONFIG()
+        CONFIG.reset_config()
     elif ARGS.clear_tracked:
         CONFIG.clear_tracked()
 
@@ -163,9 +158,7 @@ def conf_mode():
 
 
 def main_pipeline(links):
-    '''
-    Takes a list of manga links and does all of the required stuff
-    '''
+    """Takes a list of manga links and does all of the required stuff"""
 
     try:
         custom = ARGS.custom_dire
@@ -176,11 +169,6 @@ def main_pipeline(links):
     except AttributeError:
         path = CONFIG.manga_directory
     directory = Path(path).resolve()
-
-    if hasattr(ARGS, "check_only") and ARGS.check_only:
-        check_only = True
-    else:
-        check_only = False
 
     if not links:
         print("\nNo manga to download!")
@@ -194,7 +182,7 @@ def main_pipeline(links):
     total_num_ch = 0
     found_titles = {}
     for link in links:
-        Manga = site_detect(link, directory, check_only)
+        Manga = site_detect(link, directory, ARGS.check_only)
         if not Manga:
             continue
 
@@ -228,7 +216,7 @@ def main_pipeline(links):
 
     print(f"\n{total_num_ch} chapter(s) ready to download")
 
-    if check_only:
+    if ARGS.check_only:
         return
 
     confirm = input("Start the download? "
@@ -241,10 +229,10 @@ def main_pipeline(links):
 
 
 def handle_manga(Manga):
-    '''
-    Handles all stuff related to the Manga
+    """
+    Handles all stuff related to the a single Manga
     returns True if everything fine
-    '''
+    """
     main_status = Manga.get_main()
     if main_status is not True:
         print("\nSomething went wrong!"
@@ -286,9 +274,7 @@ def handle_manga(Manga):
 
 
 def filter_wanted(Manga):
-    '''
-    Filters the chapters dict to match the criteria
-    '''
+    """Filters the chapters dict to match the criteria"""
 
     chapter_list = list(Manga.chapters)
     chapter_list.sort()
@@ -304,14 +290,12 @@ def filter_wanted(Manga):
 
 
 def make_line(string):
-    '''
-    Returns a string of "-" with the same length as the given string
-    '''
+    """Returns a string of "-" with the same length as the given string"""
     return "-" * len(string)
 
 
 def filter_selection(chapter_list):
-    '''A generator that yields wanted chapters based on selection'''
+    """A generator that yields wanted chapters based on selection"""
 
     if ARGS.latest:
         try:
@@ -338,7 +322,7 @@ def filter_selection(chapter_list):
 
 
 def filter_downloaded(manga_dir, wanted):
-    '''Filters the "filtered" based on what is already downloaded'''
+    """Filters the "filtered" based on what is already downloaded"""
     if not manga_dir.is_dir():
         filtered = list(wanted)
     else:
@@ -351,7 +335,7 @@ def filter_downloaded(manga_dir, wanted):
 
 
 def chapter_info_get(Manga):
-    '''Calls the get_info() of the manga objects'''
+    """Calls the get_info() of the manga objects"""
     for ch in list(Manga.chapters):
         print(f"    Chapter {ch}")
         status = Manga.get_info(ch)
@@ -363,7 +347,7 @@ def chapter_info_get(Manga):
 
 
 def downloader(manga_objects):
-    '''Downloads the images in the proper directories'''
+    """Downloads the images in the proper directories"""
 
     start_time = time.time()
     page_total = 0
@@ -396,10 +380,10 @@ def downloader(manga_objects):
 @limiter(0.5)
 @request_exception_handler
 def download_image(link, session, no_ext):
-    '''
+    """
     Download function, gets the image from the link, limited by wrapper
     no_ext = save target Path object with no file extension
-    '''
+    """
     content = session.get(link, stream=True,
                           timeout=CONFIG.download_timeout)
 
@@ -416,7 +400,7 @@ def download_image(link, session, no_ext):
 
 
 def download_summary(count, failed, success, total_time):
-    '''Prints the summary of the download'''
+    """Prints the summary of the download"""
     if count:
         m, s = divmod(round(total_time), 60)
         if m > 0:
@@ -442,11 +426,11 @@ def download_summary(count, failed, success, total_time):
 
 
 def get_chapter(Manga, num):
-    '''
+    """
     Downloads the pages for the given chapter
     Returns number of downloaded pages and failed bool
     num = number of the chapter to get
-    '''
+    """
 
     count = 0
     failed = False
@@ -481,7 +465,7 @@ def get_chapter(Manga, num):
 
 
 def page_name_gen(manga_title, data, chapter_name):
-    '''A generator that yields a tuple with the page name and link'''
+    """A generator that yields a tuple with the page name and link"""
     for n, link in enumerate(data["pages"]):
         base_name = f"{manga_title} - {chapter_name} -"
         page_string = f"Page {n}"
@@ -498,8 +482,14 @@ def page_name_gen(manga_title, data, chapter_name):
         yield (image_name, link)
 
 
-def parser():
-    '''Parses the arguments'''
+def parser_arguments():
+    """Parses the arguments"""
+
+    class MakeSetAction(argparse.Action):
+        """Custom action for argparse that creates a set"""
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, self.dest, set(values))
+
     desc = ("SMD is a command line manga downloader. For more information "
             "read the README file in the GitHub repo.\n"
             "https://github.com/Kanjirito/simple-manga-downloader/blob/master/README.md")
@@ -512,17 +502,15 @@ def parser():
                         help="Sets a custom config to use",
                         default=None)
 
-    # Sub-parsers for the config and download functionality
+    # Sub-parsers for the different modes
     subparsers = parser.add_subparsers(dest="subparser_name",
                                        metavar="mode",
                                        required=True)
     parser_conf = subparsers.add_parser("conf",
-                                        help=("Downloader will be in "
-                                              "the config edit mode"),
+                                        help="Downloader will be in the config edit mode",
                                         description="Changes the settings")
     parser_down = subparsers.add_parser("down",
-                                        help=("Downloader will be in "
-                                              "the download mode"),
+                                        help="Downloader will be inthe download mode",
                                         description=("Downloads the given manga. "
                                                      "Supports multiple links at once."))
     parser_update = subparsers.add_parser("update",
@@ -534,7 +522,8 @@ def parser():
 
     # Parser for download mode
     parser_down.add_argument("input", nargs="+",
-                             metavar="manga url")
+                             metavar="manga url",
+                             action=MakeSetAction)
     parser_down.add_argument("-d", "--directory",
                              dest="custom_dire",
                              metavar="PATH/TO/DIRECTORY",
@@ -545,7 +534,8 @@ def parser():
                              metavar="NUMBER",
                              nargs="+",
                              type=float,
-                             default=[])
+                             action=MakeSetAction,
+                             default=set())
     parser_down.add_argument("-n", "--name",
                              default=None,
                              metavar="NEW NAME",
@@ -553,6 +543,11 @@ def parser():
                              help=("Download the manga with a custom name. "
                                    "Not recommended to use with multiple "
                                    "downloads at once."))
+    parser_down.add_argument("-c", "--check",
+                             help=("Only check for new chapters "
+                                   "without downloading and asking for input"),
+                             action="store_true",
+                             dest="check_only")
     group = parser_down.add_mutually_exclusive_group()
     group.add_argument("-r", "--range",
                        help=("Specifies the range of chapters to download, "
@@ -565,6 +560,7 @@ def parser():
                              "Accepts multiple chapters \"2 10 25\""),
                        metavar="NUMBER",
                        nargs="+",
+                       action=MakeSetAction,
                        type=float)
     group.add_argument("-l", "--latest",
                        help="Download only the latest chapter",
@@ -575,13 +571,15 @@ def parser():
                              help="Adds manga to the tracked list",
                              dest="add",
                              metavar="MANGA URL",
-                             nargs="+")
+                             nargs="+",
+                             action=MakeSetAction)
     parser_conf.add_argument("-r", "--remove-tracked",
                              help=("Removes manga from tracked. "
                                    "Supports deletion by url, title or number"),
                              dest="remove",
                              metavar="MANGA URL|MANGA TITLE|NUMBER",
-                             nargs="+")
+                             nargs="+",
+                             action=MakeSetAction)
     parser_conf.add_argument("-t", "--clear-tracked",
                              help="Clears the tracked list",
                              action="store_true")
@@ -628,8 +626,8 @@ def parser():
 
     # Update options
     parser_update.add_argument("-c", "--check",
-                               help="Only check for new chapters"
-                               "without downloading and asking for input",
+                               help=("Only check for new chapters "
+                                     "without downloading and asking for input"),
                                action="store_true",
                                dest="check_only")
 

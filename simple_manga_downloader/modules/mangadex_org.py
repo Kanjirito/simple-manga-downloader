@@ -35,11 +35,11 @@ class Mangadex():
 
     @request_exception_handler
     def get_main(self, title_return=False):
-        '''
+        """
         Gets the main manga info like title, cover url and chapter links
         using the mangadex API
         title_return=True will only get the title and return
-        '''
+        """
         r = self.session.get(f"{self.mn_api_url}{self.id}", timeout=5)
         r.raise_for_status()
         data = r.json()
@@ -60,9 +60,9 @@ class Mangadex():
         return True
 
     def get_chapters(self):
-        '''
+        """
         Handles the chapter data by assigning chapter numbers
-        '''
+        """
 
         for chapter, ch in self.data["chapter"].items():
             if ch["lang_code"].lower() != self.lang_code.lower():
@@ -149,7 +149,7 @@ class Mangadex():
 
     @request_exception_handler
     def get_info(self, ch):
-        '''Gets the data about the specific chapters using the mangadex API'''
+        """Gets the data about the specific chapters using the mangadex API"""
 
         groups = self.check_groups(ch)
 

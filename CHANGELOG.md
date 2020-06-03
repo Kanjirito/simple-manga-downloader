@@ -1,5 +1,17 @@
 # Release History
 
+## Pre-release
+
+## New
+- `down -c/--check` to only check for what's available without downloading or asking for input
+
+## Changes
+- use sets instead of lists to remove duplicates from arguments
+
+## Fixes
+- crash when trying to reset config
+- spelling mistakes
+
 ## v1.7.0(2020-04-20)
 
 ## New

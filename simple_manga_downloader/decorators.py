@@ -4,9 +4,9 @@ from functools import wraps
 
 
 def limiter(seconds):
-    '''
+    """
     Limits the decorated func to be called after given amount of seconds
-    '''
+    """
     def middle(func):
 
         last_called = 0
@@ -29,10 +29,10 @@ def limiter(seconds):
 
 
 def request_exception_handler(func):
-    '''
+    """
     Decorator that handles any request exceptions
     Returns True func result if nothing failed otherwise a error string
-    '''
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:

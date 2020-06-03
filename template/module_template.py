@@ -26,10 +26,10 @@ class ClassName:
 
     @request_exception_handler
     def get_main(self, title_return=False):
-        '''
+        """
         Gets the main manga info like title, cover url and chapter links
         title_return=True will only get the title and return
-        '''
+        """
         r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
@@ -44,9 +44,9 @@ class ClassName:
         return True
 
     def get_chapters(self):
-        '''
+        """
         Handles the chapter data by assigning chapter numbers
-        '''
+        """
         for chapter in self.data:
 
             num = "finding chapter number in soup"
@@ -62,7 +62,7 @@ class ClassName:
 
     @request_exception_handler
     def get_info(self, ch):
-        '''Gets the needed data abut the chapters from the site'''
+        """Gets the needed data abut the chapters from the site"""
         link = self.chapters[ch]["link"]
 
         r = self.session.get(link, timeout=5)

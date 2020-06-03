@@ -58,9 +58,9 @@ class Config():
         return self.status
 
     def load_config(self):
-        '''
+        """
         Loads the config if present, uses defaults if missing setting
-        '''
+        """
         if self.config_path.is_file():
             try:
                 with open(self.config_path, "r") as f:
@@ -82,7 +82,7 @@ class Config():
         self.status = True
 
     def add_tracked(self, Manga):
-        '''Adds manga to the tracked list'''
+        """Adds manga to the tracked list"""
         if Manga.series_title not in self.tracked_manga:
             self.tracked_manga[Manga.series_title] = Manga.manga_link
             print(f"Added to tracked:  {Manga.series_title}")
@@ -90,10 +90,10 @@ class Config():
             print(f"Already tracked:  {Manga.series_title}")
 
     def remove_tracked(self, delete):
-        '''
+        """
         Removes manga from the tracked list
         Accepts only a list as an argument
-        '''
+        """
         if not self.tracked_manga:
             print("Nothing to remove")
             return
@@ -123,11 +123,11 @@ class Config():
             print(f"Removed from tracked: {r}")
 
     def change_dir(self, dire):
-        '''Changes the manga download directory'''
+        """Changes the manga download directory"""
         self.manga_directory = Path(dire).resolve()
 
     def clear_tracked(self):
-        '''Clears the tracked shows'''
+        """Clears the tracked shows"""
         confirm = input("Are you sure you want to clear tracked manga? "
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
@@ -135,7 +135,7 @@ class Config():
             print("Tracked cleared")
 
     def reset_config(self):
-        '''Resets the config to the defaults'''
+        """Resets the config to the defaults"""
         confirm = input("Are you sure you want to reset the config file to the defaults? "
                         "[y to confirm/anything else to cancel]").lower()
         if confirm == "y":
@@ -177,7 +177,7 @@ class Config():
         print(f"Entry \"{get}\" moved to {move_index + 1}")
 
     def list_tracked(self, verbose):
-        '''Lists the tracked manga'''
+        """Lists the tracked manga"""
         if not self.tracked_manga:
             print("No shows tracked!")
             return
@@ -224,17 +224,17 @@ class Config():
             print(f"\"{new_code}\" already set as current language")
 
     def list_lang(self):
-        '''
+        """
         Prints all of the language codes
-        '''
+        """
         print("Available language codes:")
         for code, desc in self.lang_codes.items():
             print(f"\"{code}\" - {desc}")
 
     def change_timeout(self, seconds):
-        '''
+        """
         Changes the download timeout to given seconds
-        '''
+        """
 
         if seconds <= 0:
             print("Value must be bigger than 0!")
