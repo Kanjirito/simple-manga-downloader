@@ -27,7 +27,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Environment :: Console"
     ],
-    python_requires=">=3",
+    python_requires=">=3.6",
     entry_points={
         "console_scripts": [
             "SMD=simple_manga_downloader.SMD:main"

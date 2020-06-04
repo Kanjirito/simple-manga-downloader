@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release
+## v1.8.0(2020-06-04)
 
 ### New
 - `down -c/--check` to only check for what's available without downloading or asking for input
