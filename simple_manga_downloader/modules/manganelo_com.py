@@ -61,6 +61,7 @@ class Manganelo:
                     num = int(num)
                 except ValueError:
                     num = float(num)
+
             except AttributeError:
                 if self.check_only:
                     continue

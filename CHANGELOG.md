@@ -5,6 +5,7 @@
 ### New
 - `down -c/--check` to only check for what's available without downloading or asking for input
 - `-i/--ignore_input` for both down and update mode, downloader will not ask for input but will start downloading
+- `update -d/--directory` to change download directory
 
 ### Changes
 - use sets instead of lists to remove duplicates from arguments

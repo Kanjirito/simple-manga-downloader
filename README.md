@@ -126,6 +126,7 @@ SMD down link_to_manga [more_links] --exclude 5 10 1
 Download into a different directory:
 ```
 SMD down link_to_manga -d "some/custom/path"
+SMD down link_to_manga --directory "some/custom/path"
 ```
 
 Download using a custom name:
@@ -141,6 +142,18 @@ Download a manga from the tracked list by index:
 SMD down 1 3 5
 ```
 
+Download manga without asking for any input:
+```
+SMD down manga_url -i
+SMD down manga_url --ignore_input
+```
+
+Same as above but without downloading:
+```
+SMD down manga_url -c
+SMD down manga_url --check
+```
+
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter
 
@@ -148,10 +161,22 @@ This mode will go over every manga tracked in the config and download every miss
 SMD update
 ```
 
+Use a custom directory:
+```
+SMD update -d "some/custom/path"
+SMD update --directory "some/custom/path"
+```
+
 To only check for new chapters without downloading or needing input:
 ```
 SMD update -c
 SMD update --check
+```
+
+Same as above but without downloading:
+```
+SMD update -i
+SMD update --ignore_input
 ```
 
 ## Config mode

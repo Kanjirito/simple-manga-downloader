@@ -160,16 +160,6 @@ def conf_mode():
 def main_pipeline(links):
     """Takes a list of manga links and does all of the required stuff"""
 
-    try:
-        custom = ARGS.custom_dire
-        if custom:
-            path = custom
-        else:
-            path = CONFIG.manga_directory
-    except AttributeError:
-        path = CONFIG.manga_directory
-    directory = Path(path).resolve()
-
     if not links:
         print("\nNo manga to download!")
         return
@@ -177,6 +167,12 @@ def main_pipeline(links):
     print("\n------------------------\n"
           f"    Getting {len(links)} manga"
           "\n------------------------")
+
+    if ARGS.custom_dire:
+        path = ARGS.custom_dire
+    else:
+        path = CONFIG.manga_directory
+    directory = Path(path).resolve()
 
     if ARGS.check_only or ARGS.ignore_input:
         check_only = True
@@ -238,7 +234,7 @@ def main_pipeline(links):
 
 def handle_manga(Manga):
     """
-    Handles all stuff related to the a single Manga
+    Handles all stuff related to a single Manga
     returns True if everything fine
     """
     main_status = Manga.get_main()
@@ -651,6 +647,12 @@ def parse_arguments():
                                help="Downloads without asking for any input",
                                action="store_true",
                                dest="ignore_input")
+    parser_update.add_argument("-d", "--directory",
+                               dest="custom_dire",
+                               metavar="PATH/TO/DIRECTORY",
+                               default=None,
+                               help="Custom path for manga download")
+
     # Version options
     parser_version.add_argument("-c", "--check",
                                 help="Checks if there is a new version available",
