@@ -5,6 +5,7 @@ from .modules import Mangatown
 from .modules import Mangakakalot
 from .modules import Manganelo
 from .modules import Config
+from .modules import BaseManga
 from .decorators import limiter, request_exception_handler
 from . import __version__
 from pathlib import Path
@@ -41,7 +42,7 @@ def main():
         print("\nKeyboard Interrupt detected, stopping!")
 
 
-def site_detect(link, directory, check_only=False):
+def site_detect(link):
     """Detects the site and creates a proper manga object"""
     try:
         tracked_num = int(link)
@@ -69,7 +70,7 @@ def site_detect(link, directory, check_only=False):
         print(line)
         return False
 
-    Manga = site(link, directory, check_only)
+    Manga = site(link)
 
     return Manga
 
@@ -129,7 +130,7 @@ def conf_mode():
     if ARGS.add:
         for link in ARGS.add:
             print()
-            Manga = site_detect(link, CONFIG.manga_directory)
+            Manga = site_detect(link)
             if Manga is False:
                 continue
             title = Manga.get_main(title_return=True)
@@ -172,18 +173,19 @@ def main_pipeline(links):
         path = ARGS.custom_dire
     else:
         path = CONFIG.manga_directory
-    directory = Path(path).resolve()
+    BaseManga.directory = Path(path).resolve()
 
     if ARGS.check_only or ARGS.ignore_input:
         check_only = True
     else:
         check_only = False
+    BaseManga.check_only = check_only
 
     ready = []
     total_num_ch = 0
     found_titles = {}
     for link in links:
-        Manga = site_detect(link, directory, check_only)
+        Manga = site_detect(link)
         if not Manga:
             continue
 

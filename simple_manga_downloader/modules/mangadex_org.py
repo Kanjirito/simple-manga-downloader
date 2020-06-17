@@ -2,32 +2,21 @@ import requests
 import html
 import re
 from ..decorators import request_exception_handler
+from .manga import BaseManga
 
 
-class Mangadex():
+class Mangadex(BaseManga):
     lang_code = "gb"
+    session = requests.Session()
 
-    def __init__(self, link, directory, check_only, *args, **kwargs):
-        self.session = requests.Session()
+    def __init__(self, link):
         self.base_link = "https://mangadex.org"
-        self.folder = directory
         self.manga_link = link.split("/chapters")[0].rstrip("/")
         self.mn_api_url = f"{self.base_link}/api/manga/"
         self.ch_api_url = f"{self.base_link}/api/chapter/"
         self.id = self.get_id(link)
         self.cover_url = None
         self.chapters = {}
-        self.check_only = check_only
-
-    @property
-    def manga_dir(self):
-        return self.folder / self.series_title
-
-    def __bool__(self):
-        return True
-
-    def __len__(self):
-        return len(self.chapters)
 
     def get_id(self, link):
         reg = re.compile(r"title/(\d*)/?")

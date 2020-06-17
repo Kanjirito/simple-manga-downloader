@@ -2,27 +2,18 @@ import requests
 from bs4 import BeautifulSoup
 from ..decorators import request_exception_handler
 import re
+from .manga import BaseManga
 
 
-class Mangatown():
-    def __init__(self, link, directory, *args, **kwargs):
-        self.session = requests.Session()
+class Mangatown(BaseManga):
+    session = requests.Session()
+
+    def __init__(self, link):
         self.site = "mangatown.com"
-        self.folder = directory
         self.manga_link = link
         self.base_link = "https://www.mangatown.com/"
         self.cover_url = None
         self.chapters = {}
-
-    @property
-    def manga_dir(self):
-        return self.folder / self.series_title
-
-    def __bool__(self):
-        return True
-
-    def __len__(self):
-        return len(self.chapters)
 
     @request_exception_handler
     def get_main(self, title_return=False):

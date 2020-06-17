@@ -2,28 +2,18 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from ..decorators import request_exception_handler
+from .manga import BaseManga
 
 
-class Manganelo:
-    def __init__(self, link, directory, check_only, *args, **kwargs):
-        self.session = requests.Session()
+class Manganelo(BaseManga):
+    session = requests.Session()
+
+    def __init__(self, link):
         self.site = "manganelo.com"
-        self.folder = directory
         self.manga_link = link
         self.base_link = "https://manganelo.com/"
         self.cover_url = None
         self.chapters = {}
-        self.check_only = check_only
-
-    @property
-    def manga_dir(self):
-        return self.folder / self.series_title
-
-    def __bool__(self):
-        return True
-
-    def __len__(self):
-        return len(self.chapters)
 
     @request_exception_handler
     def get_main(self, title_return=False):
