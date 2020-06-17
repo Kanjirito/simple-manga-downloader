@@ -554,32 +554,33 @@ def parse_arguments():
                              help=("Download the manga with a custom name. "
                                    "Not recommended to use with multiple "
                                    "downloads at once."))
-    parser_down.add_argument("-c", "--check",
-                             help=("Only check for new chapters "
-                                   "without downloading and asking for any input"),
-                             action="store_true",
-                             dest="check_only")
-    parser_down.add_argument("-i", "--ignore_input",
-                             help="Downloads without asking for any input",
-                             action="store_true",
-                             dest="ignore_input")
-    group = parser_down.add_mutually_exclusive_group()
-    group.add_argument("-r", "--range",
-                       help=("Specifies the range of chapters to download, "
-                             "both ends are inclusive. \"1 15\""),
-                       metavar="NUMBER",
-                       nargs=2,
-                       type=float)
-    group.add_argument("-s", "--selection",
-                       help=("Specifies which chapters to download. "
-                             "Accepts multiple chapters \"2 10 25\""),
-                       metavar="NUMBER",
-                       nargs="+",
-                       action=MakeSetAction,
-                       type=float)
-    group.add_argument("-l", "--latest",
-                       help="Download only the latest chapter",
-                       action='store_true')
+    input_group_down = parser_down.add_mutually_exclusive_group()
+    input_group_down.add_argument("-c", "--check",
+                                  help=("Only check for new chapters "
+                                        "without downloading and asking for any input"),
+                                  action="store_true",
+                                  dest="check_only")
+    input_group_down.add_argument("-i", "--ignore_input",
+                                  help="Downloads without asking for any input",
+                                  action="store_true",
+                                  dest="ignore_input")
+    selection_group = parser_down.add_mutually_exclusive_group()
+    selection_group.add_argument("-r", "--range",
+                                 help=("Specifies the range of chapters to download, "
+                                       "both ends are inclusive. \"1 15\""),
+                                 metavar="NUMBER",
+                                 nargs=2,
+                                 type=float)
+    selection_group.add_argument("-s", "--selection",
+                                 help=("Specifies which chapters to download. "
+                                       "Accepts multiple chapters \"2 10 25\""),
+                                 metavar="NUMBER",
+                                 nargs="+",
+                                 action=MakeSetAction,
+                                 type=float)
+    selection_group.add_argument("-l", "--latest",
+                                 help="Download only the latest chapter",
+                                 action='store_true')
 
     # Parser for config mode
     parser_conf.add_argument("-a", "--add-tracked",
@@ -640,15 +641,16 @@ def parse_arguments():
                              dest="timeout")
 
     # Update options
-    parser_update.add_argument("-c", "--check",
-                               help=("Only check for new chapters "
-                                     "without downloading and asking for any input"),
-                               action="store_true",
-                               dest="check_only")
-    parser_update.add_argument("-i", "--ignore_input",
-                               help="Downloads without asking for any input",
-                               action="store_true",
-                               dest="ignore_input")
+    input_group_update = parser_update.add_mutually_exclusive_group()
+    input_group_update.add_argument("-c", "--check",
+                                    help=("Only check for new chapters "
+                                          "without downloading and asking for any input"),
+                                    action="store_true",
+                                    dest="check_only")
+    input_group_update.add_argument("-i", "--ignore_input",
+                                    help="Downloads without asking for any input",
+                                    action="store_true",
+                                    dest="ignore_input")
     parser_update.add_argument("-d", "--directory",
                                dest="custom_dire",
                                metavar="PATH/TO/DIRECTORY",
