@@ -1,5 +1,15 @@
 # Release History
 
+## Pre-release
+
+### Changes
+- `-i/--ignore_input` and `-c/--check` are now mutually exclusive
+
+### Internal
+- all site modules now inherit from BaseManga
+- all site modules now create a single `requests.Session()` used by all instances of it
+- argument parsing moved to it's own module
+
 ## v1.8.0(2020-06-04)
 
 ### New
