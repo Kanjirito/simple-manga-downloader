@@ -20,10 +20,10 @@ import requests
 
 def main():
     try:
-        global CONFIG
         global ARGS
-        CONFIG = Config(ARGS.custom_cfg)
+        global CONFIG
         ARGS = parse_arguments()
+        CONFIG = Config(ARGS.custom_cfg)
         mode = ARGS.subparser_name
         if not CONFIG:
             return
