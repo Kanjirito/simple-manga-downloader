@@ -9,6 +9,7 @@
 - all site modules now inherit from BaseManga
 - all site modules now create a single `requests.Session()` used by all instances of it
 - argument parsing moved to it's own module
+- argument parser and config parser moved out of modules directory
 
 ## v1.8.0(2020-06-04)
 

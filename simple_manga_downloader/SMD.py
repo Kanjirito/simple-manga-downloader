@@ -4,10 +4,10 @@ from .modules import Mangasee
 from .modules import Mangatown
 from .modules import Mangakakalot
 from .modules import Manganelo
-from .modules import Config
 from .modules import BaseManga
-from .modules import parse_arguments
-from .decorators import limiter, request_exception_handler
+from . import Config
+from . import parse_arguments
+from . import limiter, request_exception_handler
 from . import __version__
 from pathlib import Path
 import shutil
