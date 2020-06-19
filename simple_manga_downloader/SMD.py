@@ -43,15 +43,16 @@ def main():
         print("\nKeyboard Interrupt detected, stopping!")
 
 
-def site_detect(link):
+def site_detect(link, index_allow=True):
     """Detects the site and creates a proper manga object"""
-    try:
-        tracked_num = int(link)
-        if 0 < tracked_num <= len(CONFIG.tracked_manga):
-            key = list(CONFIG.tracked_manga.keys())[tracked_num - 1]
-            link = CONFIG.tracked_manga[key]
-    except ValueError:
-        pass
+    if index_allow:
+        try:
+            tracked_num = int(link)
+            if 0 < tracked_num <= len(CONFIG.tracked_manga):
+                key = list(CONFIG.tracked_manga.keys())[tracked_num - 1]
+                link = CONFIG.tracked_manga[key]
+        except ValueError:
+            pass
 
     if "mangadex.org" in link or "mangadex.cc" in link:
         site = Mangadex
@@ -131,7 +132,7 @@ def conf_mode():
     if ARGS.add:
         for link in ARGS.add:
             print()
-            Manga = site_detect(link)
+            Manga = site_detect(link, index_allow=False)
             if Manga is False:
                 continue
             title = Manga.get_main(title_return=True)

@@ -83,44 +83,69 @@ class Config():
 
     def add_tracked(self, Manga):
         """Adds manga to the tracked list"""
-        if Manga.series_title not in self.tracked_manga:
-            self.tracked_manga[Manga.series_title] = Manga.manga_link
-            print(f"Added to tracked:  {Manga.series_title}")
+        current_title = Manga.series_title
+        manga_link = Manga.manga_link
+
+        tracked, message = self.check_manga_in_tracked(manga_link)
+
+        if tracked:
+            if message != current_title:
+                print(f"Already tracking \"{current_title}\" as \"{message}\"")
+            else:
+                print(f"Already tracking  \"{current_title}\"")
         else:
-            print(f"Already tracked:  {Manga.series_title}")
+            self.tracked_manga[current_title] = manga_link
+            print(f"Added to tracked:  {current_title}")
 
     def remove_tracked(self, delete):
         """
-        Removes manga from the tracked list
-        Accepts only a list as an argument
+        Removes manga from the tracked dict
+        delete is a list of elements to remove
         """
         if not self.tracked_manga:
             print("Nothing to remove")
             return
         to_remove = set()
-        for n in delete:
-            if n in self.tracked_manga:
-                to_remove.add(n)
-            elif "/" in n:
-                for key, value in self.tracked_manga.items():
-                    if value == n:
-                        to_remove.add(key)
-                        break
-                else:
-                    print("Link not found")
+        print(delete)
+        for d in delete:
+            tracked, message = self.check_manga_in_tracked(d)
+            if tracked:
+                to_remove.add(message)
             else:
-                try:
-                    index = int(n)
-                    if 0 < index <= len(self.tracked_manga):
-                        to_remove.add(list(self.tracked_manga)[index - 1])
-                    else:
-                        print("Index out of range")
-                except ValueError:
-                    print("Not an index, link or title")
+                print(message)
 
         for r in to_remove:
             del self.tracked_manga[r]
             print(f"Removed from tracked: {r}")
+
+    def check_manga_in_tracked(self, to_check):
+        """
+        Checks if given to_check is in the tracked list
+        to_check can be an index of a tracked manga, title of a manga,
+        link of a manga
+        Returns a tuple of a bool and string, if to_check was found in
+        tracked list returns (True, "series title") if it wasn't found
+        returns (False, "why it failed message")
+        """
+
+        if to_check in self.tracked_manga:
+            return (True, to_check)
+        elif "/" in to_check:
+            for key, value in self.tracked_manga.items():
+                if value == to_check:
+                    return (True, key)
+                    break
+            else:
+                return (False, "Link not found")
+        else:
+            try:
+                index = int(to_check)
+                if 0 < index <= len(self.tracked_manga):
+                    return (True, list(self.tracked_manga)[index - 1])
+                else:
+                    return (False, "Index out of range")
+            except ValueError:
+                return (False, "Not an index, link or title")
 
     def change_dir(self, dire):
         """Changes the manga download directory"""

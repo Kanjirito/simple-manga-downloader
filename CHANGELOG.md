@@ -4,12 +4,14 @@
 
 ### Changes
 - `-i/--ignore_input` and `-c/--check` are now mutually exclusive
+- removed titles from mangadex links
 
 ### Internal
 - all site modules now inherit from BaseManga
 - all site modules now create a single `requests.Session()` used by all instances of it
 - argument parsing moved to it's own module
 - argument parser and config parser moved out of modules directory
+- better checking if manga in tracked
 
 ## v1.8.0(2020-06-04)
 
