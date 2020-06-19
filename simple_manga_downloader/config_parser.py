@@ -105,8 +105,8 @@ class Config():
         if not self.tracked_manga:
             print("Nothing to remove")
             return
+
         to_remove = set()
-        print(delete)
         for d in delete:
             tracked, message = self.check_manga_in_tracked(d)
             if tracked:
@@ -136,16 +136,16 @@ class Config():
                     return (True, key)
                     break
             else:
-                return (False, "Link not found")
+                return (False, f"Link not tracked: \"{to_check}\"")
         else:
             try:
                 index = int(to_check)
                 if 0 < index <= len(self.tracked_manga):
                     return (True, list(self.tracked_manga)[index - 1])
                 else:
-                    return (False, "Index out of range")
+                    return (False, f"Index out of range: \"{index}\"")
             except ValueError:
-                return (False, "Not an index, link or title")
+                return (False, f"Not a tracked index, link or title: \"{to_check}\"")
 
     def change_dir(self, dire):
         """Changes the manga download directory"""

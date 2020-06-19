@@ -6,10 +6,15 @@ def parse_arguments():
     Returns the arguments object
     """
 
-    class MakeSetAction(argparse.Action):
-        """Custom action for argparse that creates a set"""
+    class SetAction(argparse.Action):
+        """Action for argparse that creates a set"""
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, self.dest, set(values))
+
+    class NoDupesOrderedListAction(argparse.Action):
+        """Action for argparse that creates a list with no dupes and preserved order"""
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, self.dest, list(dict.fromkeys(values)))
 
     desc = ("SMD is a command line manga downloader. For more information "
             "read the README file in the GitHub repo.\n"
@@ -44,7 +49,7 @@ def parse_arguments():
     # Parser for download mode
     parser_down.add_argument("input", nargs="+",
                              metavar="manga url",
-                             action=MakeSetAction,
+                             action=NoDupesOrderedListAction,
                              help="URL or tracked manga index to download")
     parser_down.add_argument("-d", "--directory",
                              dest="custom_dire",
@@ -56,7 +61,7 @@ def parse_arguments():
                              metavar="NUMBER",
                              nargs="+",
                              type=float,
-                             action=MakeSetAction,
+                             action=SetAction,
                              default=set())
     parser_down.add_argument("-n", "--name",
                              default=None,
@@ -87,7 +92,7 @@ def parse_arguments():
                                        "Accepts multiple chapters \"2 10 25\""),
                                  metavar="NUMBER",
                                  nargs="+",
-                                 action=MakeSetAction,
+                                 action=SetAction,
                                  type=float)
     selection_group.add_argument("-l", "--latest",
                                  help="Download only the latest chapter",
@@ -99,14 +104,14 @@ def parse_arguments():
                              dest="add",
                              metavar="MANGA URL",
                              nargs="+",
-                             action=MakeSetAction)
+                             action=NoDupesOrderedListAction)
     parser_conf.add_argument("-r", "--remove-tracked",
                              help=("Removes manga from tracked. "
                                    "Supports deletion by url, title or tracked index"),
                              dest="remove",
                              metavar="MANGA URL|MANGA TITLE|NUMBER",
                              nargs="+",
-                             action=MakeSetAction)
+                             action=SetAction)
     parser_conf.add_argument("-t", "--clear-tracked",
                              help="Clears the tracked list",
                              action="store_true")
