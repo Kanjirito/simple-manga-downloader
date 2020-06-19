@@ -11,10 +11,10 @@ class Mangadex(BaseManga):
 
     def __init__(self, link):
         self.base_link = "https://mangadex.org"
-        self.manga_link = link.split("/chapters")[0].rstrip("/")
         self.mn_api_url = f"{self.base_link}/api/manga/"
         self.ch_api_url = f"{self.base_link}/api/chapter/"
         self.id = self.get_id(link)
+        self.manga_link = f"{self.base_link}/title/{self.id}"
         self.cover_url = None
         self.chapters = {}
 
