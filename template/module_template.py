@@ -2,10 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 from ..decorators import request_exception_handler
 from .manga import BaseManga
+import re
 
 
 class MangaPageName(BaseManga):
     session = requests.Session()
+    site_re = re.compile(r"regex for site")
 
     def __init__(self, link):
         self.site = "site.com"

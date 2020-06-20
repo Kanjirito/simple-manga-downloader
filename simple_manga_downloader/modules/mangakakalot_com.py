@@ -7,6 +7,7 @@ from .manga import BaseManga
 
 class Mangakakalot(BaseManga):
     session = requests.Session()
+    site_re = re.compile(r"https?://mangakakalot\.com/\S*")
 
     def __init__(self, link):
         self.site = "mangakakalot.com"

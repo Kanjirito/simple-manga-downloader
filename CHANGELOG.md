@@ -14,6 +14,8 @@
 - argument parsing moved to it's own module
 - argument parser and config parser moved out of modules directory
 - better checking if manga in tracked
+- using regex to find module for link allowing for nicer module importing
+- functions for setting `BaseManga` attributes added for clarity
 
 ## v1.8.0(2020-06-04)
 

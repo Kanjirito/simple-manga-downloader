@@ -8,6 +8,8 @@ from .manga import BaseManga
 class Mangadex(BaseManga):
     lang_code = "gb"
     session = requests.Session()
+    site_re = re.compile(r"""(?x)https?://(?:www\.)?mangadex\.
+                         (?:(?:org)|(?:cc))/title/(\d+)""")
 
     def __init__(self, link):
         self.base_link = "https://mangadex.org"
@@ -19,8 +21,7 @@ class Mangadex(BaseManga):
         self.chapters = {}
 
     def get_id(self, link):
-        reg = re.compile(r"title/(\d*)/?")
-        return reg.search(link).group(1)
+        return self.site_re.search(link).group(1)
 
     @request_exception_handler
     def get_main(self, title_return=False):

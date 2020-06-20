@@ -9,7 +9,9 @@ Currently supports:
 - [mangakakalot](https://mangakakalot.com/page)
 - [manganelo](https://manganelo.com)
 
-*Note:* mangadex and mangasee are the main supported sites, the others will be maintained but they are not my top priority.
+*Note:* mangadex and mangasee are the main supported sites, the others *might* be maintained but they are not my top priority.
+
+*Note2:* manganelo and mangakakalot use cloudflare on some of their image servers causing the downloader to fail.
 
 Allows you to download manga in 5 ways:
 

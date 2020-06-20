@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-from .modules import Mangadex
-from .modules import Mangasee
-from .modules import Mangatown
-from .modules import Mangakakalot
-from .modules import Manganelo
-from .modules import BaseManga
+from . import modules
 from . import Config
 from . import parse_arguments
 from . import limiter, request_exception_handler
@@ -27,7 +22,6 @@ def main():
         mode = ARGS.subparser_name
         if not CONFIG:
             return
-        Mangadex.lang_code = CONFIG.lang_code
 
         if mode == "down":
             main_pipeline(ARGS.input)
@@ -54,16 +48,9 @@ def site_detect(link, index_allow=True):
         except ValueError:
             pass
 
-    if "mangadex.org" in link or "mangadex.cc" in link:
-        site = Mangadex
-    elif "mangaseeonline.us" in link:
-        site = Mangasee
-    elif "mangatown.com" in link:
-        site = Mangatown
-    elif "mangakakalot.com" in link:
-        site = Mangakakalot
-    elif "manganelo.com" in link:
-        site = Manganelo
+    for module in modules.ALL_MODULES:
+        if module.check_if_link_matches(link):
+            return module(link)
     else:
         msg = f"Wrong link: \"{link}\""
         line = make_line(msg)
@@ -71,10 +58,6 @@ def site_detect(link, index_allow=True):
         print(msg)
         print(line)
         return False
-
-    Manga = site(link)
-
-    return Manga
 
 
 def get_cover(Manga):
@@ -172,16 +155,15 @@ def main_pipeline(links):
           "\n------------------------")
 
     if ARGS.custom_dire:
-        path = ARGS.custom_dire
+        path = Path(ARGS.custom_dire).resolve()
     else:
         path = CONFIG.manga_directory
-    BaseManga.directory = Path(path).resolve()
+    modules.set_download_directory(path)
 
     if ARGS.check_only or ARGS.ignore_input:
-        check_only = True
-    else:
-        check_only = False
-    BaseManga.check_only = check_only
+        modules.toggle_check_only()
+
+    modules.set_mangadex_language(CONFIG.lang_code)
 
     ready = []
     total_num_ch = 0

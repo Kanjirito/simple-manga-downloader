@@ -1,4 +1,5 @@
 import requests
+import re
 from ..decorators import request_exception_handler
 from bs4 import BeautifulSoup
 from .manga import BaseManga
@@ -6,6 +7,7 @@ from .manga import BaseManga
 
 class Mangasee(BaseManga):
     session = requests.Session()
+    site_re = re.compile(r"https?://mangaseeonline\.us/manga/\S*")
 
     def __init__(self, link):
         self.site = "mangaseeonline.us"
