@@ -21,4 +21,4 @@ class BaseManga:
     @classmethod
     def check_if_link_matches(cls, link):
         """Checks if given url is valid for given module"""
-        return cls.site_re.search(link) is not None
+        return cls.site_re.search(link)

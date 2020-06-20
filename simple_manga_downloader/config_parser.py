@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from .modules import ALL_MODULES
 
 
 class Config():
@@ -131,10 +132,15 @@ class Config():
         if to_check in self.tracked_manga:
             return (True, to_check)
         elif "/" in to_check:
-            for key, value in self.tracked_manga.items():
-                if value == to_check:
-                    return (True, key)
+            for module in ALL_MODULES:
+                match = module.check_if_link_matches(to_check)
+                if match:
+                    to_check = match.group(0)
                     break
+
+            for key, value in self.tracked_manga.items():
+                if to_check in value:
+                    return (True, key)
             else:
                 return (False, f"Link not tracked: \"{to_check}\"")
         else:

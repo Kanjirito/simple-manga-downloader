@@ -5,6 +5,7 @@
 ### Changes
 - `-i/--ignore_input` and `-c/--check` are now mutually exclusive
 - removed titles from mangadex links
+- `conf -r/--remove-tracked` uses the site regex to check if link can be shortened (for now only mangadex benefits from this)
 - preserved order of input for `down`, `conf -a/--add-tracked`
 - more verbose output for `conf -r/--remove-tracked` if argument is not tracked
 
