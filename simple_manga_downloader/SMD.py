@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from . import modules
-from . import Config
-from . import parse_arguments
-from . import limiter, request_exception_handler
+from .config_parser import Config
+from .arg_parser import parse_arguments
+from .decorators import limiter, request_exception_handler
 from . import __version__
 from pathlib import Path
 import shutil
