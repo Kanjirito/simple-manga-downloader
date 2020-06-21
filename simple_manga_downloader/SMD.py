@@ -7,7 +7,6 @@ from . import __version__
 from pathlib import Path
 import shutil
 import html
-import os
 import imghdr
 import time
 import requests
@@ -312,14 +311,16 @@ def filter_selection(chapter_list):
 
 
 def filter_downloaded(manga_dir, wanted):
-    """Filters the "filtered" based on what is already downloaded"""
+    """Filters the "wanted" based on what is already downloaded"""
     if not manga_dir.is_dir():
         filtered = list(wanted)
     else:
         filtered = []
+        directory_contents = {item.name for item in manga_dir.iterdir()
+                              if item.is_dir()}
         for n in wanted:
             chapter_name = f"Chapter {n}"
-            if chapter_name not in os.listdir(manga_dir):
+            if chapter_name not in directory_contents:
                 filtered.append(n)
     return filtered
 
