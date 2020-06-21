@@ -99,19 +99,20 @@ def parse_arguments():
                                  action='store_true')
 
     # Parser for config mode
-    parser_conf.add_argument("-a", "--add-tracked",
-                             help="Adds manga to the tracked list",
-                             dest="add",
-                             metavar="MANGA URL",
-                             nargs="+",
-                             action=NoDupesOrderedListAction)
-    parser_conf.add_argument("-r", "--remove-tracked",
-                             help=("Removes manga from tracked. "
-                                   "Supports deletion by url, title or tracked index"),
-                             dest="remove",
-                             metavar="MANGA URL|MANGA TITLE|NUMBER",
-                             nargs="+",
-                             action=SetAction)
+    tracked_edit_group = parser_conf.add_mutually_exclusive_group()
+    tracked_edit_group.add_argument("-a", "--add-tracked",
+                                    help="Adds manga to the tracked list",
+                                    dest="add",
+                                    metavar="MANGA URL",
+                                    nargs="+",
+                                    action=NoDupesOrderedListAction)
+    tracked_edit_group.add_argument("-r", "--remove-tracked",
+                                    help=("Removes manga from tracked. "
+                                          "Supports deletion by url, title or tracked index"),
+                                    dest="remove",
+                                    metavar="MANGA URL|MANGA TITLE|NUMBER",
+                                    nargs="+",
+                                    action=SetAction)
     parser_conf.add_argument("-t", "--clear-tracked",
                              help="Clears the tracked list",
                              action="store_true")

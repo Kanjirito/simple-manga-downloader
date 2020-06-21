@@ -8,6 +8,7 @@
 - `conf -r/--remove-tracked` uses the site regex to check if link can be shortened (for now only mangadex benefits from this)
 - preserved order of input for `down`, `conf -a/--add-tracked`
 - more verbose output for `conf -r/--remove-tracked` if argument is not tracked
+- `-a/--add-tracked` and `-r/--remove-tracked` are now mutually exclusive giving an error instead of just doing one
 
 ### Internal
 - all site modules now inherit from BaseManga

@@ -11,7 +11,7 @@ Currently supports:
 
 *Note:* mangadex and mangasee are the main supported sites, the others *might* be maintained but they are not my top priority.
 
-*Note2:* manganelo and mangakakalot use cloudflare on some of their image servers causing the downloader to fail.
+*Note2:* manganelo and mangakakalot use cloudflare on some of their image servers causing the downloader to not be able to download those images.
 
 Allows you to download manga in 5 ways:
 
@@ -211,11 +211,6 @@ Removing a manga from the tracked list by index:
 SMD conf -r 5 1 3
 SMD conf --remove-tracked 5 1 3
 ```
-
-
-**Note:**
-*You can't add and remove at the same time, if both `-a` and `-r` are present it will only add manga.*
-
 
 Removing a manga from the tracked list by title:
 ```
