@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release
+## v1.9.0(2020-06-21)
 
 ### Fixes
 - fixed crash if manga had "/" in title, now is replaced with "╱"
