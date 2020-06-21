@@ -10,6 +10,8 @@
 - more verbose output for `conf -r/--remove-tracked` if argument is not tracked
 - `-a/--add-tracked` and `-r/--remove-tracked` are now mutually exclusive giving an error instead of just doing one
 - `-s/--save-directory` now prints a confirmation that the directory got changed
+- config is now always saved after KeyboardInterrupt
+- failing to load config will result in exit code 1
 
 ### Internal
 - all site modules now inherit from BaseManga

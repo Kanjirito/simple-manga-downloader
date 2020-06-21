@@ -10,17 +10,19 @@ import html
 import imghdr
 import time
 import requests
+import sys
 
 
 def main():
+    global ARGS
+    global CONFIG
+    ARGS = parse_arguments()
+    CONFIG = Config(ARGS.custom_cfg)
+    if not CONFIG:
+        return 1
+
     try:
-        global ARGS
-        global CONFIG
-        ARGS = parse_arguments()
-        CONFIG = Config(ARGS.custom_cfg)
         mode = ARGS.subparser_name
-        if not CONFIG:
-            return
 
         if mode == "down":
             main_pipeline(ARGS.input)
@@ -30,10 +32,10 @@ def main():
             conf_mode()
         elif mode == "version":
             version_mode()
-
-        CONFIG.save_config()
     except KeyboardInterrupt:
         print("\nKeyboard Interrupt detected, stopping!")
+    finally:
+        CONFIG.save_config()
 
 
 def site_detect(link, index_allow=True):
@@ -478,4 +480,4 @@ def page_name_gen(manga_title, data, chapter_name):
 
 
 if __name__ == '__main__':
-    main()
+    sys.exti(main())
