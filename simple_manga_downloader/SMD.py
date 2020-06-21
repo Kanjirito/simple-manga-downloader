@@ -409,13 +409,15 @@ def download_summary(count, failed, success, total_time):
         print(f"\n{line_break}\n{message}\n{line_break}")
 
     if failed:
-        print("\nFailed downloads:")
+        msg = "Failed downloads:"
+        print(f"\n{msg}\n{make_line(msg)}")
         for fail, fail_list in failed.items():
             print(f"{fail}:")
             for f in fail_list:
                 print(f)
     if success:
-        print("\nSuccessfully downloaded:")
+        msg = "Successful downloads:"
+        print(f"\n{msg}\n{make_line(msg)}")
         for win, win_list in success.items():
             print(f"{win}:")
             for w in win_list:

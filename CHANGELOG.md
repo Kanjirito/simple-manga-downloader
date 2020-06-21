@@ -2,6 +2,9 @@
 
 ## Pre-release
 
+### Fixes
+- fixed crash if manga had "/" in title, now is replaced with "╱"
+
 ### Changes
 - `-i/--ignore_input` and `-c/--check` are now mutually exclusive
 - removed titles from mangadex links

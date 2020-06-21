@@ -1,3 +1,6 @@
+from html import unescape
+
+
 class BaseManga:
     """The base class for the manga modules
     directory = manga dowload directory, has to be changed into a actual
@@ -22,3 +25,7 @@ class BaseManga:
     def check_if_link_matches(cls, link):
         """Checks if given url is valid for given module"""
         return cls.site_re.search(link)
+
+    def clean_up_string(self, string):
+        """Replaces html escape codes and replaces / with ╱"""
+        return unescape(string).replace("/", "╱")

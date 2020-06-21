@@ -33,7 +33,7 @@ class Mangadex(BaseManga):
         r = self.session.get(f"{self.mn_api_url}{self.id}", timeout=5)
         r.raise_for_status()
         data = r.json()
-        self.series_title = html.unescape(data["manga"]["title"])
+        self.series_title = self.clean_up_string(data["manga"]["title"])
         if title_return:
             return True
         cover = data["manga"].get("cover_url")

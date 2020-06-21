@@ -26,7 +26,8 @@ class Mangakakalot(BaseManga):
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.series_title = soup.find(class_="manga-info-text").find("h1").text
+        title = soup.find(class_="manga-info-text").find("h1").text
+        self.series_title = self.clean_up_string(title)
         if title_return:
             return True
         thumb = soup.find(class_="manga-info-pic")

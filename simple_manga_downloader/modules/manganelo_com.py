@@ -31,7 +31,8 @@ class Manganelo(BaseManga):
         except AttributeError:
             return "Failed to get page"
 
-        self.series_title = soup.find(class_="story-info-right").find("h1").text
+        title = soup.find(class_="story-info-right").find("h1").text
+        self.series_title = self.clean_up_string(title)
         if title_return:
             return True
 
