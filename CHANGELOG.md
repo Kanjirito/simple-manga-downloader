@@ -9,6 +9,7 @@
 - preserved order of input for `down`, `conf -a/--add-tracked`
 - more verbose output for `conf -r/--remove-tracked` if argument is not tracked
 - `-a/--add-tracked` and `-r/--remove-tracked` are now mutually exclusive giving an error instead of just doing one
+- `-s/--save-directory` now prints a confirmation that the directory got changed
 
 ### Internal
 - all site modules now inherit from BaseManga

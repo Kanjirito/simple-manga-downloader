@@ -155,7 +155,9 @@ class Config():
 
     def change_dir(self, dire):
         """Changes the manga download directory"""
-        self.manga_directory = Path(dire).resolve()
+        path = Path(dire).resolve()
+        self.manga_directory = path
+        print(f"Manga download directory changed to : \"{path}\"")
 
     def clear_tracked(self):
         """Clears the tracked shows"""
