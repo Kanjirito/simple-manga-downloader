@@ -31,7 +31,7 @@ def main():
         elif mode == "conf":
             conf_mode()
         elif mode == "version":
-            version_mode()
+            return version_mode()
     except KeyboardInterrupt:
         print("\nKeyboard Interrupt detected, stopping!")
     finally:
@@ -88,17 +88,23 @@ def version_mode():
         if check is not True:
             print("Failed to check version!")
             print(check)
+            return 1
+    return 0
 
 
 @request_exception_handler
 def check_for_update():
     """Checks for new versions using the PyPI API"""
+    try:
+        from pkg_resources import parse_version
+    except ModuleNotFoundError:
+        return "Can't check version because pkg_resources not installed"
 
     r = requests.get("https://pypi.org/pypi/simple-manga-downloader/json")
     r.raise_for_status()
     releases = r.json()["releases"]
-    lastes_version = max(releases)
-    if lastes_version > __version__:
+    lastes_version = list(releases)[-1]
+    if parse_version(lastes_version) > parse_version(__version__):
         date = releases[lastes_version][0]["upload_time"].split("T")[0]
         print(f"New version available: {lastes_version} ({date})")
     else:
