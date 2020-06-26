@@ -1,5 +1,10 @@
 # Release History
 
+## v1.9.1(2020-06-26)
+
+## Fixes
+- manganelo and mangakakalot image downloads no longer fail because of cloudflare
+
 ## v1.9.0(2020-06-21)
 
 ### Fixes

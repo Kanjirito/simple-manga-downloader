@@ -6,13 +6,12 @@ from .manga import BaseManga
 
 
 class Mangatown(BaseManga):
+    base_link = "https://www.mangatown.com/"
     session = requests.Session()
     site_re = re.compile(r"https?://www\.mangatown\.com/manga/[^\s/]*")
 
     def __init__(self, link):
-        self.site = "mangatown.com"
         self.manga_link = link
-        self.base_link = "https://www.mangatown.com/"
         self.cover_url = None
         self.chapters = {}
 

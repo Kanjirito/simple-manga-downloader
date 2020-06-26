@@ -6,13 +6,12 @@ from .manga import BaseManga
 
 
 class Mangasee(BaseManga):
+    base_link = "https://mangaseeonline.us"
     session = requests.Session()
     site_re = re.compile(r"https?://mangaseeonline\.us/manga/\S*")
 
     def __init__(self, link):
-        self.site = "mangaseeonline.us"
         self.manga_link = link
-        self.base_link = "https://mangaseeonline.us"
         self.cover_url = None
         self.chapters = {}
 

@@ -6,13 +6,12 @@ import re
 
 
 class MangaPageName(BaseManga):
+    base_link = "https://site.com"
     session = requests.Session()
     site_re = re.compile(r"regex for site")
 
     def __init__(self, link):
-        self.site = "site.com"
         self.manga_link = link
-        self.base_link = "https://site.com"
         self.cover_url = None
         self.chapters = {}
 

@@ -11,8 +11,6 @@ Currently supports:
 
 *Note:* mangadex and mangasee are the main supported sites, the others *might* be maintained but they are not my top priority.
 
-*Note2:* manganelo and mangakakalot use cloudflare on some of their image servers causing the downloader to not be able to download those images.
-
 Allows you to download manga in 5 ways:
 
 - all chapters of a series

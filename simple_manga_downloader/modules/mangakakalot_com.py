@@ -6,13 +6,13 @@ from .manga import BaseManga
 
 
 class Mangakakalot(BaseManga):
+    base_link = "https://mangakakalot.com"
     session = requests.Session()
+    session.headers.update({"Referer": base_link})
     site_re = re.compile(r"https?://mangakakalot\.com/\S*")
 
     def __init__(self, link):
-        self.site = "mangakakalot.com"
         self.manga_link = link
-        self.base_link = "https://mangakakalot.com"
         self.cover_url = None
         self.chapters = {}
 

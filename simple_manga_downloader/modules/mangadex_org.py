@@ -6,13 +6,13 @@ from .manga import BaseManga
 
 
 class Mangadex(BaseManga):
+    base_link = "https://mangadex.org"
     lang_code = "gb"
     session = requests.Session()
     site_re = re.compile(r"""(?x)https?://(?:www\.)?mangadex\.
                          (?:(?:org)|(?:cc))/title/(\d+)""")
 
     def __init__(self, link):
-        self.base_link = "https://mangadex.org"
         self.mn_api_url = f"{self.base_link}/api/manga/"
         self.ch_api_url = f"{self.base_link}/api/chapter/"
         self.id = self.get_id(link)
