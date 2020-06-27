@@ -35,7 +35,7 @@ def main():
     except KeyboardInterrupt:
         print("\nKeyboard Interrupt detected, stopping!")
     finally:
-        CONFIG.save_config()
+        return CONFIG.save_config()
 
 
 def site_detect(link, index_allow=True):
@@ -106,7 +106,7 @@ def check_for_update():
     lastes_version = list(releases)[-1]
     if parse_version(lastes_version) > parse_version(__version__):
         date = releases[lastes_version][0]["upload_time"].split("T")[0]
-        print(f"New version available: {lastes_version} ({date})")
+        print(f"New version available: v{lastes_version} ({date})")
     else:
         print("No new versions found")
     return True

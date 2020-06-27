@@ -282,9 +282,11 @@ class Config():
                   "page_download_timeout": self.download_timeout,
                   "tracking": self.tracked_manga}
         try:
-            self.config_path.parent.mkdir(parents=True)
+            self.config_path.parent.mkdir(parents=True, exist_ok=True)
         except FileExistsError:
-            pass
+            print(f"Can't save config because {self.config_path.parent} is a file!")
+            return 1
 
         with open(self.config_path, "w") as f:
             json.dump(config, f, indent=4)
+        return 0
