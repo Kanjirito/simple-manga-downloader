@@ -4,12 +4,11 @@ Simple manga console downloader written in python.
 Currently supports:
 
 - [mangadex](https://mangadex.org)
-- [mangaseeonline](https://mangaseeonline.us)
 - [mangatown](https://www.mangatown.com)
 - [mangakakalot](https://mangakakalot.com/page)
 - [manganelo](https://manganelo.com)
 
-*Note:* mangadex and mangasee are the main supported sites, the others *might* be maintained but they are not my top priority.
+*Note:* mangadex is the main supported site, the others *might* be maintained but they are not my top priority.
 
 Allows you to download manga in 5 ways:
 

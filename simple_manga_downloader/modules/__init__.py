@@ -3,7 +3,6 @@ from .manga import BaseManga
 from .mangadex_org import Mangadex
 from .mangakakalot_com import Mangakakalot
 from .manganelo_com import Manganelo
-from .mangaseeonline_us import Mangasee
 from .mangatown_com import Mangatown
 
 """
@@ -11,7 +10,6 @@ List of all the modules, order matters if multiple modules support the
 same same URL. New modules must be added to it.
 """
 ALL_MODULES = [Mangadex,
-               Mangasee,
                Mangatown,
                Mangakakalot,
                Manganelo,

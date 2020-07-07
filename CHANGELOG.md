@@ -1,5 +1,10 @@
 # Release History
 
+## v1.9.2(pre-release)
+
+### Removed
+- mangaseeonline support, site now requires JS to work
+
 ## v1.9.1(2020-06-26)
 
 ## Fixes
