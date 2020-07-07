@@ -119,8 +119,8 @@ def conf_mode():
     elif ARGS.clear_tracked:
         CONFIG.clear_tracked()
 
-    if ARGS.add:
-        for link in ARGS.add:
+    if ARGS.add_to_tracked:
+        for link in ARGS.add_to_tracked:
             print()
             Manga = site_detect(link, index_allow=False)
             if Manga is False:
@@ -130,23 +130,23 @@ def conf_mode():
                 CONFIG.add_tracked(Manga)
             else:
                 print(f"{title} for:\n{link}")
-    elif ARGS.remove:
-        CONFIG.remove_tracked(ARGS.remove)
-    if ARGS.list:
+    elif ARGS.remove_from_tracked:
+        CONFIG.remove_tracked(ARGS.remove_from_tracked)
+    if ARGS.list_tracked:
         CONFIG.list_tracked(ARGS.verbose)
-    if ARGS.m_dir:
-        CONFIG.change_dir(ARGS.m_dir)
-    if ARGS.position:
+    if ARGS.manga_down_directory:
+        CONFIG.change_dir(ARGS.manga_down_directory)
+    if ARGS.modify_tracked_position:
         CONFIG.change_position(ARGS.verbose)
-    if ARGS.cover:
+    if ARGS.toggle_covers:
         CONFIG.toogle_covers()
-    if ARGS.lang_code:
-        CONFIG.change_lang(ARGS.lang_code)
+    if ARGS.change_lang:
+        CONFIG.change_lang(ARGS.change_lang)
     if ARGS.list_lang:
         CONFIG.list_lang()
     if ARGS.timeout is not None:
         CONFIG.change_timeout(ARGS.timeout)
-    if ARGS.print:
+    if ARGS.print_config:
         CONFIG.print_config()
 
 
@@ -161,8 +161,8 @@ def main_pipeline(links):
           f"    Getting {len(links)} manga"
           "\n------------------------")
 
-    if ARGS.custom_dire:
-        path = Path(ARGS.custom_dire).resolve()
+    if ARGS.custom_down_dire:
+        path = Path(ARGS.custom_down_dire).resolve()
     else:
         path = CONFIG.manga_directory
     modules.set_download_directory(path)

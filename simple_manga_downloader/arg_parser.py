@@ -52,7 +52,7 @@ def parse_arguments():
                              action=NoDupesOrderedListAction,
                              help="URL or tracked manga index to download")
     parser_down.add_argument("-d", "--directory",
-                             dest="custom_dire",
+                             dest="custom_down_dire",
                              metavar="PATH/TO/DIRECTORY",
                              default=None,
                              help="Custom path for manga download")
@@ -102,14 +102,14 @@ def parse_arguments():
     tracked_edit_group = parser_conf.add_mutually_exclusive_group()
     tracked_edit_group.add_argument("-a", "--add-tracked",
                                     help="Adds manga to the tracked list",
-                                    dest="add",
+                                    dest="add_to_tracked",
                                     metavar="MANGA URL",
                                     nargs="+",
                                     action=NoDupesOrderedListAction)
     tracked_edit_group.add_argument("-r", "--remove-tracked",
                                     help=("Removes manga from tracked. "
                                           "Supports deletion by url, title or tracked index"),
-                                    dest="remove",
+                                    dest="remove_from_tracked",
                                     metavar="MANGA URL|MANGA TITLE|NUMBER",
                                     nargs="+",
                                     action=SetAction)
@@ -119,18 +119,17 @@ def parse_arguments():
     parser_conf.add_argument("-s", "--save-directory",
                              help="Changes the manga download directory",
                              metavar="PATH/TO/DIRECTORY",
-                             dest="m_dir")
+                             dest="manga_down_directory")
     parser_conf.add_argument("-d", "--default",
                              help="Resets the config to defaults",
                              action="store_true")
     parser_conf.add_argument("-l", "--list-tracked",
                              help="Lists all of the tracked shows",
-                             action="store_true",
-                             dest="list")
+                             action="store_true")
     parser_conf.add_argument("-m", "--modify-position",
                              help="Changes the position of tracked manga",
                              action="store_true",
-                             dest="position")
+                             dest="modify_tracked_position")
     parser_conf.add_argument("-v", "--verbose",
                              help="Used with -l or -m to also print links",
                              action="store_true",
@@ -138,19 +137,17 @@ def parse_arguments():
     parser_conf.add_argument("-p", "--print_conf",
                              help="Print config settings",
                              action="store_true",
-                             dest="print")
+                             dest="print_config")
     parser_conf.add_argument("-c", "--covers",
                              help="Toggles the cover download setting",
                              action="store_true",
-                             dest="cover")
+                             dest="toggle_covers")
     parser_conf.add_argument("--change_lang",
                              help="Changes the mangadex language code",
-                             metavar="LANGUAGE CODE",
-                             dest="lang_code")
+                             metavar="LANGUAGE CODE")
     parser_conf.add_argument("--list_lang",
                              help="Lists all of the mangadex language codes",
-                             action="store_true",
-                             dest="list_lang")
+                             action="store_true")
     parser_conf.add_argument("--timeout",
                              help="Change the download timeout",
                              metavar="SECONDS",
@@ -169,7 +166,7 @@ def parse_arguments():
                                     action="store_true",
                                     dest="ignore_input")
     parser_update.add_argument("-d", "--directory",
-                               dest="custom_dire",
+                               dest="custom_down_dire",
                                metavar="PATH/TO/DIRECTORY",
                                default=None,
                                help="Custom path for manga download")

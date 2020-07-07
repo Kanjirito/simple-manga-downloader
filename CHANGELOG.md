@@ -5,6 +5,9 @@
 ### Removed
 - mangaseeonline support, site now requires JS to work
 
+### Changes
+- internal stuff
+
 ## v1.9.1(2020-06-26)
 
 ## Fixes
@@ -75,12 +78,12 @@
 - `conf -p` now prints the absolute path (only matters when using a custom config path)
 - config_parser now properly creates a dict for the tracked manga if no config was present
 
-## v1.6.1(20-01-14)
+## v1.6.1(2020-01-14)
 
 ### Changes
 - mangadex is back to it's .org domain (.cc links will still work)
 
-## v1.6.0(20-01-08)
+## v1.6.0(2020-01-08)
 
 ### New
 - mangadex language code selection
@@ -104,14 +107,14 @@
 - crash if using `down -l` and no manga fits the criteria
 - `conf -d (--default)` now sets the proper download directory
 
-## v1.5.1(20-01-05)
+## v1.5.1(2020-01-05)
 
 ### Fixes
 - mangadex moved (temporarily) from .org to .cc (added error message to remind about the change if given a .org link)
 - mangatown module fixed
 - another heavenmanga url change 
 
-## v1.5.0(19-11-15)
+## v1.5.0(2019-11-15)
 
 ### New
 - down -n/--name flag, downloads the given manga using a custom name
@@ -125,7 +128,7 @@
 ### Fixes
 - another heavenmanga base url change
 
-## v1.4.1(19-10-29)
+## v1.4.1(2019-10-29)
 
 ### Changes
 - selected chapters are now checked in a sorted order
@@ -135,7 +138,7 @@
 - delayed chapters being included in the "to download" summary
 - crash if trying to download multiple chapters for a manga
 
-## v1.4.0(19-10-10)
+## v1.4.0(2019-10-10)
 
 ### New
 - covers, a new config setting that allows to download the covers for the manga, defaults to false
@@ -161,7 +164,7 @@
 - default download path when using custom config
 - html entities in group names
 
-## v1.3.0 (19-09-19)
+## v1.3.0 (2019-09-19)
 
 ### Changes
 - new get_handler() function that handles all request exceptions, meaning all site modules don't have to catch them and can just raise them when needed
@@ -170,12 +173,12 @@
 ### Fixes
 - fixed the mangatown_com module continuing to look for chapter pages even though one was not working, now raises a exception and stops the loop as expected
 
-## v1.2.1 (19-09-17)
+## v1.2.1 (2019-09-17)
 
 ### Fixes
 - requests.ConnectionError crash fix
 
-## v1.2.0 (19-09-15)
+## v1.2.0 (2019-09-15)
 
 ### New
 - added template module to git repository
@@ -194,7 +197,7 @@
 - heavenmanga_org module exception
 - file extension fix
 
-## v1.1.1 (19-09-10)
+## v1.1.1 (2019-09-10)
 
 ### New
 - added CHANGELOG.md
@@ -202,7 +205,7 @@
 ### Fixes
 - updated README.md
 
-## v.1.1.0 (19-09-10)
+## v.1.1.0 (2019-09-10)
 
 ### New
 - heavenmanga and mangatown modules
@@ -213,5 +216,5 @@
 - small update mode output change - shows the number of chapters that will get downloaded right above the confirmation instead above the chapter listing
 - using imghdr.what() to find file extension
 
-## v1.0.0 (19-09-06)
+## v1.0.0 (2019-09-06)
 First PyPI release

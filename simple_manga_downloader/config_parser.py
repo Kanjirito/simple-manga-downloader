@@ -205,7 +205,7 @@ class Config():
         keys = list(self.tracked_manga)
         get = keys.pop(select)
         keys.insert(move_index, get)
-        self.tracked_manga = dict([(k, self.tracked_manga[k]) for k in keys])
+        self.tracked_manga = {k: self.tracked_manga[k] for k in keys}
 
         print(f"Entry \"{get}\" moved to {move_index + 1}")
 
