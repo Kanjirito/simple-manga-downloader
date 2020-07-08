@@ -40,21 +40,21 @@ Additional features of the downloader:
 
 ## pip
 
-Installing using pip will handle the requirements automatically
+Installing using pip will handle the requirements automatically. I would also recommend using [pipx](https://github.com/pipxproject/pipx) instead of just pip.
 
-#### PyPI
+#### From PyPI
 ```
 pip install simple-manga-downloader
 ```
 
-#### Git
+#### Form git
 
 Copy the repo, cd into it and run
 ```
 pip install .
 ```
 
-## Using the git repo
+## Using the git repo without installing
 
 Copy the repo, install the requirements and use the entry script in the main repo directory
 ```
