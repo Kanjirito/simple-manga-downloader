@@ -1,5 +1,10 @@
 # Release History
 
+## v1.9.3(2020-09-07)
+
+## Fixes
+- Manga Plus releases not being handled correctly
+
 ## v1.9.2(2020-07-07)
 
 ### Removed

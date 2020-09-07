@@ -102,15 +102,16 @@ class Mangadex(BaseManga):
         return True
 
     def check_groups(self, ch):
-        len_cond = len(self.chapters[ch]) == 1
+        """Handles the possible different releases of a chapter"""
+        num_of_releases = len(self.chapters[ch])
 
         if "MangaPlus" in self.chapters[ch]:
-            if len_cond:
+            if num_of_releases == 1:
                 return "Only Manga Plus releases"
             else:
-                del self.chapters["MangaPlus"]
-
-        if len_cond:
+                del self.chapters[ch]["MangaPlus"]
+                num_of_releases -= 1
+        if num_of_releases == 1:
             self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
             return True
 
@@ -118,7 +119,7 @@ class Mangadex(BaseManga):
         if self.check_only:
             select = 1
         else:
-            print(f"Multiple groups for chapter {ch}, select one(1,2,3...):")
+            print(f"Multiple groups for chapter {ch}, select one by number:")
             selections = []
             for n, g in enumerate(sorted_groups, 1):
                 print(f"{n}.{g}")
