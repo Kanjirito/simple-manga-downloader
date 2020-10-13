@@ -48,9 +48,9 @@ def parse_arguments():
 
     # Parser for download mode
     parser_down.add_argument("input", nargs="+",
-                             metavar="manga url",
+                             metavar="manga_url",
                              action=NoDupesOrderedListAction,
-                             help="URL or tracked manga index to download")
+                             help="URL/tracked index/tracked title to download")
     parser_down.add_argument("-d", "--directory",
                              dest="custom_down_dire",
                              metavar="PATH/TO/DIRECTORY",

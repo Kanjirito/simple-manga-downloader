@@ -38,20 +38,26 @@ def main():
         return CONFIG.save_config()
 
 
-def site_detect(link, index_allow=True):
+def site_detect(link, tracked_allow=True):
     """Detects the site and creates a proper manga object"""
-    if index_allow:
-        try:
-            tracked_num = int(link)
-            if 0 < tracked_num <= len(CONFIG.tracked_manga):
-                key = list(CONFIG.tracked_manga.keys())[tracked_num - 1]
-                link = CONFIG.tracked_manga[key]
-        except ValueError:
-            pass
+
+    # Checks if manga was given a custom name or if it has a tracked title
+    if hasattr(ARGS, "name") and ARGS.name:
+        title = " ".join(ARGS.name)
+    elif tracked_allow:
+        (if_tracked, message) = CONFIG.check_if_manga_in_tracked(link)
+        if if_tracked:
+            title = message
+            if message == link:
+                link = CONFIG.tracked_manga[title]
+        else:
+            title = None
+    else:
+        title = None
 
     for module in modules.ALL_MODULES:
         if module.check_if_link_matches(link):
-            return module(link)
+            return module(link, title=title)
     else:
         msg = f"Wrong link: \"{link}\""
         line = make_line(msg)
@@ -122,7 +128,7 @@ def conf_mode():
     if ARGS.add_to_tracked:
         for link in ARGS.add_to_tracked:
             print()
-            Manga = site_detect(link, index_allow=False)
+            Manga = site_detect(link, tracked_allow=False)
             if Manga is False:
                 continue
             title = Manga.get_main(title_return=True)
@@ -235,10 +241,6 @@ def handle_manga(Manga):
         print("\nSomething went wrong!"
               f"\n{main_status}\n{Manga.manga_link}")
         return False
-
-    # Checks if a custom name was given
-    if hasattr(ARGS, "name") and ARGS.name:
-        Manga.series_title = " ".join(ARGS.name)
 
     message = f"Checking \"{Manga.series_title}\""
     line_break = make_line(message)

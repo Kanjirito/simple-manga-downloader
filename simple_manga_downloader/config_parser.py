@@ -87,7 +87,7 @@ class Config():
         current_title = Manga.series_title
         manga_link = Manga.manga_link
 
-        tracked, message = self.check_manga_in_tracked(manga_link)
+        tracked, message = self.check_if_manga_in_tracked(manga_link)
 
         if tracked:
             if message != current_title:
@@ -109,7 +109,7 @@ class Config():
 
         to_remove = set()
         for d in delete:
-            tracked, message = self.check_manga_in_tracked(d)
+            tracked, message = self.check_if_manga_in_tracked(d)
             if tracked:
                 to_remove.add(message)
             else:
@@ -119,7 +119,7 @@ class Config():
             del self.tracked_manga[r]
             print(f"Removed from tracked: {r}")
 
-    def check_manga_in_tracked(self, to_check):
+    def check_if_manga_in_tracked(self, to_check):
         """
         Checks if given to_check is in the tracked list
         to_check can be an index of a tracked manga, title of a manga,

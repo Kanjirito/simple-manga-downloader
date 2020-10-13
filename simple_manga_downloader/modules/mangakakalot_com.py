@@ -11,7 +11,11 @@ class Mangakakalot(BaseManga):
     session.headers.update({"Referer": base_link})
     site_re = re.compile(r"https?://mangakakalot\.com/\S*")
 
-    def __init__(self, link):
+    def __init__(self, link, title=None):
+        if title:
+            self.series_title = title
+        else:
+            self.series_title = None
         self.manga_link = link
         self.cover_url = None
         self.chapters = {}
@@ -26,10 +30,12 @@ class Mangakakalot(BaseManga):
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        title = soup.find(class_="manga-info-text").find("h1").text
-        self.series_title = self.clean_up_string(title)
+        if self.series_title is None:
+            title = soup.find(class_="manga-info-text").find("h1").text
+            self.series_title = self.clean_up_string(title)
         if title_return:
             return True
+
         thumb = soup.find(class_="manga-info-pic")
         if thumb:
             self.cover_url = thumb.img["src"]

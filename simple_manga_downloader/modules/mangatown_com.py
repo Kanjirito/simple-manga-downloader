@@ -10,7 +10,11 @@ class Mangatown(BaseManga):
     session = requests.Session()
     site_re = re.compile(r"https?://www\.mangatown\.com/manga/[^\s/]*")
 
-    def __init__(self, link):
+    def __init__(self, link, title=None):
+        if title:
+            self.series_title = title
+        else:
+            self.series_title = None
         self.manga_link = link
         self.cover_url = None
         self.chapters = {}
@@ -25,10 +29,12 @@ class Mangatown(BaseManga):
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        title = soup.find(class_="title-top").string
-        self.series_title = self.clean_up_string(title)
+        if self.series_title is None:
+            title = soup.find(class_="title-top").string
+            self.series_title = self.clean_up_string(title)
         if title_return:
             return True
+
         thumb = soup.find(class_="detail_info")
         if thumb:
             self.cover_url = thumb.img["src"]

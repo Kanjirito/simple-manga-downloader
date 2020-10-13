@@ -12,7 +12,11 @@ class Mangadex(BaseManga):
     site_re = re.compile(r"""(?x)https?://(?:www\.)?mangadex\.
                          (?:(?:org)|(?:cc))/title/(\d+)""")
 
-    def __init__(self, link):
+    def __init__(self, link, title=None):
+        if title:
+            self.series_title = title
+        else:
+            self.series_title = None
         self.mn_api_url = f"{self.base_link}/api/manga/"
         self.ch_api_url = f"{self.base_link}/api/chapter/"
         self.id = self.get_id(link)
@@ -33,9 +37,12 @@ class Mangadex(BaseManga):
         r = self.session.get(f"{self.mn_api_url}{self.id}", timeout=5)
         r.raise_for_status()
         data = r.json()
-        self.series_title = self.clean_up_string(data["manga"]["title"])
+
+        if self.series_title is None:
+            self.series_title = self.clean_up_string(data["manga"]["title"])
         if title_return:
             return True
+
         cover = data["manga"].get("cover_url")
         if cover:
             self.cover_url = f"{self.base_link}{cover}"

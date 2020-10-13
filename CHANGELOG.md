@@ -1,5 +1,15 @@
 # Release History
 
+## Pre-release
+
+## New
+- if manga is tracked the tracked title will be used instead of the fetched one
+- title is now determined in order of: custom name > tracked title > fetched title
+- you can now use a tracked title as a download target in down mode
+
+## Changes
+- help message changed to fit new functionality
+
 ## v1.9.3(2020-09-07)
 
 ## Fixes

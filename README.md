@@ -1,5 +1,5 @@
 # simple-manga-downloader
-Simple manga console downloader written in python.
+Simple manga console downloader written in python. Made for Linux but should work different platform (though be careful with invalid characters in titles).
 
 Currently supports:
 
@@ -136,12 +136,12 @@ SMD down link_to_manga --name Some new name
 **Warning:**
 *Using a custom name when downloading multiple manga at once will cause overwriting of the files since all of them will be assigned the same name*
 
-Download a manga from the tracked list by index:
+Download a manga from the tracked list by index or title:
 ```
-SMD down 1 3 5
+SMD down 1 "tracked title" 5
 ```
 
-Download manga without asking for any input:
+Download manga without asking for any input (in case of multiple groups it will choose the alphabetically first one):
 ```
 SMD down manga_url -i
 SMD down manga_url --ignore_input
@@ -154,7 +154,7 @@ SMD down manga_url --check
 ```
 
 ## Update mode
-This mode will go over every manga tracked in the config and download every missing chapter
+This mode will go over every manga tracked in the config and download every missing chapter. If a manga is tracked the downloader will use the saved name even if the title on the page changes.
 
 ```
 SMD update
