@@ -77,7 +77,8 @@ def parse_arguments():
                                   action="store_true",
                                   dest="check_only")
     input_group_down.add_argument("-i", "--ignore_input",
-                                  help="Downloads without asking for any input",
+                                  help=("Downloads without asking for any input "
+                                        "(in case of group conflict the alphabetically first group will be chosen)"),
                                   action="store_true",
                                   dest="ignore_input")
     selection_group = parser_down.add_mutually_exclusive_group()
@@ -162,7 +163,8 @@ def parse_arguments():
                                     action="store_true",
                                     dest="check_only")
     input_group_update.add_argument("-i", "--ignore_input",
-                                    help="Downloads without asking for any input",
+                                    help=("Downloads without asking for any input "
+                                          "(in case of group conflict the alphabetically first group will be chosen)"),
                                     action="store_true",
                                     dest="ignore_input")
     parser_update.add_argument("-d", "--directory",

@@ -414,13 +414,6 @@ def download_summary(count, failed, success, total_time):
         line_break = make_line(message)
         print(f"\n{line_break}\n{message}\n{line_break}")
 
-    if failed:
-        msg = "Failed downloads:"
-        print(f"\n{msg}\n{make_line(msg)}")
-        for fail, fail_list in failed.items():
-            print(f"{fail}:")
-            for f in fail_list:
-                print(f)
     if success:
         msg = "Successful downloads:"
         print(f"\n{msg}\n{make_line(msg)}")
@@ -428,6 +421,13 @@ def download_summary(count, failed, success, total_time):
             print(f"{win}:")
             for w in win_list:
                 print(w)
+    if failed:
+        msg = "Failed downloads:"
+        print(f"\n{msg}\n{make_line(msg)}")
+        for fail, fail_list in failed.items():
+            print(f"{fail}:")
+            for f in fail_list:
+                print(f)
 
 
 def get_chapter(Manga, num):
