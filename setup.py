@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 required = [
-    "requests>=2,<3",
-    "beautifulsoup4>=4,<5"
+    "requests~=2.23",
+    "beautifulsoup4~=4.9"
 ]
 
 setuptools.setup(

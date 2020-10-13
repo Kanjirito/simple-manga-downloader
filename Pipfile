@@ -7,5 +7,5 @@ verify_ssl = true
 simple-manga-downloader = {editable = true,path = "."}
 
 [packages]
-beautifulsoup4 = "*"
-requests = "*"
+beautifulsoup4 = "~=4.9"
+requests = "~=2.23"
