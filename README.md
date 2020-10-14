@@ -199,6 +199,12 @@ SMD conf -a link_to_manga [more_links]
 SMD conf --add-tracked link_to_manga [more_links]
 ```
 
+You can also add a manga to the tracked list with a custom name, should not be used when adding multiple manga at once (the last manga will overwrite the rest):
+```
+SMD conf -a link_to_manga --name Some new name
+SMD conf -a link_to_manga -n Some new name
+```
+
 Removing a manga from the tracked list using links:
 ```
 SMD conf -r link_to_manga [more_links]
@@ -260,8 +266,7 @@ SMD conf --modify-position
 
 Change the title of a manga (will not change the already existing files and will treat it as a different manga):
 ```
-SMD conf -n
-SMD conf --name-change
+SMD conf --change-name
 ```
 
 Print the current settings:

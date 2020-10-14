@@ -6,7 +6,8 @@
 - if manga is tracked the tracked title will be used instead of the fetched one
 - title is now determined in order of: custom name > tracked title > fetched title
 - you can now use a tracked title as a download target in down mode
-- new `conf -n/--name-change` argument for changing the title of tracked manga
+- new `conf --change-name` argument for changing the title of tracked manga
+- new `conf -n/--name` argument to allow adding manga to tracked with a custom name (should not be used when adding multiple manga)
 
 ## Changes
 - help message changed to fit new functionality

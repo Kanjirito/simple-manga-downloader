@@ -65,7 +65,7 @@ def parse_arguments():
                              default=set())
     parser_down.add_argument("-n", "--name",
                              default=None,
-                             metavar="NEW NAME",
+                             metavar="CUSTOM NAME",
                              nargs="+",
                              help=("Download the manga with a custom name. "
                                    "Not recommended to use with multiple "
@@ -114,6 +114,13 @@ def parse_arguments():
                                     metavar="MANGA URL|MANGA TITLE|NUMBER",
                                     nargs="+",
                                     action=SetAction)
+    parser_conf.add_argument("-n", "--name",
+                             help=("When adding manga gives it a custom name"
+                                   "(do not use when adding multiple at once)"),
+                             dest="name",
+                             default=None,
+                             nargs="+",
+                             metavar="CUSTOM NAME")
     parser_conf.add_argument("-t", "--clear-tracked",
                              help="Clears the tracked list",
                              action="store_true")
@@ -131,10 +138,10 @@ def parse_arguments():
                              help="Changes the position of tracked manga",
                              action="store_true",
                              dest="modify_tracked_position")
-    parser_conf.add_argument("-n", "--name-change",
+    parser_conf.add_argument("--change-name",
                              help="Change the name of a tracked manga",
                              action="store_true",
-                             dest="name_change")
+                             dest="change_name")
     parser_conf.add_argument("-v", "--verbose",
                              help="Used with -l or -m to also print links",
                              action="store_true",

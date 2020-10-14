@@ -145,7 +145,7 @@ def conf_mode():
         CONFIG.change_dir(ARGS.manga_down_directory)
     if ARGS.modify_tracked_position:
         CONFIG.change_position(ARGS.verbose)
-    if ARGS.name_change:
+    if ARGS.change_name:
         CONFIG.change_manga_title(ARGS.verbose)
     if ARGS.toggle_covers:
         CONFIG.toogle_covers()
