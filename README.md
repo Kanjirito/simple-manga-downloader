@@ -71,7 +71,7 @@ pip install -r requirements.txt
 
 ## General info
 
-The default manga download directory is `~/Manga` this can be changed in the config file or in the command. The config directory is `~/.config/SMD`, you can specify a different config to be used like this:
+The default manga download directory is `~/Manga` this can be changed in the config file or in the command. The config directory is `$XDG_CONFIG_HOME/SMD` (`~/.config/SMD` if variable not set), you can specify a different config to be used like this:
 
 ```
 SMD -c "path/to/config" mode arguments
@@ -258,7 +258,7 @@ SMD conf -m
 SMD conf --modify-position
 ```
 
-Change the title of a manga:
+Change the title of a manga (will not change the already existing files and will treat it as a different manga):
 ```
 SMD conf -n
 SMD conf --name-change

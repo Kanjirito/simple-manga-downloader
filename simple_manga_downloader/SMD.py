@@ -88,7 +88,7 @@ def get_cover(Manga):
 
 def version_mode():
     """Version mode of the downloader """
-    print(f"SMD v{__version__}")
+    print(f"SMD (simple-manga-downloader) v{__version__}")
 
     if ARGS.version_check:
         check = check_for_update()

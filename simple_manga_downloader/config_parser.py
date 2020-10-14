@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 from .modules import ALL_MODULES
 
@@ -50,6 +51,8 @@ class Config():
         self.home = Path.home()
         if custom_conf:
             self.config_path = Path(custom_conf).resolve()
+        elif os.getenv("XDG_CONFIG_HOME"):
+            self.config_path = Path(os.getenv("XDG_CONFIG_HOME")) / "SMD" / "SMD_conf.json"
         else:
             self.config_path = self.home / ".config" / "SMD" / "SMD_conf.json"
 

@@ -11,6 +11,7 @@
 ## Changes
 - help message changed to fit new functionality
 - changed all long argument to use "-" instead of "\_"
+- config will now look for the environment variable `XDG_CONFIG_HOME` before defaulting to `~/.config` 
 
 ## Fixes
 - downloader no longer catches all exceptions (oops)
