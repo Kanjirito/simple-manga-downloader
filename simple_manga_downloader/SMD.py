@@ -35,7 +35,8 @@ def main():
     except KeyboardInterrupt:
         print("\nKeyboard Interrupt detected, stopping!")
     finally:
-        return CONFIG.save_config()
+        exit_code = CONFIG.save_config()
+    return exit_code
 
 
 def site_detect(link, tracked_allow=True):
