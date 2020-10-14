@@ -10,6 +10,7 @@
 
 ## Changes
 - help message changed to fit new functionality
+- changed all long argument to use "-" instead of "\_"
 
 ## Fixes
 - downloader no longer catches all exceptions (oops)

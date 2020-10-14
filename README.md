@@ -146,7 +146,7 @@ SMD down 1 "tracked title" 5
 Download manga without asking for any input (in case of multiple groups it will choose the alphabetically first one):
 ```
 SMD down manga_url -i
-SMD down manga_url --ignore_input
+SMD down manga_url --ignore-input
 ```
 
 Same as above but without downloading:
@@ -177,7 +177,7 @@ SMD update --check
 Same as above but without downloading:
 ```
 SMD update -i
-SMD update --ignore_input
+SMD update --ignore-input
 ```
 
 ## Config mode
@@ -185,12 +185,12 @@ This mode allows the modification of the config file.
 
 Changing the mangadex language:
 ```
-SMD conf --change_lang code
+SMD conf --change-lang code
 ```
 
 Listing available language codes:
 ```
-SMD conf --list_lang
+SMD conf --list-lang
 ```
 
 Adding a manga to the tracked list:
@@ -267,7 +267,7 @@ SMD conf --name-change
 Print the current settings:
 ```
 SMD conf -p
-SMD conf --print_conf
+SMD conf --print-conf
 ```
 
 Change the page download timeout (in seconds):

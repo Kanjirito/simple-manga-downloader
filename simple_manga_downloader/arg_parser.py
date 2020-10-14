@@ -76,7 +76,7 @@ def parse_arguments():
                                         "without downloading and asking for any input"),
                                   action="store_true",
                                   dest="check_only")
-    input_group_down.add_argument("-i", "--ignore_input",
+    input_group_down.add_argument("-i", "--ignore-input",
                                   help=("Downloads without asking for any input "
                                         "(in case of group conflict the alphabetically first group will be chosen)"),
                                   action="store_true",
@@ -139,7 +139,7 @@ def parse_arguments():
                              help="Used with -l or -m to also print links",
                              action="store_true",
                              dest="verbose")
-    parser_conf.add_argument("-p", "--print_conf",
+    parser_conf.add_argument("-p", "--print-conf",
                              help="Print config settings",
                              action="store_true",
                              dest="print_config")
@@ -147,10 +147,10 @@ def parse_arguments():
                              help="Toggles the cover download setting",
                              action="store_true",
                              dest="toggle_covers")
-    parser_conf.add_argument("--change_lang",
+    parser_conf.add_argument("--change-lang",
                              help="Changes the mangadex language code",
                              metavar="LANGUAGE CODE")
-    parser_conf.add_argument("--list_lang",
+    parser_conf.add_argument("--list-lang",
                              help="Lists all of the mangadex language codes",
                              action="store_true")
     parser_conf.add_argument("--timeout",
@@ -166,7 +166,7 @@ def parse_arguments():
                                           "without downloading and asking for any input"),
                                     action="store_true",
                                     dest="check_only")
-    input_group_update.add_argument("-i", "--ignore_input",
+    input_group_update.add_argument("-i", "--ignore-input",
                                     help=("Downloads without asking for any input "
                                           "(in case of group conflict the alphabetically first group will be chosen)"),
                                     action="store_true",
