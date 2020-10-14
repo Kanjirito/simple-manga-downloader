@@ -186,19 +186,19 @@ class Config():
         self.list_tracked(verbose)
 
         try:
-            select = int(input("Which manga do you want to move?: ")) - 1
+            select = int(input("Which manga do you want to move? [number]: ")) - 1
         except ValueError:
-            print("Not a number, aborting")
+            print("Not a valid number, aborting")
             return
-        if select not in range(len(self.tracked_manga)):
+        if not (0 <= select <= len(self.tracked_manga) - 1):
             print("Number out of index range, aborting")
             return
         try:
-            move_index = int(input("Where do you want to move it?: ")) - 1
+            move_index = int(input("Where do you want to move it? [number]: ")) - 1
         except ValueError:
-            print("Not a number, aborting")
+            print("Not a valid number, aborting")
             return
-        if move_index not in range(len(self.tracked_manga)):
+        if not (0 <= move_index <= len(self.tracked_manga) - 1):
             print("Number out of index range, aborting")
             return
 
@@ -208,6 +208,38 @@ class Config():
         self.tracked_manga = {k: self.tracked_manga[k] for k in keys}
 
         print(f"Entry \"{get}\" moved to {move_index + 1}")
+
+    def change_manga_title(self, verbose):
+        if not self.tracked_manga:
+            print("No manga tracked")
+            return
+
+        self.list_tracked(verbose)
+        try:
+            to_rename = int(input("Which manga do you want to rename? [number]: ")) - 1
+        except ValueError:
+            print("Not a valid number, aborting")
+            return
+
+        if not (0 <= to_rename <= len(self.tracked_manga) - 1):
+            print("Number out of index range, aborting")
+            return
+
+        new_name = input("New name: ")
+        if not new_name:
+            print("New name empty, aborting")
+            return
+
+        new_tracked_dict = {}
+        for (n, (key, value)) in enumerate(self.tracked_manga.items()):
+            if n == to_rename:
+                old_name = key
+                new_tracked_dict[new_name] = value
+            else:
+                new_tracked_dict[key] = value
+
+        self.tracked_manga = new_tracked_dict
+        print(f"Manga \"{old_name}\" was renamed to \"{new_name}\"")
 
     def list_tracked(self, verbose):
         """Lists the tracked manga"""

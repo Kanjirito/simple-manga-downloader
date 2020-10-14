@@ -131,6 +131,10 @@ def parse_arguments():
                              help="Changes the position of tracked manga",
                              action="store_true",
                              dest="modify_tracked_position")
+    parser_conf.add_argument("-n", "--name-change",
+                             help="Change the name of a tracked manga",
+                             action="store_true",
+                             dest="name_change")
     parser_conf.add_argument("-v", "--verbose",
                              help="Used with -l or -m to also print links",
                              action="store_true",

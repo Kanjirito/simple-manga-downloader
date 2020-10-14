@@ -1,5 +1,5 @@
 # simple-manga-downloader
-Simple manga console downloader written in python. Made for Linux but should work different platform (though be careful with invalid characters in titles).
+Simple manga console downloader written in python. Made for Linux but should work on any platform (though be careful with invalid characters in titles).
 
 Currently supports:
 
@@ -38,23 +38,25 @@ Additional features of the downloader:
 - BeautifulSoup 4
 - requests
 
-## pip
+## Releases form PyPI
 
 Installing using pip will handle the requirements automatically. I would also recommend using [pipx](https://github.com/pipxproject/pipx) instead of just pip.
 
-#### From PyPI
 ```
 pip install simple-manga-downloader
 ```
 
-#### Form git
+## Using the git repo
 
-Copy the repo, cd into it and run
+### Installing using pip
+
+To install from the master branch
+
 ```
-pip install .
+pip install git+https://github.com/Kanjirito/simple-manga-downloader@master
 ```
 
-## Using the git repo without installing
+### Using the git repo without installing
 
 Copy the repo, install the requirements and use the entry script in the main repo directory
 ```
@@ -254,6 +256,12 @@ Change the position of a manga:
 ```
 SMD conf -m
 SMD conf --modify-position
+```
+
+Change the title of a manga:
+```
+SMD conf -n
+SMD conf --name-change
 ```
 
 Print the current settings:
