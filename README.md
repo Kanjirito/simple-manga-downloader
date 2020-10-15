@@ -88,8 +88,8 @@ SMD conf
 ```
 
 ## Details
-For a more detailed explanation of the modes and their available arguments read the [USAGE.md](USAGE.md) file.
+For a more detailed explanation of the modes and their available arguments read the [USAGE.md](USAGE.md) file in the git repo.
 
 # Changelog
 
-Changelog can be found in the file [CHANGELOG.md](CHANGELOG.md)
+Changelog can be found in [CHANGELOG.md](CHANGELOG.md) in the git repo.
