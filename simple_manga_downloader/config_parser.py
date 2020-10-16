@@ -3,50 +3,63 @@ import os
 from pathlib import Path
 from .modules import ALL_MODULES
 
+DEFAULT_REPLACEMENT_RULES = {
+    "/": "",
+    "\\": "",
+    ":": "",
+    ".": "",
+    "<": "",
+    ">": "",
+    "?": "",
+    "*": "",
+    "|": "",
+}
+
+LANG_CODES = {
+    "sa": "Arabic",
+    "bd": "Bengali",
+    "bg": "Bulgarian",
+    "mm": "Burmese",
+    "ct": "Catalan",
+    "cn": "Chinese (Simple)",
+    "hk": "Chinese (Traditional)",
+    "cz": "Czech",
+    "dk": "Danish",
+    "nl": "Dutch",
+    "gb": "English",
+    "ph": "Filipino",
+    "fi": "Finnish",
+    "fr": "French",
+    "de": "German",
+    "gr": "Greek",
+    "il": "Hebrew",
+    "hu": "Hungarian",
+    "id": "Indonesian",
+    "it": "Italian",
+    "jp": "Japanese",
+    "kr": "Korean",
+    "lt": "Lithuanian",
+    "my": "Malay",
+    "mn": "Mongolian",
+    "ir": "Persian",
+    "pl": "Polish",
+    "br": "Portuguese (Brazil)",
+    "pt": "Portuguese (Portugal)",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "rs": "Serbo-Croatian",
+    "es": "Spanish (Spain)",
+    "mx": "Spanish (Latin America)",
+    "se": "Swedish",
+    "th": "Thai",
+    "tr": "Turkish",
+    "ua": "Ukrainian",
+    "vn": "Vietnamese",
+}
+
 
 class Config():
     def __init__(self, custom_conf):
-        self.lang_codes = {
-            "sa": "Arabic",
-            "bd": "Bengali",
-            "bg": "Bulgarian",
-            "mm": "Burmese",
-            "ct": "Catalan",
-            "cn": "Chinese (Simple)",
-            "hk": "Chinese (Traditional)",
-            "cz": "Czech",
-            "dk": "Danish",
-            "nl": "Dutch",
-            "gb": "English",
-            "ph": "Filipino",
-            "fi": "Finnish",
-            "fr": "French",
-            "de": "German",
-            "gr": "Greek",
-            "il": "Hebrew",
-            "hu": "Hungarian",
-            "id": "Indonesian",
-            "it": "Italian",
-            "jp": "Japanese",
-            "kr": "Korean",
-            "lt": "Lithuanian",
-            "my": "Malay",
-            "mn": "Mongolian",
-            "ir": "Persian",
-            "pl": "Polish",
-            "br": "Portuguese (Brazil)",
-            "pt": "Portuguese (Portugal)",
-            "ro": "Romanian",
-            "ru": "Russian",
-            "rs": "Serbo-Croatian",
-            "es": "Spanish (Spain)",
-            "mx": "Spanish (Latin America)",
-            "se": "Swedish",
-            "th": "Thai",
-            "tr": "Turkish",
-            "ua": "Ukrainian",
-            "vn": "Vietnamese",
-        }
         self.status = False
         self.home = Path.home()
         if custom_conf:
@@ -83,6 +96,8 @@ class Config():
         self.covers = config.get("covers", False)
         self.lang_code = config.get("lang_code", "gb")
         self.download_timeout = config.get("page_download_timeout", 5)
+        self.replacement_rules = config.get("character_replacement_rules",
+                                            DEFAULT_REPLACEMENT_RULES)
         self.status = True
 
     def add_tracked(self, Manga):
@@ -180,6 +195,7 @@ class Config():
             self.covers = False
             self.lang_code = "gb"
             self.download_timeout = 5
+            self.replacement_rules = DEFAULT_REPLACEMENT_RULES
             print("Config was reset")
 
     def change_position(self, verbose):
@@ -275,15 +291,16 @@ class Config():
         print(self.lang_code)
         print("\nPage download timeout (s):")
         print(self.download_timeout)
+        self.print_replacement_rules()
         print()
 
     def change_lang(self, code):
         new_code = code.lower()
         cur_code = self.lang_code.lower()
         if new_code != cur_code:
-            if new_code in self.lang_codes:
+            if new_code in LANG_CODES:
                 self.lang_code = code
-                code_desc = self.lang_codes[new_code]
+                code_desc = LANG_CODES[new_code]
                 print(f"Language changed to \"{new_code}\" - {code_desc}")
             else:
                 print(f"Invalid language code: \"{new_code}\"")
@@ -296,7 +313,7 @@ class Config():
         Prints all of the language codes
         """
         print("Available language codes:")
-        for code, desc in self.lang_codes.items():
+        for code, desc in LANG_CODES.items():
             print(f"\"{code}\" - {desc}")
 
     def change_timeout(self, seconds):
@@ -315,6 +332,7 @@ class Config():
                   "covers": self.covers,
                   "lang_code": self.lang_code,
                   "page_download_timeout": self.download_timeout,
+                  "character_replacement_rules": self.replacement_rules,
                   "tracking": self.tracked_manga}
         try:
             self.config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -325,3 +343,45 @@ class Config():
         with open(self.config_path, "w") as f:
             json.dump(config, f, indent=4)
         return 0
+
+    def reset_replacement_rules(self):
+        """Resets the replacement rules to the default"""
+        self.replacement_rules = DEFAULT_REPLACEMENT_RULES
+        print("Replacement rules have been reset to defaults")
+
+    def print_replacement_rules(self):
+        print("\nCharacter replacement rules:")
+        for char, rule in self.replacement_rules.items():
+            print(f"\"{char}\" -> \"{rule}\"")
+
+    def add_replacemnt_rule(self, args):
+        """Sets replacement rule for character"""
+        char = args[0]
+        if len(args) > 1:
+            replacement = " ".join(args[1::])
+        else:
+            replacement = ""
+
+        if len(char) != 1:
+            print("Can only set rules for single characters")
+        else:
+            if char in self.replacement_rules:
+                print(f"Character \"{char}\" is already replaced with \"{self.replacement_rules[char]}\", "
+                      f"overwrite with \"{replacement}\"?")
+                confirm = input("[y to confirm/anything else to cancel]: ").lower()
+                if confirm == "y":
+                    self.replacement_rules[char] = replacement
+                    print(f"Replacement for \"{char}\" set as: \"{replacement}\"")
+                else:
+                    print("Aborting")
+            else:
+                self.replacement_rules[char] = replacement
+                print(f"Replacement for \"{char}\" set as: \"{replacement}\"")
+
+    def remove_replacemnt_rule(self, char):
+        """Removes a replacement rule for character"""
+        if char in self.replacement_rules:
+            del self.replacement_rules[char]
+            print(f"Rule for \"{char}\" removed")
+        else:
+            print(f"No rule for \"{char}\"")

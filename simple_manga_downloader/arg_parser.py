@@ -165,6 +165,24 @@ def parse_arguments():
                              metavar="SECONDS",
                              type=int,
                              dest="timeout")
+    parser_conf.add_argument("--rule-reset",
+                             help="Resets the replacement rules to the default",
+                             action="store_true",
+                             dest="replacement_reset")
+    parser_conf.add_argument("--rule-print",
+                             help="Prints the current replacement rules",
+                             action="store_true",
+                             dest="rule_print")
+    replacement_rules_group = parser_conf.add_mutually_exclusive_group()
+    replacement_rules_group.add_argument("--rule-add",
+                                         help="Adds a new replacement rule for a character",
+                                         nargs="+",
+                                         metavar=("CHARACTER", "REPLACEMENT"),
+                                         dest="rule_add")
+    replacement_rules_group.add_argument("--rule-remove",
+                                         help="Removes a new replacement rule for a character",
+                                         metavar="CHARACTER",
+                                         dest="rule_remove")
 
     # Update options
     input_group_update = parser_update.add_mutually_exclusive_group()

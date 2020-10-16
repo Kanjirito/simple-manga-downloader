@@ -3,13 +3,14 @@ from html import unescape
 
 class BaseManga:
     """The base class for the manga modules
-    directory = manga dowload directory, has to be changed into a actual
+    directory = manga download directory, has to be changed into an actual
     path before downloading
     check_only if True will cause all of the manga modules to not ask for
     user input
     """
     directory = None
     check_only = False
+    replacement_rules = None
 
     @property
     def manga_dir(self):
@@ -27,5 +28,15 @@ class BaseManga:
         return cls.site_re.search(link)
 
     def clean_up_string(self, string):
-        """Replaces html escape codes and replaces / with ╱"""
-        return unescape(string).replace("/", "╱")
+        """Cleans up the given string from unwanted characters"""
+        if not type(string) == str:
+            return string
+
+        fixed_html = unescape(string)
+        new_string_list = []
+        for char in fixed_html:
+            if char in self.replacement_rules:
+                new_string_list.append(self.replacement_rules[char])
+            else:
+                new_string_list.append(char)
+        return "".join(new_string_list)

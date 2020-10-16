@@ -14,7 +14,7 @@ class Mangadex(BaseManga):
 
     def __init__(self, link, title=None):
         if title:
-            self.series_title = title
+            self.series_title = self.clean_up_string(title)
         else:
             self.series_title = None
         self.mn_api_url = f"{self.base_link}/api/manga/"
@@ -104,8 +104,10 @@ class Mangadex(BaseManga):
 
             all_groups_str = html.unescape(" | ".join(all_groups))
             self.chapters.setdefault(num, {})
-            self.chapters[num][all_groups_str] = {"ch_id": chapter,
-                                                  "title": ch["title"]}
+            self.chapters[num][all_groups_str] = {
+                "ch_id": chapter,
+                "title": self.clean_up_string(ch["title"])
+            }
         return True
 
     def check_groups(self, ch):

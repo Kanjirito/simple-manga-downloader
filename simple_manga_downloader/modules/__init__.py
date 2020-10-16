@@ -32,3 +32,8 @@ def set_download_directory(path):
     path = pathlib Path object
     """
     BaseManga.directory = path
+
+
+def set_replacement_rules(replacement_rules):
+    """Sets the replacment rules to be used"""
+    BaseManga.replacement_rules = replacement_rules

@@ -13,7 +13,7 @@ class Mangakakalot(BaseManga):
 
     def __init__(self, link, title=None):
         if title:
-            self.series_title = title
+            self.series_title = self.clean_up_string(title)
         else:
             self.series_title = None
         self.manga_link = link
@@ -69,8 +69,10 @@ class Mangakakalot(BaseManga):
             else:
                 title = None
 
-            self.chapters[num] = {"link": link,
-                                  "title": title}
+            self.chapters[num] = {
+                "link": link,
+                "title": self.clean_up_string(title)
+            }
         return True
 
     @request_exception_handler

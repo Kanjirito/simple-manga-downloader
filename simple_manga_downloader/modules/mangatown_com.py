@@ -12,7 +12,7 @@ class Mangatown(BaseManga):
 
     def __init__(self, link, title=None):
         if title:
-            self.series_title = title
+            self.series_title = self.clean_up_string(title)
         else:
             self.series_title = None
         self.manga_link = link
@@ -66,8 +66,10 @@ class Mangatown(BaseManga):
             except ValueError:
                 ch_num = float(num)
 
-            self.chapters[ch_num] = {"link": chapter_link,
-                                     "title": chapter_title}
+            self.chapters[ch_num] = {
+                "link": chapter_link,
+                "title": self.clean_up_string(chapter_title)
+            }
         return True
 
     @request_exception_handler

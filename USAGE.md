@@ -193,6 +193,27 @@ Change the page download timeout (in seconds):
 SMD conf --timeout seconds
 ```
 
+Reset the character replacement rules:
+```
+SMD conf --rules-reset
+```
+
+Remove a character replacement rule:
+```
+SMD conf --rule-remove CHAR
+```
+
+Add (or change) a character replacement rule, if no replacement is given it will be set to "":
+```
+SMD conf --rule-add CHAR
+SMD conf --rule-add CHAR what to replace it with
+```
+
+Print the current character replacement rules:
+```
+SMD conf --rule-print
+```
+
 
 ## Version mode
 To print the current version:

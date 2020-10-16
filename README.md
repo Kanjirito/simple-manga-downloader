@@ -1,5 +1,5 @@
 # simple-manga-downloader
-Simple manga console downloader written in python. Made for Linux but should work on any platform (though be careful with invalid characters in titles).
+Simple manga console downloader written in python. Made for Linux but should work on any platform.
 
 Currently supports:
 
@@ -30,6 +30,7 @@ Additional features of the downloader:
 - Config is saved as a .json for readability and easy modification
 - The downloader has a config "mode" that allows the modification of the config file without having to edit the .json manually
 - It can check for new available versions
+- It will remove (or replace) characters from titles that could cause problems, by default removes `/ \ | ? > < . : ? *` (note that backslash `\` needs to be escaped with another one `\\`)
 
 
 # Installation

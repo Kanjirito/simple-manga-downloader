@@ -20,6 +20,8 @@ def main():
     CONFIG = Config(ARGS.custom_cfg)
     if not CONFIG:
         return 1
+    modules.set_replacement_rules(CONFIG.replacement_rules)
+    modules.set_mangadex_language(CONFIG.lang_code)
 
     try:
         mode = ARGS.subparser_name
@@ -155,6 +157,14 @@ def conf_mode():
         CONFIG.list_lang()
     if ARGS.timeout is not None:
         CONFIG.change_timeout(ARGS.timeout)
+    if ARGS.replacement_reset:
+        CONFIG.reset_replacement_rules()
+    if ARGS.rule_add:
+        CONFIG.add_replacemnt_rule(ARGS.rule_add)
+    elif ARGS.rule_remove:
+        CONFIG.remove_replacemnt_rule(ARGS.rule_remove)
+    if ARGS.rule_print:
+        CONFIG.print_replacement_rules()
     if ARGS.print_config:
         CONFIG.print_config()
 
@@ -178,8 +188,6 @@ def main_pipeline(links):
 
     if ARGS.check_only or ARGS.ignore_input:
         modules.toggle_check_only()
-
-    modules.set_mangadex_language(CONFIG.lang_code)
 
     ready = []
     total_num_ch = 0
