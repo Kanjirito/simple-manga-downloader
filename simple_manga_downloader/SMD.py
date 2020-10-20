@@ -57,9 +57,9 @@ def site_detect(link, tracked_allow=True):
     else:
         title = None
 
-    for module in modules.ALL_MODULES:
-        if module.check_if_link_matches(link):
-            return module(link, title=title)
+    matched = modules.match_module(link, title)
+    if matched:
+        return matched
     else:
         msg = f"Wrong link: \"{link}\""
         line = make_line(msg)

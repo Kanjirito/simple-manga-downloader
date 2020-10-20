@@ -16,6 +16,15 @@ ALL_MODULES = [Mangadex,
                ]
 
 
+def match_module(link, title):
+    """Find a module for the given link, false if none found"""
+    for module in ALL_MODULES:
+        if module.check_if_link_matches(link):
+            return module(link, title=title)
+    else:
+        return False
+
+
 def set_mangadex_language(lang_code):
     """Changes the mangadex language code for all instances"""
     Mangadex.lang_code = lang_code
