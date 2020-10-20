@@ -2,11 +2,10 @@
 from . import modules
 from .config_parser import Config
 from .arg_parser import parse_arguments
-from .decorators import limiter, request_exception_handler
 from . import __version__
+from . import utils
 from pathlib import Path
 import shutil
-import html
 import imghdr
 import time
 import requests
@@ -20,7 +19,7 @@ def main():
     CONFIG = Config(ARGS.custom_cfg)
     if not CONFIG:
         return 1
-    modules.set_replacement_rules(CONFIG.replacement_rules)
+    utils.REPLACEMENT_RULES = (CONFIG.replacement_rules)
     modules.set_mangadex_language(CONFIG.lang_code)
 
     try:
@@ -101,7 +100,7 @@ def version_mode():
     return 0
 
 
-@request_exception_handler
+@utils.request_exception_handler
 def check_for_update():
     """Checks for new versions using the PyPI API"""
     try:
@@ -392,8 +391,8 @@ def downloader(manga_objects):
     download_summary(page_total, failed, success, total_time)
 
 
-@limiter(0.5)
-@request_exception_handler
+@utils.limiter(0.5)
+@utils.request_exception_handler
 def download_image(link, session, no_ext):
     """
     Download function, gets the image from the link, limited by wrapper
@@ -489,13 +488,11 @@ def page_name_gen(manga_title, data, chapter_name):
         page_string = f"Page {n}"
 
         if data["title"]:
-            title = f"{html.unescape(data['title'])} -"
+            title = f"{data['title']} -"
             image_name = " ".join([base_name, title, page_string])
         else:
             image_name = " ".join([base_name, page_string])
 
-        # Replaces a "/" in titles to something usable
-        image_name = image_name.replace("/", "╱")
         print(f"    {page_string}")
         yield (image_name, link)
 

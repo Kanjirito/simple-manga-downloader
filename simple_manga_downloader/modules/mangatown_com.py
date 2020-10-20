@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from ..decorators import request_exception_handler
+from ..utils import request_exception_handler, clean_up_string
 import re
 from .manga import BaseManga
 
@@ -12,7 +12,7 @@ class Mangatown(BaseManga):
 
     def __init__(self, link, title=None):
         if title:
-            self.series_title = self.clean_up_string(title)
+            self.series_title = clean_up_string(title)
         else:
             self.series_title = None
         self.manga_link = link
@@ -31,7 +31,7 @@ class Mangatown(BaseManga):
 
         if self.series_title is None:
             title = soup.find(class_="title-top").string
-            self.series_title = self.clean_up_string(title)
+            self.series_title = clean_up_string(title)
         if title_return:
             return True
 
@@ -68,7 +68,7 @@ class Mangatown(BaseManga):
 
             self.chapters[ch_num] = {
                 "link": chapter_link,
-                "title": self.clean_up_string(chapter_title)
+                "title": clean_up_string(chapter_title)
             }
         return True
 

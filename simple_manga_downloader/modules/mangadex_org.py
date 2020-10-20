@@ -1,7 +1,7 @@
 import requests
 import html
 import re
-from ..decorators import request_exception_handler
+from ..utils import request_exception_handler, clean_up_string
 from .manga import BaseManga
 
 
@@ -14,7 +14,7 @@ class Mangadex(BaseManga):
 
     def __init__(self, link, title=None):
         if title:
-            self.series_title = self.clean_up_string(title)
+            self.series_title = clean_up_string(title)
         else:
             self.series_title = None
         self.mn_api_url = f"{self.base_link}/api/manga/"
@@ -39,7 +39,7 @@ class Mangadex(BaseManga):
         data = r.json()
 
         if self.series_title is None:
-            self.series_title = self.clean_up_string(data["manga"]["title"])
+            self.series_title = clean_up_string(data["manga"]["title"])
         if title_return:
             return True
 
@@ -106,7 +106,7 @@ class Mangadex(BaseManga):
             self.chapters.setdefault(num, {})
             self.chapters[num][all_groups_str] = {
                 "ch_id": chapter,
-                "title": self.clean_up_string(ch["title"])
+                "title": clean_up_string(ch["title"])
             }
         return True
 

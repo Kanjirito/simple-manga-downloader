@@ -1,6 +1,31 @@
 import requests
 import time
 from functools import wraps
+from html import unescape
+
+
+REPLACEMENT_RULES = None
+
+
+def set_replacement_rules(rules):
+    """Sets the replacment rules to be used"""
+    global REPLACEMENT_RULES
+    REPLACEMENT_RULES = rules
+
+
+def clean_up_string(string):
+    """Cleans up the given string from unwanted characters"""
+    if not type(string) == str:
+        return string
+
+    fixed_html = unescape(string)
+    new_string_list = []
+    for char in fixed_html:
+        if char in REPLACEMENT_RULES:
+            new_string_list.append(REPLACEMENT_RULES[char])
+        else:
+            new_string_list.append(char)
+    return "".join(new_string_list)
 
 
 def limiter(seconds):
@@ -50,3 +75,11 @@ def request_exception_handler(func):
         return status
 
     return wrapper
+
+
+def ask_confirmation(text, expected):
+    confirm = input(f"{text}: ").lower()
+    if confirm == expected:
+        return True
+    else:
+        return False

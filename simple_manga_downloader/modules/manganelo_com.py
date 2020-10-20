@@ -1,7 +1,7 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-from ..decorators import request_exception_handler
+from ..utils import request_exception_handler, clean_up_string
 from .manga import BaseManga
 
 
@@ -13,7 +13,7 @@ class Manganelo(BaseManga):
 
     def __init__(self, link, title=None):
         if title:
-            self.series_title = self.clean_up_string(title)
+            self.series_title = clean_up_string(title)
         else:
             self.series_title = None
         self.manga_link = link
@@ -37,7 +37,7 @@ class Manganelo(BaseManga):
 
         if self.series_title is None:
             title = soup.find(class_="story-info-right").find("h1").text
-            self.series_title = self.clean_up_string(title)
+            self.series_title = clean_up_string(title)
         if title_return:
             return True
 
@@ -76,7 +76,7 @@ class Manganelo(BaseManga):
             link = chapter["href"]
             self.chapters[num] = {
                 "link": link,
-                "title": self.clean_up_string(title)
+                "title": clean_up_string(title)
             }
         return True
 

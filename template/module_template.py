@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from ..decorators import request_exception_handler
+from ..utils import request_exception_handler
 from .manga import BaseManga
 import re
 
