@@ -50,7 +50,7 @@ def site_detect(link, tracked_allow=True):
         (if_tracked, message) = CONFIG.check_if_manga_in_tracked(link)
         if if_tracked:
             title = message
-            if message == link:
+            if message == link or link.isdigit():
                 link = CONFIG.tracked_manga[title]
         else:
             title = None
