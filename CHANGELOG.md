@@ -7,6 +7,7 @@
 - title is now determined in order of: custom name > tracked title > fetched title
 - you can now use a tracked title as a download target in down mode
 - new `conf --change-name` argument for changing the title of tracked manga
+- when renaming tracked manga downloader will ask if it should rename old files
 - new `conf -n/--name` argument to allow adding manga to tracked with a custom name (should not be used when adding multiple manga)
 - character replacement list for titles, by default replaces `/ \ | ? > < . : ? *` with nothing (just removes them)
 - new conf arguments for the replacement rules (`--rule-reset/--rule-print/--rule-add/--rule-remove`)
@@ -15,6 +16,7 @@
 - help message changed to fit new functionality
 - changed all long argument to use "-" instead of "\_"
 - config will now look for the environment variable `XDG_CONFIG_HOME` before defaulting to `~/.config` 
+- white space removed from beginning and end of titles (only really matters for custom titles)
 
 ## Fixes
 - downloader no longer catches all exceptions (oops)

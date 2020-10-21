@@ -7,18 +7,12 @@ from html import unescape
 REPLACEMENT_RULES = None
 
 
-def set_replacement_rules(rules):
-    """Sets the replacment rules to be used"""
-    global REPLACEMENT_RULES
-    REPLACEMENT_RULES = rules
-
-
 def clean_up_string(string):
     """Cleans up the given string from unwanted characters"""
-    if not type(string) == str:
+    if not type(string) == str or not REPLACEMENT_RULES:
         return string
 
-    fixed_html = unescape(string)
+    fixed_html = unescape(string).strip()
     new_string_list = []
     for char in fixed_html:
         if char in REPLACEMENT_RULES:

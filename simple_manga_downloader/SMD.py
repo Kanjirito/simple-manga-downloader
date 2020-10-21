@@ -19,7 +19,7 @@ def main():
     CONFIG = Config(ARGS.custom_cfg)
     if not CONFIG:
         return 1
-    utils.REPLACEMENT_RULES = (CONFIG.replacement_rules)
+    utils.REPLACEMENT_RULES = CONFIG.replacement_rules
     modules.set_mangadex_language(CONFIG.lang_code)
 
     try:
@@ -147,7 +147,9 @@ def conf_mode():
     if ARGS.modify_tracked_position:
         CONFIG.change_position(ARGS.verbose)
     if ARGS.change_name:
-        CONFIG.change_manga_title(ARGS.verbose)
+        renamed = CONFIG.change_manga_title(ARGS.verbose)
+        if renamed:
+            rename_old_files(renamed[0], renamed[1])
     if ARGS.toggle_covers:
         CONFIG.toogle_covers()
     if ARGS.change_lang:
@@ -493,6 +495,37 @@ def page_name_gen(manga_title, data, chapter_name):
 
         print(f"    {page_string}")
         yield (image_name, link)
+
+
+def rename_old_files(old_title, new_title):
+    if old_title == new_title:
+        return False
+    manga_dir = CONFIG.manga_directory / old_title
+    if not manga_dir.is_dir():
+        return False
+
+    if (manga_dir.parent / new_title).exists():
+        confirm = utils.ask_confirmation(
+            "Do you want to rename the exisitng files?\n"
+            "Existing file/directory found, this action will overwrite it. "
+            "Are you sure you want to continue?")
+        pass
+    else:
+        confirm = utils.ask_confirmation("Do you want to rename the exisitng files?")
+    if not confirm:
+        return False
+
+    for chapter_dir in manga_dir.iterdir():
+        if chapter_dir.is_dir():
+            for page in chapter_dir.iterdir():
+                new_file_name = page.name.replace(old_title, new_title, 1)
+                page.rename(page.parent / new_file_name)
+        else:
+            new_file_name = chapter_dir.name.replace(old_title, new_title, 1)
+            chapter_dir.rename(chapter_dir.parent / new_file_name)
+    manga_dir.rename(manga_dir.parent / new_title)
+    print("Files have been renamed")
+    return True
 
 
 if __name__ == '__main__':

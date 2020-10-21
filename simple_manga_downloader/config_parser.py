@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 from .modules import ALL_MODULES
-from .utils import ask_confirmation, ask_number
+from .utils import ask_confirmation, ask_number, clean_up_string
 
 DEFAULT_REPLACEMENT_RULES = {
     "/": "",
@@ -238,6 +238,7 @@ class Config():
         if not new_name:
             print("New name empty, aborting")
             return None
+        new_name = clean_up_string(new_name)
 
         new_tracked_dict = {}
         for (n, (key, value)) in enumerate(self.tracked_manga.items()):
@@ -248,7 +249,8 @@ class Config():
                 new_tracked_dict[key] = value
 
         self.tracked_manga = new_tracked_dict
-        print(f"Manga \"{old_name}\" was renamed to \"{new_name}\"")
+        print(f"Manga \"{old_name}\" was renamed to \"{new_name}\"\n")
+        return (old_name, new_name)
 
     def list_tracked(self, verbose):
         """Lists the tracked manga"""

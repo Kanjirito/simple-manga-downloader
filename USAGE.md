@@ -177,7 +177,7 @@ SMD conf -m
 SMD conf --modify-position
 ```
 
-Change the title of a manga (will not change the already existing files and will treat it as a different manga):
+Change the title of a manga, will ask if you want to rename existing files (could overwrite other files):
 ```
 SMD conf --change-name
 ```
