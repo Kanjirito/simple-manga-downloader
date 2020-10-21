@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 from .modules import ALL_MODULES
+from .utils import ask_confirmation, ask_number
 
 DEFAULT_REPLACEMENT_RULES = {
     "/": "",
@@ -179,17 +180,13 @@ class Config():
 
     def clear_tracked(self):
         """Clears the tracked shows"""
-        confirm = input("Are you sure you want to clear tracked manga? "
-                        "[y to confirm/anything else to cancel]").lower()
-        if confirm == "y":
+        if ask_confirmation("Are you sure you want to clear tracked manga?"):
             self.tracked_manga = {}
             print("Tracked cleared")
 
     def reset_config(self):
         """Resets the config to the defaults"""
-        confirm = input("Are you sure you want to reset the config file to the defaults? "
-                        "[y to confirm/anything else to cancel]").lower()
-        if confirm == "y":
+        if ask_confirmation("Are you sure you want to reset the config file to the defaults?"):
             self.manga_directory = self.home / "Manga"
             self.tracked_manga = {}
             self.covers = False
@@ -204,21 +201,17 @@ class Config():
             return
         self.list_tracked(verbose)
 
-        try:
-            select = int(input("Which manga do you want to move? [number]: ")) - 1
-        except ValueError:
-            print("Not a valid number, aborting")
+        select = ask_number("Which manga do you want to move?",
+                            min_=1, max_=len(self.tracked_manga))
+        if select:
+            select -= 1
+        else:
             return
-        if not (0 <= select <= len(self.tracked_manga) - 1):
-            print("Number out of index range, aborting")
-            return
-        try:
-            move_index = int(input("Where do you want to move it? [number]: ")) - 1
-        except ValueError:
-            print("Not a valid number, aborting")
-            return
-        if not (0 <= move_index <= len(self.tracked_manga) - 1):
-            print("Number out of index range, aborting")
+        move_index = ask_number("Where do you want to move it?",
+                                min_=1, max_=len(self.tracked_manga))
+        if move_index:
+            move_index -= 1
+        else:
             return
 
         keys = list(self.tracked_manga)
@@ -226,28 +219,25 @@ class Config():
         keys.insert(move_index, get)
         self.tracked_manga = {k: self.tracked_manga[k] for k in keys}
 
-        print(f"Entry \"{get}\" moved to {move_index + 1}")
+        print(f"Entry \"{get}\" moved to position {move_index + 1}")
 
     def change_manga_title(self, verbose):
         if not self.tracked_manga:
             print("No manga tracked")
-            return
+            return None
 
         self.list_tracked(verbose)
-        try:
-            to_rename = int(input("Which manga do you want to rename? [number]: ")) - 1
-        except ValueError:
-            print("Not a valid number, aborting")
-            return
-
-        if not (0 <= to_rename <= len(self.tracked_manga) - 1):
-            print("Number out of index range, aborting")
-            return
+        to_rename = ask_number("Which manga do you want to rename?",
+                               min_=1, max_=len(self.tracked_manga))
+        if to_rename:
+            to_rename -= 1
+        else:
+            return None
 
         new_name = input("New name: ")
         if not new_name:
             print("New name empty, aborting")
-            return
+            return None
 
         new_tracked_dict = {}
         for (n, (key, value)) in enumerate(self.tracked_manga.items()):
@@ -366,10 +356,9 @@ class Config():
             print("Can only set rules for single characters")
         else:
             if char in self.replacement_rules:
-                print(f"Character \"{char}\" is already replaced with \"{self.replacement_rules[char]}\", "
-                      f"overwrite with \"{replacement}\"?")
-                confirm = input("[y to confirm/anything else to cancel]: ").lower()
-                if confirm == "y":
+                confirm = ask_confirmation(f"Character \"{char}\" is already replaced with \"{self.replacement_rules[char]}\", "
+                                           f"overwrite with \"{replacement}\"?")
+                if confirm:
                     self.replacement_rules[char] = replacement
                     print(f"Replacement for \"{char}\" set as: \"{replacement}\"")
                 else:

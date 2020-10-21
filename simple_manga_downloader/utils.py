@@ -77,9 +77,41 @@ def request_exception_handler(func):
     return wrapper
 
 
-def ask_confirmation(text, expected):
-    confirm = input(f"{text}: ").lower()
-    if confirm == expected:
+def ask_confirmation(text, accepted=None):
+    """Asks of confirmation
+
+    text = the message do display
+    accepted = the string that the input will be checked against,
+    'y' by default
+    """
+    if accepted is None:
+        accepted = "y"
+    print(text)
+    confirm = input(f"[{accepted} to confirm/anything else to cancel]: "
+                    ).lower().strip()
+    if confirm == accepted:
         return True
     else:
         return False
+
+
+def ask_number(text, min_=None, max_=None, num_type=int):
+    """Asks the user for a number
+
+    If min_ given it will check if the number is bigger or equal, if max_
+    given it will check if number is smaller or equal
+    num_type is the type of number to convert to, int or float"""
+    try:
+        number = num_type(input(f"{text} [number]: "))
+    except ValueError:
+        print("Not a valid number")
+        return False
+
+    if min_ is not None and number < min_:
+        print("Number too small")
+        return False
+    if max_ is not None and number > max_:
+        print("Number too big")
+        return False
+
+    return number

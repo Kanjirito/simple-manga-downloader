@@ -1,7 +1,7 @@
 import requests
 import html
 import re
-from ..utils import request_exception_handler, clean_up_string
+from ..utils import request_exception_handler, clean_up_string, ask_number
 from .manga import BaseManga
 
 
@@ -81,14 +81,14 @@ class Mangadex(BaseManga):
                 if self.check_only:
                     continue
                 print(f"No chapter number for: \"{ch['title']}\"")
-                inp = input("Assign a unused chapter number to it "
-                            "(invalid input will ignore this chapter): ")
-                try:
-                    num = float(inp)
-                except ValueError:
-                    print("Skipping\n")
-                    continue
+                inp = ask_number("Assign a unused chapter number to it "
+                                 "(invalid input will ignore this chapter)",
+                                 min_=0, num_type=float)
                 print()
+                if inp is False:
+                    continue
+                else:
+                    num = inp
             else:
                 num = 0.0
             if num.is_integer():

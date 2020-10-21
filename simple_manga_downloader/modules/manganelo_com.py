@@ -1,7 +1,7 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-from ..utils import request_exception_handler, clean_up_string
+from ..utils import request_exception_handler, clean_up_string, ask_number
 from .manga import BaseManga
 
 
@@ -63,15 +63,16 @@ class Manganelo(BaseManga):
                 if self.check_only:
                     continue
                 print(f"No chapter number for: \"{chapter.text}\"")
-                inp = input("Assign a unused chapter number to it "
-                            "(invalid input will ignore this chapter): ")
+                inp = ask_number("Assign a unused chapter number to it "
+                                 "(invalid input will ignore this chapter)",
+                                 min_=0, num_type=float)
                 title = chapter.text
-                try:
-                    num = float(inp)
-                except ValueError:
-                    print("Skipping\n")
-                    continue
+
                 print()
+                if inp is False:
+                    continue
+                else:
+                    num = inp
 
             link = chapter["href"]
             self.chapters[num] = {

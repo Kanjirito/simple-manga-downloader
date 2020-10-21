@@ -230,12 +230,10 @@ def main_pipeline(links):
         return
 
     if ARGS.ignore_input:
-        confirm = "y"
+        confirm = True
     else:
-        confirm = input("Start the download? "
-                        "[y to confirm/anything else to cancel]: "
-                        ).lower()
-    if confirm == "y":
+        confirm = utils.ask_confirmation("Start the download?")
+    if confirm:
         downloader(ready)
     else:
         print("Aborting!")
