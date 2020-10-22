@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from ..utils import request_exception_handler
+from ..utils import request_exception_handler, clean_up_string
 from .manga import BaseManga
 import re
 
@@ -10,7 +10,11 @@ class MangaPageName(BaseManga):
     session = requests.Session()
     site_re = re.compile(r"regex for site")
 
-    def __init__(self, link):
+    def __init__(self, link, title=None):
+        if title:
+            self.title = clean_up_string(title)
+        else:
+            self.series_title = None
         self.manga_link = link
         self.cover_url = None
         self.chapters = {}

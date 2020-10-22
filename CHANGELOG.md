@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release
+## v1.10.0(2020-10-22)
 
 ## New
 - if manga is tracked the tracked title will be used instead of the fetched one
