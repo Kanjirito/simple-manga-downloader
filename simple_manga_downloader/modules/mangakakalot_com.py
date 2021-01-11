@@ -38,7 +38,7 @@ class Mangakakalot(BaseManga):
 
         thumb = soup.find(class_="manga-info-pic")
         if thumb:
-            self.cover_url = thumb.img["src"]
+            self.cover_url = {self.series_title: thumb.img["src"]}
 
         self.data = soup.find_all(class_="row")[1:]
         return True

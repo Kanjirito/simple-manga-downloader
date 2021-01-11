@@ -30,16 +30,17 @@ class Manganelo(BaseManga):
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        try:
-            self.cover_url = soup.find(class_="info-image").img["src"]
-        except AttributeError:
-            return "Failed to get page"
-
         if self.series_title is None:
             title = soup.find(class_="story-info-right").find("h1").text
             self.series_title = clean_up_string(title)
         if title_return:
             return True
+
+        try:
+            url = soup.find(class_="info-image").img["src"]
+            self.cover_url = {self.series_title: url}
+        except AttributeError:
+            pass
 
         self.data = soup.find_all(class_="chapter-name text-nowrap")
         return True

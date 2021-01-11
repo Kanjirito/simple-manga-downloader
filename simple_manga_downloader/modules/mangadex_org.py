@@ -44,8 +44,13 @@ class Mangadex(BaseManga):
             return True
 
         cover = data.get("mainCover")
-        if cover:
-            self.cover_url = data["mainCover"]
+        covers = self.session.get(f"{self.mn_api_url}/covers")
+        if covers.ok:
+            covers = covers.json()
+            self.cover_url = {f"{self.series_title} Vol.{cov['volume']}": cov["url"]
+                              for cov in covers["data"]}
+        elif cover:
+            self.cover_url = {self.series_title: data["mainCover"]}
 
         chapters_r = self.session.get(f"{self.mn_api_url}/chapters")
         chapters_r.raise_for_status()
@@ -167,7 +172,7 @@ class Mangadex(BaseManga):
 
         # Fixes the incomplete link
         if data["data"]["server"] == "/data/":
-            if data["data"]["serverFallback"]:
+            if data["data"].get("serverFallback"):
                 server = data["data"]["serverFallback"]
             else:
                 server = f"{self.base_link}/data/"

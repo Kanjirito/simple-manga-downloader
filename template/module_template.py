@@ -29,7 +29,7 @@ class MangaPageName(BaseManga):
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.cover_url = "get cover here"
+        self.cover_url = {self.series_title: "get cover here"}
 
         self.series_title = "find title"
         if title_return:

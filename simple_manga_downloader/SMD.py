@@ -75,16 +75,29 @@ def get_cover(Manga):
     Skips if cover already saved
     """
     try:
-        for file in Manga.manga_dir.iterdir():
-            if Manga.series_title in file.stem:
-                return False
+        files = {file.stem for file in Manga.manga_dir.iterdir() if file.is_file()}
     except FileNotFoundError:
-        pass
+        files = set()
 
-    Manga.manga_dir.mkdir(parents=True, exist_ok=True)
-    no_ext = Manga.manga_dir / Manga.series_title
+    to_download = {filename: url for filename, url in Manga.cover_url.items()
+                   if filename not in files}
+    if to_download:
+        Manga.manga_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        return
 
-    return download_image(Manga.cover_url, Manga.session, no_ext)
+    print("--------------\n"
+          "Getting covers")
+    successful = 0
+    for filename, url in to_download.items():
+        no_ext = Manga.manga_dir / filename
+        status = download_image(url, Manga.session, no_ext)
+        if status is True:
+            successful += 1
+        else:
+            print(status)
+    print(f"\nGot {successful} cover(s)\n"
+          "--------------\n")
 
 
 def version_mode():
@@ -257,17 +270,7 @@ def handle_manga(Manga):
     print(f"\n{line_break}\n{message}\n{line_break}\n")
 
     if CONFIG.covers and Manga.cover_url:
-        cov = get_cover(Manga)
-        if cov is True:
-            print("-----------\n"
-                  "Cover saved"
-                  "\n-----------\n")
-        elif cov:
-            cov_line = make_line(cov)
-            print(f"{cov_line}\n"
-                  "Failed to get cover"
-                  f"\n{cov}"
-                  f"\n{cov_line}\n")
+        get_cover(Manga)
 
     Manga.get_chapters()
     filter_wanted(Manga)

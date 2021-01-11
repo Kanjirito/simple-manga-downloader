@@ -1,8 +1,14 @@
 # Release History
 
+## v1.11.0(pre-release)
+
+### Changes
+- migrated to the Mangadex V2 API
+- downloader will now get all available covers (only mangadex supports this for now)
+
 ## v1.10.0(2020-10-22)
 
-## New
+### New
 - if manga is tracked the tracked title will be used instead of the fetched one
 - title is now determined in order of: custom name > tracked title > fetched title
 - you can now use a tracked title as a download target in down mode
@@ -12,18 +18,18 @@
 - character replacement list for titles, by default replaces `/ \ | ? > < . : ? *` with nothing (just removes them)
 - new conf arguments for the replacement rules (`--rule-reset/--rule-print/--rule-add/--rule-remove`)
 
-## Changes
+### Changes
 - help message changed to fit new functionality
 - changed all long argument to use "-" instead of "\_"
 - config will now look for the environment variable `XDG_CONFIG_HOME` before defaulting to `~/.config` 
 - white space removed from beginning and end of titles (only really matters for custom titles)
 
-## Fixes
+### Fixes
 - downloader no longer catches all exceptions (oops)
 
 ## v1.9.3(2020-09-07)
 
-## Fixes
+### Fixes
 - Manga Plus releases not being handled correctly
 
 ## v1.9.2(2020-07-07)
@@ -36,7 +42,7 @@
 
 ## v1.9.1(2020-06-26)
 
-## Fixes
+### Fixes
 - manganelo and mangakakalot image downloads no longer fail because of cloudflare
 
 ## v1.9.0(2020-06-21)
