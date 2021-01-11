@@ -47,7 +47,7 @@ class Mangadex(BaseManga):
         covers = self.session.get(f"{self.mn_api_url}/covers")
         if covers.ok:
             covers = covers.json()
-            self.cover_url = {f"{self.series_title} Vol.{cov['volume']}": cov["url"]
+            self.cover_url = {f"{self.series_title} Vol {cov['volume']}": cov["url"]
                               for cov in covers["data"]}
         elif cover:
             self.cover_url = {self.series_title: data["mainCover"]}

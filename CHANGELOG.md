@@ -1,5 +1,10 @@
 # Release History
 
+## v1.11.1(2021-01-11)
+
+### Changes
+- removed dot from cover filename for mangadex
+
 ## v1.11.0(2021-01-11)
 
 ### Changes
