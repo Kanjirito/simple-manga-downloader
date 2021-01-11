@@ -123,11 +123,11 @@ def check_for_update():
 
     r = requests.get("https://pypi.org/pypi/simple-manga-downloader/json")
     r.raise_for_status()
-    releases = r.json()["releases"]
-    lastes_version = list(releases)[-1]
-    if parse_version(lastes_version) > parse_version(__version__):
-        date = releases[lastes_version][0]["upload_time"].split("T")[0]
-        print(f"New version available: v{lastes_version} ({date})")
+    info = r.json()
+    latest_version = info["info"]["version"]
+    if parse_version(latest_version) > parse_version(__version__):
+        date = info["releases"][latest_version][0]["upload_time"].split("T")[0]
+        print(f"New version available: v{latest_version} ({date})")
     else:
         print("No new versions found")
     return True

@@ -1,5 +1,10 @@
 # Release History
 
+## v1.11.2(2021-01-11)
+
+### Fixes
+- version check now properly compares to the newest version
+
 ## v1.11.1(2021-01-11)
 
 ### Changes
