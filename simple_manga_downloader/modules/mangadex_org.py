@@ -9,23 +9,19 @@ class Mangadex(BaseManga):
     base_link = "https://mangadex.org"
     lang_code = "gb"
     session = requests.Session()
-    site_re = re.compile(r"""(?x)https?://(?:www\.)?mangadex\.
-                         (?:(?:org)|(?:cc))/title/(\d+)""")
+    site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/(\d+)")
 
     def __init__(self, link, title=None):
         if title:
             self.series_title = clean_up_string(title)
         else:
             self.series_title = None
-        self.id = self.get_id(link)
+        self.id = self.site_re.search(link).group(1)
         self.mn_api_url = f"{self.base_link}/api/v2/manga/{self.id}"
         self.ch_api_url = f"{self.base_link}/api/v2/chapter/"
         self.manga_link = f"{self.base_link}/title/{self.id}"
         self.cover_url = None
         self.chapters = {}
-
-    def get_id(self, link):
-        return self.site_re.search(link).group(1)
 
     @request_exception_handler
     def get_main(self, title_return=False):
