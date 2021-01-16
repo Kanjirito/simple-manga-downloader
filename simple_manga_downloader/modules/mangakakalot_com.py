@@ -69,6 +69,13 @@ class Mangakakalot(BaseManga):
             else:
                 title = None
 
+            if num in self.chapters:
+                inp = self.ask_for_chapter_number(title, taken=True, num=num)
+                if inp is False:
+                    continue
+                else:
+                    num = inp
+
             self.chapters[num] = {
                 "link": link,
                 "title": clean_up_string(title)

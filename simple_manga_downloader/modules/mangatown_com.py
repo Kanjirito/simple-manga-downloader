@@ -66,6 +66,15 @@ class Mangatown(BaseManga):
             except ValueError:
                 ch_num = float(num)
 
+            if ch_num in self.chapters:
+                inp = self.ask_for_chapter_number(chapter_title,
+                                                  taken=True,
+                                                  num=ch_num)
+                if inp is False:
+                    continue
+                else:
+                    num = inp
+
             self.chapters[ch_num] = {
                 "link": chapter_link,
                 "title": clean_up_string(chapter_title)
