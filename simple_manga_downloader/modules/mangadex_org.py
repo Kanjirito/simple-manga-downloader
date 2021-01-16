@@ -83,8 +83,6 @@ class Mangadex(BaseManga):
             elif chapter["title"].lower().startswith("chapter"):
                 num = float(chapter["chapter"].split()[-1])
             elif chapter["title"]:
-                if self.check_only:
-                    continue
                 inp = self.ask_for_chapter_number(chapter["title"])
                 if inp is False:
                     continue

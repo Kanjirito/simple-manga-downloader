@@ -87,11 +87,14 @@ SMD update -c
 SMD update --check
 ```
 
-Same as above but without downloading:
+Same as above but with downloading:
 ```
 SMD update -i
 SMD update --ignore-input
 ```
+
+**Warning:**
+*Using `-c/--check` or `-i/--ignore-input` with manga that resets chapter numbers for each Volume/Season might cause unexpected behaviour.*
 
 ## Config mode
 This mode allows the modification of the config file.

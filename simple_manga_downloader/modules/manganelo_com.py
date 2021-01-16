@@ -60,8 +60,6 @@ class Manganelo(BaseManga):
                 except ValueError:
                     num = float(num)
             except AttributeError:
-                if self.check_only:
-                    continue
                 title = chapter.text
                 inp = self.ask_for_chapter_number(title)
                 if inp is False:

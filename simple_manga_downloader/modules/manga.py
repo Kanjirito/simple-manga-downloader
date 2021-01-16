@@ -35,6 +35,9 @@ class BaseManga:
         Returns False if the input is invalid otherwise returns the input as either
         float or int.
         """
+        if self.check_only:
+            return False
+
         if taken:
             if title:
                 print(f"Chapter number already taken for Chapter {num}, \"{title}\"")

@@ -1,5 +1,12 @@
 # Release History
 
+## Pre-release
+
+### Changes
+- Mangadex module now also works with URLs like `/manga/ID`
+- downloader now checks the chapters in ascending order (won't effect much)
+- downloader now asks for a new chapter number if it's already taken (fixes #21, might cause unexpected behaviour with `-c/--check` or `-i/--ignore-input`)
+
 ## v1.11.2(2021-01-11)
 
 ### Fixes
