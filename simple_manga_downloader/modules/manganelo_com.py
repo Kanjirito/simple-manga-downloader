@@ -42,7 +42,7 @@ class Manganelo(BaseManga):
         except AttributeError:
             pass
 
-        self.data = soup.find_all(class_="chapter-name text-nowrap")
+        self.data = soup.find_all(class_="chapter-name text-nowrap")[::-1]
         return True
 
     def get_chapters(self):
@@ -63,11 +63,11 @@ class Manganelo(BaseManga):
             except AttributeError:
                 if self.check_only:
                     continue
-                print(f"No chapter number for: \"{chapter.text}\"")
+                title = chapter.text
+                print(f"No chapter number for: \"{title}\"")
                 inp = ask_number("Assign a unused chapter number to it "
                                  "(invalid input will ignore this chapter)",
                                  min_=0, num_type=float)
-                title = chapter.text
 
                 print()
                 if inp is False:

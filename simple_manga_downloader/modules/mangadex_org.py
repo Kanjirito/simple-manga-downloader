@@ -66,7 +66,7 @@ class Mangadex(BaseManga):
         Handles the chapter data by assigning chapter numbers
         """
 
-        for chapter in self.chapters_data["chapters"]:
+        for chapter in self.chapters_data["chapters"][::-1]:
             if chapter["language"].lower() != self.lang_code.lower():
                 continue
 

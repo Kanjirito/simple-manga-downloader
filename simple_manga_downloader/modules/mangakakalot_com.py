@@ -40,7 +40,7 @@ class Mangakakalot(BaseManga):
         if thumb:
             self.cover_url = {self.series_title: thumb.img["src"]}
 
-        self.data = soup.find_all(class_="row")[1:]
+        self.data = soup.find_all(class_="row")[1:][::-1]
         return True
 
     def get_chapters(self):

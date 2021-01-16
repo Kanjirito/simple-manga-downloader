@@ -39,7 +39,7 @@ class Mangatown(BaseManga):
         if thumb:
             self.cover_url = {self.series_title: thumb.img["src"]}
 
-        self.data = soup.find(class_="chapter_list").find_all("li")
+        self.data = soup.find(class_="chapter_list").find_all("li")[::-1]
         return True
 
     def get_chapters(self):
