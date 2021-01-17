@@ -18,6 +18,7 @@ def main():
     ARGS = parse_arguments()
     CONFIG = Config(ARGS.custom_cfg)
     if not CONFIG:
+        print("Loading config failed")
         return 1
     utils.REPLACEMENT_RULES = CONFIG.replacement_rules
     modules.set_mangadex_language(CONFIG.lang_code)

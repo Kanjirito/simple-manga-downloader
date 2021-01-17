@@ -84,7 +84,7 @@ class Config():
                 with open(self.config_path, "r") as f:
                     config = json.load(f)
             except json.decoder.JSONDecodeError as e:
-                print("\nCould not load config file! Fix or remove it!")
+                print("\nConfig is invalid JSON. Fix or remove it.")
                 print(f"\"{e}\"")
                 print(f"Config located at: \"{self.config_path}\"")
                 return
@@ -92,14 +92,41 @@ class Config():
             config = {}
 
         default_dir = self.home / "Manga"
-        self.manga_directory = Path(config.get("manga_directory", default_dir))
+        self.manga_directory = Path(config.get("manga_directory", default_dir)).resolve()
         self.tracked_manga = config.get("tracking", {})
+        if not isinstance(self.tracked_manga, dict):
+            print("Tracked manga is invalid, should be dict")
+            return
+
         self.covers = config.get("covers", False)
-        self.lang_code = config.get("lang_code", "gb")
-        self.download_timeout = config.get("page_download_timeout", 5)
+        if not isinstance(self.covers, bool):
+            print("Covers setting is invalid, should be true or false")
+            return
+
+        self.lang_code = config.get("lang_code", "gb").lower()
+        if self.lang_code not in LANG_CODES:
+            print("!!Warning!!\nLanguage code setting is not valid")
+
+        try:
+            self.download_timeout = int(config.get("page_download_timeout", 5))
+        except ValueError:
+            print("Timeout setting is not a valid number, should be integer")
+            return
+        if self.download_timeout < 1:
+            print("Timeout setting is invalid, can't be less than 1")
+            return
+
         self.replacement_rules = config.get("character_replacement_rules",
                                             DEFAULT_REPLACEMENT_RULES)
+        if not isinstance(self.replacement_rules, dict):
+            print("Replacement rules are invalid, should be dict")
+            return
+
         self.md_at_home = config.get("MD@Home", True)
+        if not isinstance(self.md_at_home, bool):
+            print("MD@Home setting is invalid, should be true or false")
+            return
+
         self.status = True
 
     def add_tracked(self, Manga):

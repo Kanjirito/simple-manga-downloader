@@ -4,6 +4,7 @@
 
 ### New
 - MD@Home setting
+- basic config validation
 
 ### Changes
 - Mangadex module now also works with URLs like `/manga/ID`
