@@ -104,6 +104,11 @@ Changing the mangadex language:
 SMD conf --change-lang code
 ```
 
+Toggle if the downloader should use MD@Home (should be kept on unless it causes problems):
+```
+SMD conf --home
+```
+
 Listing available language codes:
 ```
 SMD conf --list-lang

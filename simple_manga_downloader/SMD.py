@@ -21,6 +21,7 @@ def main():
         return 1
     utils.REPLACEMENT_RULES = CONFIG.replacement_rules
     modules.set_mangadex_language(CONFIG.lang_code)
+    modules.set_md_at_home(CONFIG.md_at_home)
 
     try:
         mode = ARGS.subparser_name
@@ -171,6 +172,8 @@ def conf_mode():
         CONFIG.list_lang()
     if ARGS.timeout is not None:
         CONFIG.change_timeout(ARGS.timeout)
+    if ARGS.md_at_home:
+        CONFIG.toogle_md_at_home()
     if ARGS.replacement_reset:
         CONFIG.reset_replacement_rules()
     if ARGS.rule_add:

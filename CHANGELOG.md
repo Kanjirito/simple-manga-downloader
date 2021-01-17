@@ -2,6 +2,9 @@
 
 ## Pre-release
 
+### New
+- MD@Home setting
+
 ### Changes
 - Mangadex module now also works with URLs like `/manga/ID`
 - downloader now checks the chapters in ascending order (won't effect much)

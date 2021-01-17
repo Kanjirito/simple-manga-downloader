@@ -30,6 +30,11 @@ def set_mangadex_language(lang_code):
     Mangadex.lang_code = lang_code
 
 
+def set_md_at_home(flag):
+    """Sets the MD@Home setting"""
+    Mangadex.md_at_home = flag
+
+
 def toggle_check_only():
     """Toggles check_only for all modules"""
     BaseManga.check_only = True

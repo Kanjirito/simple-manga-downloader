@@ -99,6 +99,7 @@ class Config():
         self.download_timeout = config.get("page_download_timeout", 5)
         self.replacement_rules = config.get("character_replacement_rules",
                                             DEFAULT_REPLACEMENT_RULES)
+        self.md_at_home = config.get("MD@Home", True)
         self.status = True
 
     def add_tracked(self, Manga):
@@ -272,6 +273,14 @@ class Config():
             self.covers = True
             print("Cover download turned on!")
 
+    def toogle_md_at_home(self):
+        if self.md_at_home:
+            self.md_at_home = False
+            print("MD@Home turned off")
+        else:
+            self.md_at_home = True
+            print("MD@Home turned on")
+
     def print_config(self):
         print("\nConfig path:")
         print(self.config_path)
@@ -283,6 +292,8 @@ class Config():
         print(self.lang_code)
         print("\nPage download timeout (s):")
         print(self.download_timeout)
+        print("\nMD@Home:")
+        print(self.md_at_home)
         self.print_replacement_rules()
         print()
 
@@ -324,6 +335,7 @@ class Config():
                   "covers": self.covers,
                   "lang_code": self.lang_code,
                   "page_download_timeout": self.download_timeout,
+                  "MD@Home": self.md_at_home,
                   "character_replacement_rules": self.replacement_rules,
                   "tracking": self.tracked_manga}
         try:

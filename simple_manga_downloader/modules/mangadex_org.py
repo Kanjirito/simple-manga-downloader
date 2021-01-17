@@ -10,6 +10,7 @@ class Mangadex(BaseManga):
     lang_code = "gb"
     session = requests.Session()
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/(\d+)")
+    md_at_home = True
 
     def __init__(self, link, title=None):
         if title:
@@ -171,14 +172,17 @@ class Mangadex(BaseManga):
 
         # Fixes the incomplete link
         if data["data"]["server"] == "/data/":
-            if data["data"].get("serverFallback"):
-                server = data["data"]["serverFallback"]
-            else:
-                server = f"{self.base_link}/data/"
+            server = f"{self.base_link}/data/"
         else:
             server = data["data"]["server"]
+        fallback_server = data["data"].get("serverFallback")
 
-        url = f"{server}{data['data']['hash']}/"
+        if not self.md_at_home and fallback_server:
+            server_to_use = fallback_server
+        else:
+            server_to_use = server
+
+        url = f"{server_to_use}{data['data']['hash']}/"
         pages = [f"{url}{page}" for page in data["data"]["pages"]]
         self.chapters[ch]["pages"] = pages
 
