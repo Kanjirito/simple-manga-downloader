@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from .modules import ALL_MODULES
+from .modules.manga import BaseManga
 from .utils import ask_confirmation, ask_number, clean_up_string
 
 DEFAULT_REPLACEMENT_RULES = {
@@ -179,11 +179,9 @@ class Config():
         if to_check in self.tracked_manga:
             return (True, to_check)
         elif "/" in to_check:
-            for module in ALL_MODULES:
-                match = module.check_if_link_matches(to_check)
-                if match:
-                    to_check = match.group(0)
-                    break
+            module = BaseManga.find_matching_module(to_check)
+            if module:
+                to_check = module.clean_up_link(to_check)
 
             for key, value in self.tracked_manga.items():
                 if to_check in value:

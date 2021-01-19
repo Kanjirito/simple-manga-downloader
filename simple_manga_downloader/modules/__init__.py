@@ -1,28 +1,19 @@
 """The module that handles importing the manga modules and changing their attributes."""
 from .manga import BaseManga
+# Modules need to be imported so they get registered, order matters
 from .mangadex_org import Mangadex
-from .mangakakalot_com import Mangakakalot
-from .manganelo_com import Manganelo
-from .mangatown_com import Mangatown
-
-"""
-List of all the modules, order matters if multiple modules support the
-same same URL. New modules must be added to it.
-"""
-ALL_MODULES = [Mangadex,
-               Mangatown,
-               Mangakakalot,
-               Manganelo,
-               ]
+from .mangakakalot_com import Mangakakalot  # noqa: F401
+from .manganelo_com import Manganelo  # noqa: F401
+from .mangatown_com import Mangatown  # noqa: F401
 
 
 def match_module(link, title):
-    """Find a module for the given link, false if none found"""
-    for module in ALL_MODULES:
-        if module.check_if_link_matches(link):
-            return module(link, title=title)
-    else:
+    """Initialize the proper module"""
+    module = BaseManga.find_matching_module(link)
+    if module is False:
         return False
+    else:
+        return module(link, title=title)
 
 
 def set_mangadex_language(lang_code):
