@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release
+## v1.12.0(2021-01-20)
 
 ### New
 - MD@Home setting
