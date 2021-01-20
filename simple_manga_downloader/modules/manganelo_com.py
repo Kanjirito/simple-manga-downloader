@@ -28,6 +28,8 @@ class Manganelo(BaseManga):
         """
         r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
+        if "404 - PAGE NOT FOUND" in r.text:
+            return "HTTP code error: 404 Client Error"
         soup = BeautifulSoup(r.text, "html.parser")
 
         if self.series_title is None:

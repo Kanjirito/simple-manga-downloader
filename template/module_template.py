@@ -45,11 +45,19 @@ class MangaPageName(BaseManga):
         for chapter in self.data:
 
             num = "finding chapter number in soup"
+            title = "get title"
             try:
                 num = int(num)
             except ValueError:
                 num = float(num)
             link = "finding chapter link in soup"
+
+            if num in self.chapters:
+                inp = self.ask_for_chapter_number(title, taken=True, num=num)
+                if inp is False:
+                    continue
+                else:
+                    num = inp
 
             self.chapters[num] = {"link": link,
                                   "title": None}

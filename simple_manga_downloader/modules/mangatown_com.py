@@ -25,8 +25,10 @@ class Mangatown(BaseManga):
         Gets the main manga info like title, cover url and chapter links
         title_return=True will only get the title and return
         """
-        r = self.session.get(self.manga_link, timeout=5)
+        r = self.session.get(self.manga_link, timeout=5, allow_redirects=False)
         r.raise_for_status()
+        if r.status_code == 302:
+            return "HTTP code error: 404 Client Error"
         soup = BeautifulSoup(r.text, "html.parser")
 
         if self.series_title is None:

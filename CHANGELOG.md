@@ -6,6 +6,10 @@
 - MD@Home setting
 - basic config validation
 
+### Fixes
+- mangakakalot crash
+- crash when the link points to a non existing manga
+
 ### Changes
 - Mangadex module now also works with URLs like `/manga/ID`
 - downloader now checks the chapters in ascending order (won't effect much)

@@ -29,6 +29,8 @@ class Mangakakalot(BaseManga):
         r = self.session.get(self.manga_link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
+        if "Sorry, the page you have requested cannot be found" in r.text:
+            return "HTTP code error: 404 Client Error"
 
         if self.series_title is None:
             title = soup.find(class_="manga-info-text").find("h1").text
@@ -90,7 +92,7 @@ class Mangakakalot(BaseManga):
         r = self.session.get(link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
-        reader = soup.find(id="vungdoc")
+        reader = soup.find(class_="container-chapter-reader")
 
         pages = [image["src"] for image in reader.find_all("img")]
 
