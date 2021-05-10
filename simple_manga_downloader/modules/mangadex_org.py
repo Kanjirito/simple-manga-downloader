@@ -1,16 +1,17 @@
 import requests
 import html
 import re
-from ..utils import request_exception_handler, clean_up_string
+from ..utils import request_exception_handler, clean_up_string, limiter
 from .manga import BaseManga
 
 
 class Mangadex(BaseManga):
-    base_link = "https://mangadex.org"
-    lang_code = "gb"
+    base_link = "https://api.mangadex.org"
+    lang_code = "en"
     session = requests.Session()
-    site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/(\d+)")
+    site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
     md_at_home = True
+    scanlation_cache = {}
 
     def __init__(self, link, title=None):
         if title:
@@ -18,9 +19,8 @@ class Mangadex(BaseManga):
         else:
             self.series_title = None
         self.id = self.site_re.search(link).group(1)
-        self.mn_api_url = f"{self.base_link}/api/v2/manga/{self.id}"
-        self.ch_api_url = f"{self.base_link}/api/v2/chapter/"
-        self.manga_link = f"{self.base_link}/title/{self.id}"
+        self.mn_api_url = f"{self.base_link}/manga/{self.id}"
+        self.manga_link = f"https://mangadex.org/title/{self.id}"
         self.cover_url = None
         self.chapters = {}
 
@@ -31,35 +31,36 @@ class Mangadex(BaseManga):
         using the mangadex API
         title_return=True will only get the title and return
         """
-        r = self.session.get(self.mn_api_url, timeout=5)
-        r.raise_for_status()
-        data = r.json()["data"]
+        data = self.make_get_request(self.mn_api_url)["data"]
 
         if self.series_title is None:
-            self.series_title = clean_up_string(data["title"])
+            self.series_title = clean_up_string(data["attributes"]["title"]["en"])
         if title_return:
             return True
 
-        cover = data.get("mainCover")
-        covers = self.session.get(f"{self.mn_api_url}/covers")
-        if covers.ok:
-            covers = covers.json()
-            self.cover_url = {f"{self.series_title} Vol {cov['volume']}": cov["url"]
-                              for cov in covers["data"]}
-        elif cover:
-            self.cover_url = {self.series_title: data["mainCover"]}
+        # TODO: Covers
+        # Covers are currently not available #
 
-        chapters_r = self.session.get(f"{self.mn_api_url}/chapters")
-        chapters_r.raise_for_status()
-        chapters_data = chapters_r.json()["data"]
+        limit = 500
+        params = {"locales[]": self.lang_code,
+                  "limit": limit,
+                  "offset": 0,
+                  "order[chapter]": "asc"}
+        chapters_data = []
 
-        if not chapters_data["chapters"]:
+        while True:
+            feed_data = self.make_get_request(f"{self.mn_api_url}/feed", params=params)
+            for chapter in feed_data["results"]:
+                if chapter["result"] == "ok":
+                    chapters_data.append(chapter)
+            if limit + params["offset"] >= feed_data["total"]:
+                break
+            else:
+                params["offset"] += limit
+        if not chapters_data:
             return "No chapters found"
 
-        groups_dict = {group["id"]: group["name"] for group in chapters_data["groups"]}
-        self.chapters_data = {"chapters": chapters_data["chapters"],
-                              "groups": groups_dict}
-        self.data = data
+        self.data = chapters_data
         return True
 
     def get_chapters(self):
@@ -67,24 +68,23 @@ class Mangadex(BaseManga):
         Handles the chapter data by assigning chapter numbers
         """
 
-        for chapter in self.chapters_data["chapters"][::-1]:
-            if chapter["language"].lower() != self.lang_code.lower():
-                continue
-
+        for chapter in self.data:
+            attributes = chapter["data"]["attributes"]
+            title = clean_up_string(attributes["title"])
             # Creates the number of the chapter
             # Uses chapter number if present
             # Sets to 0 if oneshot
             # Checks for chapter number in title
             # Asks for number if title present
             # Else skips the chapter
-            if chapter["chapter"]:
-                num = float(chapter["chapter"])
-            elif chapter["title"].lower() == "oneshot":
+            if attributes["chapter"]:
+                num = float(attributes["chapter"])
+            elif title.lower() == "oneshot":
                 num = 0.0
-            elif chapter["title"].lower().startswith("chapter"):
+            elif title.lower().startswith("chapter"):
                 num = float(chapter["chapter"].split()[-1])
-            elif chapter["title"]:
-                inp = self.ask_for_chapter_number(chapter["title"])
+            elif title:
+                inp = self.ask_for_chapter_number(title)
                 if inp is False:
                     continue
                 else:
@@ -94,8 +94,11 @@ class Mangadex(BaseManga):
             if num.is_integer():
                 num = int(num)
 
-            if num in self.chapters:
-                inp = self.ask_for_chapter_number(chapter["title"],
+            # Handles multi group releases
+            all_groups = tuple((r["id"] for r in chapter["relationships"] if r["type"] == "scanlation_group"))
+
+            if num in self.chapters and all_groups in self.chapters[num]:
+                inp = self.ask_for_chapter_number(title,
                                                   taken=True,
                                                   num=num)
                 if inp is False:
@@ -103,14 +106,11 @@ class Mangadex(BaseManga):
                 else:
                     num = inp
 
-            # Handles multi group releases
-            all_groups = [self.chapters_data["groups"][g] for g in chapter["groups"]]
-            all_groups_str = html.unescape(" | ".join(all_groups))
-
-            self.chapters.setdefault(num, {})
-            self.chapters[num][all_groups_str] = {
-                "ch_id": chapter["id"],
-                "title": clean_up_string(chapter["title"])
+            self.chapters.setdefault(num, {})[all_groups] = {
+                "ch_id": chapter["data"]["id"],
+                "hash": attributes["hash"],
+                "page_names": attributes["data"],
+                "title": clean_up_string(title)
             }
         return True
 
@@ -118,17 +118,27 @@ class Mangadex(BaseManga):
         """Handles the possible different releases of a chapter"""
         num_of_releases = len(self.chapters[ch])
 
-        if "MangaPlus" in self.chapters[ch]:
+        # 4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb is the MangaPlus group ID
+        if ("4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb", ) in self.chapters[ch]:
             if num_of_releases == 1:
                 return "Only Manga Plus releases"
             else:
-                del self.chapters[ch]["MangaPlus"]
+                del self.chapters[ch][("4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb", )]
                 num_of_releases -= 1
         if num_of_releases == 1:
             self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
             return True
 
-        sorted_groups = sorted(self.chapters[ch])
+        self.fetch_groups(tuple(self.chapters[ch].keys()))
+
+        release_mapping = {}
+        for release in self.chapters[ch].keys():
+            names = []
+            for group in release:
+                names.append(self.scanlation_cache[group])
+            release_mapping[" | ".join(names)] = release
+
+        sorted_groups = sorted(release_mapping)
         if self.check_only:
             select = 1
         else:
@@ -148,8 +158,20 @@ class Mangadex(BaseManga):
             print()
 
         group = sorted_groups[select - 1]
-        self.chapters[ch] = self.chapters[ch][group]
+        self.chapters[ch] = self.chapters[ch][release_mapping[group]]
         return True
+
+    def fetch_groups(self, group_ids):
+        to_check = set()
+        for release in group_ids:
+            for id_ in release:
+                if id_ not in self.scanlation_cache:
+                    to_check.add(id_)
+        if to_check:
+            data = self.make_get_request("https://api.mangadex.org/group",
+                                         params={"ids[]": to_check, "limit": 100})
+            for group in data["results"]:
+                self.scanlation_cache[group["data"]["id"]] = html.unescape(group["data"]["attributes"]["name"])
 
     @request_exception_handler
     def get_info(self, ch):
@@ -161,29 +183,20 @@ class Mangadex(BaseManga):
             return groups
 
         ch_id = self.chapters[ch]["ch_id"]
-        r = self.session.get(f"{self.ch_api_url}{ch_id}", timeout=5)
-        if r.status_code != 200 and r.status_code != 409:
-            raise requests.HTTPError
+        data = self.make_get_request(f"https://api.mangadex.org/at-home/server/{ch_id}")
 
-        data = r.json()
-        # Skips chapter if the release is delayed
-        if data["status"] == "delayed":
-            return "Chapter is a delayed release, ignoring it"
+        # TODO: Figure out delayed chapters
+        # TODO: Find a way to not use MD@Home
+        server = data["baseUrl"]
 
-        # Fixes the incomplete link
-        if data["data"]["server"] == "/data/":
-            server = f"{self.base_link}/data/"
-        else:
-            server = data["data"]["server"]
-        fallback_server = data["data"].get("serverFallback")
-
-        if not self.md_at_home and fallback_server:
-            server_to_use = fallback_server
-        else:
-            server_to_use = server
-
-        url = f"{server_to_use}{data['data']['hash']}/"
-        pages = [f"{url}{page}" for page in data["data"]["pages"]]
+        url = f"{server}/data/{self.chapters[ch]['hash']}/"
+        pages = [f"{url}{page}" for page in self.chapters[ch]["page_names"]]
         self.chapters[ch]["pages"] = pages
 
         return True
+
+    @limiter(0.3)
+    def make_get_request(self, url, **kwargs):
+        r = self.session.get(url, timeout=5, **kwargs)
+        r.raise_for_status()
+        return r.json()
