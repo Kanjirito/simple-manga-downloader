@@ -7,16 +7,30 @@ import time
 from requests.packages.urllib3.util.retry import Retry
 
 
-class MDatHomeServerLimiter(requests.adapters.HTTPAdapter):
+class BaseLimiter(requests.adapters.HTTPAdapter):
+    """
+    Base rate-limiting HTTAdapter
+
+    Only retries on 429 status code and ignores everything else
+    limit = amount of retries
+    backoff_factor = the backoff_factor for retries
+    """
+    def __init__(self, limit, backoff_factor, **kwargs):
+        r = Retry(status=limit,
+                  total=None, connect=0, read=0, redirect=0, other=0,
+                  status_forcelist=[429],
+                  backoff_factor=backoff_factor,
+                  respect_retry_after_header=False)
+        super().__init__(max_retries=r, **kwargs)
+
+
+class MDatHomeServerLimiter(BaseLimiter):
     """
     Deals with the /at-home/server/ rate limits.
     """
 
-    def __init__(self, *args, **kwargs):
-        r = Retry(status=6, total=None, status_forcelist=[429], backoff_factor=1,
-                  respect_retry_after_header=False)
-        kwargs["max_retries"] = r
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(6, 1, **kwargs)
 
 
 class Limiter(requests.adapters.HTTPAdapter):
@@ -26,13 +40,11 @@ class Limiter(requests.adapters.HTTPAdapter):
     session = requests.Session object used for making the report
     """
 
+    md_at_home_re = re.compile(r"https://(?:[\w\d]+\.){2}mangadex\.network")
+
     def __init__(self, session, **kwargs):
         self.session = session
-        self.md_at_home_re = re.compile(r"https://(?:[\w\d]+\.){2}mangadex\.network")
-        r = Retry(status=5, total=None, status_forcelist=[429],
-                  respect_retry_after_header=False)
-        kwargs["max_retries"] = r
-        super().__init__(**kwargs)
+        super().__init__(5, 0, **kwargs)
 
     def send(self, request, **kwargs):
         if self.md_at_home_re.match(request.url):
