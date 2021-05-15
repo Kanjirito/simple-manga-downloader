@@ -5,6 +5,12 @@
 ### Changes
 - migrated to the new Mangadex API
 
+### Removed
+- MD@Home setting
+
+### New
+- Data saving setting `conf --data-saver` that will download the lower quality images (off by default)
+
 ## v1.12.0(2021-01-20)
 
 ### New
