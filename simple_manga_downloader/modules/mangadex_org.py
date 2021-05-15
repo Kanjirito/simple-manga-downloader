@@ -1,14 +1,71 @@
 import requests
 import html
 import re
-from ..utils import request_exception_handler, clean_up_string, limiter
+from ..utils import request_exception_handler, clean_up_string
 from .manga import BaseManga
+import time
+from requests.packages.urllib3.util.retry import Retry
+
+
+class MDatHomeServerLimiter(requests.adapters.HTTPAdapter):
+    """
+    Deals with the /at-home/server/ rate limits.
+    """
+
+    def __init__(self, *args, **kwargs):
+        r = Retry(status=6, total=None, status_forcelist=[429], backoff_factor=1,
+                  respect_retry_after_header=False)
+        kwargs["max_retries"] = r
+        super().__init__(*args, **kwargs)
+
+
+class Limiter(requests.adapters.HTTPAdapter):
+    """
+    A request limiter that sends reports on image download
+
+    session = requests.Session object used for making the report
+    """
+
+    def __init__(self, session, **kwargs):
+        self.session = session
+        self.md_at_home_re = re.compile(r"https://(?:[\w\d]+\.){2}mangadex\.network")
+        r = Retry(status=5, total=None, status_forcelist=[429],
+                  respect_retry_after_header=False)
+        kwargs["max_retries"] = r
+        super().__init__(**kwargs)
+
+    def send(self, request, **kwargs):
+        if self.md_at_home_re.match(request.url):
+            before = time.time()
+            r = super().send(request, **kwargs)
+            difference = (time.time() - before) * 1000
+            report = {"url": r.url,
+                      "bytes": len(r.content),
+                      "duration": difference}
+            if r.status_code == 200:
+                report["success"] = True
+                if r.headers.get("X-Cache", "").startswith("HIT"):
+                    report["cached"] = True
+                else:
+                    report["cached"] = False
+            else:
+                report["success"] = False
+                report["cached"] = False
+            self.session.post("https://api.mangadex.network/report",
+                              json=report,
+                              timeout=1)
+        else:
+            r = super().send(request, **kwargs)
+        return r
 
 
 class Mangadex(BaseManga):
     base_link = "https://api.mangadex.org"
     lang_code = "en"
     session = requests.Session()
+    session.mount("https://", Limiter(session))
+    session.mount("https://api.mangadex.org/at-home/server/",
+                  MDatHomeServerLimiter())
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
     md_at_home = True
     scanlation_cache = {}
@@ -19,7 +76,6 @@ class Mangadex(BaseManga):
         else:
             self.series_title = None
         self.id = self.site_re.search(link).group(1)
-        self.mn_api_url = f"{self.base_link}/manga/{self.id}"
         self.manga_link = f"https://mangadex.org/title/{self.id}"
         self.cover_url = None
         self.chapters = {}
@@ -31,7 +87,7 @@ class Mangadex(BaseManga):
         using the mangadex API
         title_return=True will only get the title and return
         """
-        data = self.make_get_request(self.mn_api_url)["data"]
+        data = self.make_get_request(f"/manga/{self.id}")["data"]
 
         if self.series_title is None:
             self.series_title = clean_up_string(data["attributes"]["title"]["en"])
@@ -49,7 +105,8 @@ class Mangadex(BaseManga):
         chapters_data = []
 
         while True:
-            feed_data = self.make_get_request(f"{self.mn_api_url}/feed", params=params)
+            feed_data = self.make_get_request(f"/manga/{self.id}/feed",
+                                              params=params)
             for chapter in feed_data["results"]:
                 if chapter["result"] == "ok":
                     chapters_data.append(chapter)
@@ -77,7 +134,7 @@ class Mangadex(BaseManga):
             # Checks for chapter number in title
             # Asks for number if title present
             # Else skips the chapter
-            if attributes["chapter"]:
+            if attributes["chapter"] is not None:
                 num = float(attributes["chapter"])
             elif title.lower() == "oneshot":
                 num = 0.0
@@ -168,8 +225,9 @@ class Mangadex(BaseManga):
                 if id_ not in self.scanlation_cache:
                     to_check.add(id_)
         if to_check:
-            data = self.make_get_request("https://api.mangadex.org/group",
-                                         params={"ids[]": to_check, "limit": 100})
+            data = self.make_get_request("/group",
+                                         params={"ids[]": to_check,
+                                                 "limit": 100})
             for group in data["results"]:
                 self.scanlation_cache[group["data"]["id"]] = html.unescape(group["data"]["attributes"]["name"])
 
@@ -183,10 +241,8 @@ class Mangadex(BaseManga):
             return groups
 
         ch_id = self.chapters[ch]["ch_id"]
-        data = self.make_get_request(f"https://api.mangadex.org/at-home/server/{ch_id}")
+        data = self.make_get_request(f"/at-home/server/{ch_id}")
 
-        # TODO: Figure out delayed chapters
-        # TODO: Find a way to not use MD@Home
         server = data["baseUrl"]
 
         url = f"{server}/data/{self.chapters[ch]['hash']}/"
@@ -195,8 +251,7 @@ class Mangadex(BaseManga):
 
         return True
 
-    @limiter(0.3)
     def make_get_request(self, url, **kwargs):
-        r = self.session.get(url, timeout=5, **kwargs)
+        r = self.session.get(f"{self.base_link}{url}", timeout=5, **kwargs)
         r.raise_for_status()
         return r.json()

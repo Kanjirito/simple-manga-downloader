@@ -1,5 +1,10 @@
 # Release History
 
+## Pre-release
+
+### Changes
+- migrated to the new Mangadex API
+
 ## v1.12.0(2021-01-20)
 
 ### New
