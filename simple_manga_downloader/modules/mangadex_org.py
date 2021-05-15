@@ -79,7 +79,7 @@ class Mangadex(BaseManga):
     session.mount("https://api.mangadex.org/at-home/server/",
                   MDatHomeServerLimiter())
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
-    md_at_home = True
+    data_saver = False
     scanlation_cache = {}
 
     def __init__(self, link, title=None):
@@ -179,6 +179,7 @@ class Mangadex(BaseManga):
                 "ch_id": chapter["data"]["id"],
                 "hash": attributes["hash"],
                 "page_names": attributes["data"],
+                "data_saver_page_names": attributes["dataSaver"],
                 "title": clean_up_string(title)
             }
         return True
@@ -257,8 +258,12 @@ class Mangadex(BaseManga):
 
         server = data["baseUrl"]
 
-        url = f"{server}/data/{self.chapters[ch]['hash']}/"
-        pages = [f"{url}{page}" for page in self.chapters[ch]["page_names"]]
+        if self.data_saver:
+            url = f"{server}/data-saver/{self.chapters[ch]['hash']}/"
+            pages = [f"{url}{page}" for page in self.chapters[ch]["data_saver_page_names"]]
+        else:
+            url = f"{server}/data/{self.chapters[ch]['hash']}/"
+            pages = [f"{url}{page}" for page in self.chapters[ch]["page_names"]]
         self.chapters[ch]["pages"] = pages
 
         return True

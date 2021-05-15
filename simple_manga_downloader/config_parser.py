@@ -119,12 +119,12 @@ class Config():
         self.replacement_rules = config.get("character_replacement_rules",
                                             DEFAULT_REPLACEMENT_RULES)
         if not isinstance(self.replacement_rules, dict):
-            print("Replacement rules are invalid, should be dict")
+            print("Replacement rules are invalid, should be dictionary (Key: value)")
             return
 
-        self.md_at_home = config.get("MD@Home", True)
-        if not isinstance(self.md_at_home, bool):
-            print("MD@Home setting is invalid, should be true or false")
+        self.data_saver = config.get("data_saver", False)
+        if not isinstance(self.data_saver, bool):
+            print("Data saver setting is invalid, should be true or false")
             return
 
         self.status = True
@@ -219,6 +219,7 @@ class Config():
             self.lang_code = "gb"
             self.download_timeout = 5
             self.replacement_rules = DEFAULT_REPLACEMENT_RULES
+            self.data_saver = False
             print("Config was reset")
 
     def change_position(self, verbose):
@@ -298,13 +299,13 @@ class Config():
             self.covers = True
             print("Cover download turned on!")
 
-    def toogle_md_at_home(self):
-        if self.md_at_home:
-            self.md_at_home = False
-            print("MD@Home turned off")
+    def toogle_data_saver(self):
+        if self.data_saver:
+            self.data_saver = False
+            print("Data saver turned off")
         else:
-            self.md_at_home = True
-            print("MD@Home turned on")
+            self.data_saver = True
+            print("Data saver turned on")
 
     def print_config(self):
         print("\nConfig path:")
@@ -317,8 +318,8 @@ class Config():
         print(self.lang_code)
         print("\nPage download timeout (s):")
         print(self.download_timeout)
-        print("\nMD@Home:")
-        print(self.md_at_home)
+        print("\nData saver:")
+        print(self.data_saver)
         self.print_replacement_rules()
         print()
 
@@ -360,7 +361,7 @@ class Config():
                   "covers": self.covers,
                   "lang_code": self.lang_code,
                   "page_download_timeout": self.download_timeout,
-                  "MD@Home": self.md_at_home,
+                  "data_saver": self.data_saver,
                   "character_replacement_rules": self.replacement_rules,
                   "tracking": self.tracked_manga}
         try:

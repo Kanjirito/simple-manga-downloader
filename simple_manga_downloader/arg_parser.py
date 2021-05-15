@@ -173,10 +173,10 @@ def parse_arguments():
                              help="Prints the current replacement rules",
                              action="store_true",
                              dest="rule_print")
-    parser_conf.add_argument("--home",
-                             help="Toggles the MD@Home setting",
+    parser_conf.add_argument("--data-saver",
+                             help="Toggles the date saving setting",
                              action="store_true",
-                             dest="md_at_home")
+                             dest="data_saver")
     replacement_rules_group = parser_conf.add_mutually_exclusive_group()
     replacement_rules_group.add_argument("--rule-add",
                                          help="Adds a new replacement rule for a character",
