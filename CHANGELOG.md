@@ -10,6 +10,7 @@
 
 ### New
 - Data saving setting `conf --data-saver` that will download the lower quality images (off by default)
+- `down --data-saver true|false` flag that overwrites the data saver setting in the config file
 
 ## v1.12.0(2021-01-20)
 

@@ -22,7 +22,6 @@ def main():
         return 1
     utils.REPLACEMENT_RULES = CONFIG.replacement_rules
     modules.set_mangadex_language(CONFIG.lang_code)
-    modules.set_data_saver(CONFIG.data_saver)
 
     try:
         mode = ARGS.subparser_name
@@ -206,6 +205,14 @@ def main_pipeline(links):
 
     if ARGS.check_only or ARGS.ignore_input:
         modules.toggle_check_only()
+
+    data_saver = getattr(ARGS, "data_saver", None)
+    if data_saver is None:
+        modules.set_data_saver(CONFIG.data_saver)
+    elif data_saver == "true":
+        modules.set_data_saver(True)
+    else:
+        modules.set_data_saver(False)
 
     ready = []
     total_num_ch = 0

@@ -68,6 +68,12 @@ SMD down manga_url -c
 SMD down manga_url --check
 ```
 
+Ignore the data saver config setting for this download (Mangadex only):
+```
+SMD down manga_url --data-saver true
+SMD down manga_url --data-saver false
+```
+
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter. If a manga is tracked the downloader will use the saved name even if the title on the page changes.
 

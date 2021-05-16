@@ -70,6 +70,10 @@ def parse_arguments():
                              help=("Download the manga with a custom name. "
                                    "Not recommended to use with multiple "
                                    "downloads at once."))
+    parser_down.add_argument("--data-saver",
+                             help="Toggle the Mangadex data saver option. Takes priority over config file.",
+                             choices=["true", "false"],
+                             dest="data_saver")
     input_group_down = parser_down.add_mutually_exclusive_group()
     input_group_down.add_argument("-c", "--check",
                                   help=("Only check for new chapters "
@@ -97,7 +101,7 @@ def parse_arguments():
                                  type=float)
     selection_group.add_argument("-l", "--latest",
                                  help="Download only the latest chapter",
-                                 action='store_true')
+                                 action="store_true")
 
     # Parser for config mode
     tracked_edit_group = parser_conf.add_mutually_exclusive_group()
