@@ -287,10 +287,10 @@ def handle_manga(Manga):
     filter_wanted(Manga)
 
     if not Manga.chapters:
-        print("Found 0 wanted chapters")
+        print("Found 0 matching chapters")
         return False
 
-    message2 = f"Getting info about {len(Manga)} wanted chapter(s)"
+    message2 = f"Getting info about {len(Manga)} matching chapter(s)"
     line_break2 = make_line(message2)
     print(f"{message2}\n{line_break2}")
     return chapter_info_get(Manga)

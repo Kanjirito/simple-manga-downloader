@@ -126,8 +126,6 @@ class Mangadex(BaseManga):
                 break
             else:
                 params["offset"] += limit
-        if not chapters_data:
-            return "No chapters found"
 
         self.data = chapters_data
         return True

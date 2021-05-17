@@ -3,7 +3,8 @@
 ## Pre-release
 
 ### Changes
-- migrated to the new Mangadex API
+- Migrated to the new Mangadex API
+- Slight output changes
 
 ### Removed
 - MD@Home setting
@@ -11,6 +12,9 @@
 ### New
 - Data saving setting `conf --data-saver` that will download the lower quality images (off by default)
 - `down --data-saver true|false` flag that overwrites the data saver setting in the config file
+
+### Fixes
+- Mangadex no longer says that there's been an error when no chapters found matching the criteria but just prints that none were found
 
 ## v1.12.0(2021-01-20)
 
