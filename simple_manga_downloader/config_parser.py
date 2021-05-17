@@ -107,8 +107,8 @@ class Config():
             return
 
         self.lang_code = config.get("lang_code", "en").lower()
-        if self.lang_code not in LANG_CODES:
-            print("!!Warning!!\nLanguage code setting is not valid")
+        if not self.check_language_code(self.lang_code):
+            return
 
         try:
             self.download_timeout = int(config.get("page_download_timeout", 5))
@@ -330,15 +330,24 @@ class Config():
         new_code = code.lower()
         cur_code = self.lang_code.lower()
         if new_code != cur_code:
-            if new_code in LANG_CODES:
+            if self.check_language_code(new_code):
                 self.lang_code = code
                 code_desc = LANG_CODES[new_code]
                 print(f"Language changed to \"{new_code}\" - {code_desc}")
-            else:
-                print(f"Invalid language code: \"{new_code}\"")
-                print("Use \"SMD conf --list_lang\" to list available codes")
         else:
             print(f"\"{new_code}\" already set as current language")
+
+    @staticmethod
+    def check_language_code(code):
+        """
+        Checks if the given language code is a valid, returns bool
+        """
+        if code in LANG_CODES:
+            return True
+        else:
+            print(f"Invalid language code: \"{code}\"")
+            print("Use \"SMD conf --list_lang\" to list available codes")
+            return False
 
     def list_lang(self):
         """

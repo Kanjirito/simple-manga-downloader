@@ -5,6 +5,7 @@
 ### Changes
 - Migrated to the new Mangadex API
 - Slight output changes
+- Downloader will now exit with status code 1 if config has a invalid language code
 
 ### Removed
 - MD@Home setting
