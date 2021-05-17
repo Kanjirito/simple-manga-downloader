@@ -17,45 +17,48 @@ DEFAULT_REPLACEMENT_RULES = {
 }
 
 LANG_CODES = {
-    "sa": "Arabic",
-    "bd": "Bengali",
+    "ar": "Arabic",
+    "bn": "Bengali",
     "bg": "Bulgarian",
-    "mm": "Burmese",
-    "ct": "Catalan",
-    "cn": "Chinese (Simple)",
-    "hk": "Chinese (Traditional)",
-    "cz": "Czech",
-    "dk": "Danish",
+    "my": "Burmese",
+    "ca": "Catalan",
+    "zh": "Chinese (Simplified)",
+    "zh-hk": "Chinese (Traditional)",
+    "cs": "Czech",
+    "da": "Danish",
     "nl": "Dutch",
-    "gb": "English",
-    "ph": "Filipino",
+    "en": "English",
+    "tl": "Filipino",
     "fi": "Finnish",
     "fr": "French",
     "de": "German",
-    "gr": "Greek",
-    "il": "Hebrew",
+    "el": "Greek",
+    "he": "Hebrew",
+    "hi": "Hindi",
     "hu": "Hungarian",
     "id": "Indonesian",
     "it": "Italian",
-    "jp": "Japanese",
-    "kr": "Korean",
+    "ja": "Japanese",
+    "ko": "Korean",
     "lt": "Lithuanian",
-    "my": "Malay",
+    "ms": "Malay",
     "mn": "Mongolian",
-    "ir": "Persian",
+    "no": "Norwegian",
+    "NULL": "Other (Some releases have no language specified)",
+    "fa": "Persian",
     "pl": "Polish",
-    "br": "Portuguese (Brazil)",
+    "pt-br": "Portuguese (Brazil)",
     "pt": "Portuguese (Portugal)",
     "ro": "Romanian",
     "ru": "Russian",
-    "rs": "Serbo-Croatian",
+    "sh": "Serbo-Croatian",
     "es": "Spanish (Spain)",
-    "mx": "Spanish (Latin America)",
-    "se": "Swedish",
+    "es-la": "Spanish (Latin America)",
+    "sv": "Swedish",
     "th": "Thai",
     "tr": "Turkish",
-    "ua": "Ukrainian",
-    "vn": "Vietnamese",
+    "uk": "Ukrainian",
+    "vi": "Vietnamese",
 }
 
 
@@ -103,7 +106,7 @@ class Config():
             print("Covers setting is invalid, should be true or false")
             return
 
-        self.lang_code = config.get("lang_code", "gb").lower()
+        self.lang_code = config.get("lang_code", "en").lower()
         if self.lang_code not in LANG_CODES:
             print("!!Warning!!\nLanguage code setting is not valid")
 
@@ -216,7 +219,7 @@ class Config():
             self.manga_directory = self.home / "Manga"
             self.tracked_manga = {}
             self.covers = False
-            self.lang_code = "gb"
+            self.lang_code = "en"
             self.download_timeout = 5
             self.replacement_rules = DEFAULT_REPLACEMENT_RULES
             self.data_saver = False
