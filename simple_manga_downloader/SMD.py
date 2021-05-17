@@ -18,10 +18,9 @@ def main():
     ARGS = parse_arguments()
     CONFIG = Config(ARGS.custom_cfg)
     if not CONFIG:
-        print("Loading config failed")
+        print("\nLoading config failed")
         return 1
     utils.REPLACEMENT_RULES = CONFIG.replacement_rules
-    modules.set_mangadex_language(CONFIG.lang_code)
 
     try:
         mode = ARGS.subparser_name
@@ -188,6 +187,14 @@ def conf_mode():
 
 def main_pipeline(links):
     """Takes a list of manga links and does all of the required stuff"""
+
+    if ARGS.langauge_code is not None:
+        if CONFIG.check_language_code(ARGS.langauge_code):
+            modules.set_mangadex_language(ARGS.langauge_code)
+        else:
+            return
+    else:
+        modules.set_mangadex_language(CONFIG.lang_code)
 
     if not links:
         print("\nNo manga to download!")

@@ -13,6 +13,7 @@
 ### New
 - Data saving setting `conf --data-saver` that will download the lower quality images (off by default)
 - `down --data-saver true|false` flag that overwrites the data saver setting in the config file
+- `down --language` and `update --language` arguments that allow to overwrite the config language setting
 
 ### Fixes
 - Mangadex no longer says that there's been an error when no chapters found matching the criteria but just prints that none were found

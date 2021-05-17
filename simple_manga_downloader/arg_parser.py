@@ -74,6 +74,9 @@ def parse_arguments():
                              help="Toggle the Mangadex data saver option. Takes priority over config file.",
                              choices=["true", "false"],
                              dest="data_saver")
+    parser_down.add_argument("--language",
+                             help="Overwrite the Mangadex language setting",
+                             dest="langauge_code")
     input_group_down = parser_down.add_mutually_exclusive_group()
     input_group_down.add_argument("-c", "--check",
                                   help=("Only check for new chapters "
@@ -209,6 +212,9 @@ def parse_arguments():
                                metavar="PATH/TO/DIRECTORY",
                                default=None,
                                help="Custom path for manga download")
+    parser_update.add_argument("--language",
+                               help="Overwrite the Mangadex language setting",
+                               dest="langauge_code")
 
     # Version options
     parser_version.add_argument("-c", "--check",

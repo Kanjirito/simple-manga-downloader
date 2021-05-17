@@ -74,6 +74,12 @@ SMD down manga_url --data-saver true
 SMD down manga_url --data-saver false
 ```
 
+Overwrite the config file language setting (has to be a valid code or it will not proceed):
+```
+SMD down manga_url --language en
+SMD down manga_url --language es
+```
+
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter. If a manga is tracked the downloader will use the saved name even if the title on the page changes.
 
