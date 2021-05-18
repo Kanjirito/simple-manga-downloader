@@ -215,6 +215,10 @@ def parse_arguments():
     parser_update.add_argument("--language",
                                help="Overwrite the Mangadex language setting",
                                dest="langauge_code")
+    parser_update.add_argument("--data-saver",
+                               help="Toggle the Mangadex data saver option. Takes priority over config file.",
+                               choices=["true", "false"],
+                               dest="data_saver")
 
     # Version options
     parser_version.add_argument("-c", "--check",

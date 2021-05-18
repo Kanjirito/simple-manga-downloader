@@ -68,13 +68,16 @@ SMD down manga_url -c
 SMD down manga_url --check
 ```
 
-Ignore the data saver config setting for this download (Mangadex only):
+**Warning:**
+*Using `-c/--check` or `-i/--ignore-input` with manga that resets chapter numbers for each Volume/Season might cause unexpected behaviour.*
+
+Overwrite the data saver config setting for this run (Mangadex only):
 ```
 SMD down manga_url --data-saver true
 SMD down manga_url --data-saver false
 ```
 
-Overwrite the config file language setting (has to be a valid code or it will not proceed):
+Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):
 ```
 SMD down manga_url --language en
 SMD down manga_url --language es
@@ -107,6 +110,18 @@ SMD update --ignore-input
 
 **Warning:**
 *Using `-c/--check` or `-i/--ignore-input` with manga that resets chapter numbers for each Volume/Season might cause unexpected behaviour.*
+
+Overwrite the data saver config setting for this run (Mangadex only):
+```
+SMD down manga_url --data-saver true
+SMD down manga_url --data-saver false
+```
+
+Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):
+```
+SMD down manga_url --language en
+SMD down manga_url --language es
+```
 
 ## Config mode
 This mode allows the modification of the config file.

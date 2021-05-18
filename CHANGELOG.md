@@ -12,7 +12,7 @@
 
 ### New
 - Data saving setting `conf --data-saver` that will download the lower quality images (off by default)
-- `down --data-saver true|false` flag that overwrites the data saver setting in the config file
+- `--data-saver true|false` flag for `down` and `update` that overwrites the data saver setting in the config file
 - `down --language` and `update --language` arguments that allow to overwrite the config language setting
 
 ### Fixes
