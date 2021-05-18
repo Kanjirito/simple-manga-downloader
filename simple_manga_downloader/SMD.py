@@ -18,11 +18,9 @@ def main():
     ARGS = parse_arguments()
     CONFIG = Config(ARGS.custom_cfg)
     if not CONFIG:
-        print("Loading config failed")
+        print("\nLoading config failed")
         return 1
     utils.REPLACEMENT_RULES = CONFIG.replacement_rules
-    modules.set_mangadex_language(CONFIG.lang_code)
-    modules.set_md_at_home(CONFIG.md_at_home)
 
     try:
         mode = ARGS.subparser_name
@@ -173,8 +171,8 @@ def conf_mode():
         CONFIG.list_lang()
     if ARGS.timeout is not None:
         CONFIG.change_timeout(ARGS.timeout)
-    if ARGS.md_at_home:
-        CONFIG.toogle_md_at_home()
+    if ARGS.data_saver:
+        CONFIG.toogle_data_saver()
     if ARGS.replacement_reset:
         CONFIG.reset_replacement_rules()
     if ARGS.rule_add:
@@ -189,6 +187,14 @@ def conf_mode():
 
 def main_pipeline(links):
     """Takes a list of manga links and does all of the required stuff"""
+
+    if ARGS.langauge_code is not None:
+        if CONFIG.check_language_code(ARGS.langauge_code):
+            modules.set_mangadex_language(ARGS.langauge_code)
+        else:
+            return
+    else:
+        modules.set_mangadex_language(CONFIG.lang_code)
 
     if not links:
         print("\nNo manga to download!")
@@ -206,6 +212,13 @@ def main_pipeline(links):
 
     if ARGS.check_only or ARGS.ignore_input:
         modules.toggle_check_only()
+
+    if ARGS.data_saver is None:
+        modules.set_data_saver(CONFIG.data_saver)
+    elif ARGS.data_saver == "true":
+        modules.set_data_saver(True)
+    else:
+        modules.set_data_saver(False)
 
     ready = []
     total_num_ch = 0
@@ -280,10 +293,10 @@ def handle_manga(Manga):
     filter_wanted(Manga)
 
     if not Manga.chapters:
-        print("Found 0 wanted chapters")
+        print("Found 0 matching chapters")
         return False
 
-    message2 = f"Getting info about {len(Manga)} wanted chapter(s)"
+    message2 = f"Getting info about {len(Manga)} matching chapter(s)"
     line_break2 = make_line(message2)
     print(f"{message2}\n{line_break2}")
     return chapter_info_get(Manga)

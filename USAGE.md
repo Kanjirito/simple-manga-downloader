@@ -68,6 +68,21 @@ SMD down manga_url -c
 SMD down manga_url --check
 ```
 
+**Warning:**
+*Using `-c/--check` or `-i/--ignore-input` with manga that resets chapter numbers for each Volume/Season might cause unexpected behaviour.*
+
+Overwrite the data saver config setting for this run (Mangadex only):
+```
+SMD down manga_url --data-saver true
+SMD down manga_url --data-saver false
+```
+
+Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):
+```
+SMD down manga_url --language en
+SMD down manga_url --language es
+```
+
 ## Update mode
 This mode will go over every manga tracked in the config and download every missing chapter. If a manga is tracked the downloader will use the saved name even if the title on the page changes.
 
@@ -96,6 +111,18 @@ SMD update --ignore-input
 **Warning:**
 *Using `-c/--check` or `-i/--ignore-input` with manga that resets chapter numbers for each Volume/Season might cause unexpected behaviour.*
 
+Overwrite the data saver config setting for this run (Mangadex only):
+```
+SMD down manga_url --data-saver true
+SMD down manga_url --data-saver false
+```
+
+Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):
+```
+SMD down manga_url --language en
+SMD down manga_url --language es
+```
+
 ## Config mode
 This mode allows the modification of the config file.
 
@@ -104,9 +131,9 @@ Changing the mangadex language:
 SMD conf --change-lang code
 ```
 
-Toggle if the downloader should use MD@Home (should be kept on unless it causes problems):
+Toggle if the downloader should get the lower quality images (off by default):
 ```
-SMD conf --home
+SMD conf --data-saver
 ```
 
 Listing available language codes:

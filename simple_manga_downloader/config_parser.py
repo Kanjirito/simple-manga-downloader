@@ -17,45 +17,48 @@ DEFAULT_REPLACEMENT_RULES = {
 }
 
 LANG_CODES = {
-    "sa": "Arabic",
-    "bd": "Bengali",
+    "ar": "Arabic",
+    "bn": "Bengali",
     "bg": "Bulgarian",
-    "mm": "Burmese",
-    "ct": "Catalan",
-    "cn": "Chinese (Simple)",
-    "hk": "Chinese (Traditional)",
-    "cz": "Czech",
-    "dk": "Danish",
+    "my": "Burmese",
+    "ca": "Catalan",
+    "zh": "Chinese (Simplified)",
+    "zh-hk": "Chinese (Traditional)",
+    "cs": "Czech",
+    "da": "Danish",
     "nl": "Dutch",
-    "gb": "English",
-    "ph": "Filipino",
+    "en": "English",
+    "tl": "Filipino",
     "fi": "Finnish",
     "fr": "French",
     "de": "German",
-    "gr": "Greek",
-    "il": "Hebrew",
+    "el": "Greek",
+    "he": "Hebrew",
+    "hi": "Hindi",
     "hu": "Hungarian",
     "id": "Indonesian",
     "it": "Italian",
-    "jp": "Japanese",
-    "kr": "Korean",
+    "ja": "Japanese",
+    "ko": "Korean",
     "lt": "Lithuanian",
-    "my": "Malay",
+    "ms": "Malay",
     "mn": "Mongolian",
-    "ir": "Persian",
+    "no": "Norwegian",
+    "NULL": "Other (Some releases have no language specified)",
+    "fa": "Persian",
     "pl": "Polish",
-    "br": "Portuguese (Brazil)",
+    "pt-br": "Portuguese (Brazil)",
     "pt": "Portuguese (Portugal)",
     "ro": "Romanian",
     "ru": "Russian",
-    "rs": "Serbo-Croatian",
+    "sh": "Serbo-Croatian",
     "es": "Spanish (Spain)",
-    "mx": "Spanish (Latin America)",
-    "se": "Swedish",
+    "es-la": "Spanish (Latin America)",
+    "sv": "Swedish",
     "th": "Thai",
     "tr": "Turkish",
-    "ua": "Ukrainian",
-    "vn": "Vietnamese",
+    "uk": "Ukrainian",
+    "vi": "Vietnamese",
 }
 
 
@@ -103,9 +106,9 @@ class Config():
             print("Covers setting is invalid, should be true or false")
             return
 
-        self.lang_code = config.get("lang_code", "gb").lower()
-        if self.lang_code not in LANG_CODES:
-            print("!!Warning!!\nLanguage code setting is not valid")
+        self.lang_code = config.get("lang_code", "en").lower()
+        if not self.check_language_code(self.lang_code):
+            return
 
         try:
             self.download_timeout = int(config.get("page_download_timeout", 5))
@@ -119,12 +122,12 @@ class Config():
         self.replacement_rules = config.get("character_replacement_rules",
                                             DEFAULT_REPLACEMENT_RULES)
         if not isinstance(self.replacement_rules, dict):
-            print("Replacement rules are invalid, should be dict")
+            print("Replacement rules are invalid, should be dictionary (Key: value)")
             return
 
-        self.md_at_home = config.get("MD@Home", True)
-        if not isinstance(self.md_at_home, bool):
-            print("MD@Home setting is invalid, should be true or false")
+        self.data_saver = config.get("data_saver", False)
+        if not isinstance(self.data_saver, bool):
+            print("Data saver setting is invalid, should be true or false")
             return
 
         self.status = True
@@ -216,9 +219,10 @@ class Config():
             self.manga_directory = self.home / "Manga"
             self.tracked_manga = {}
             self.covers = False
-            self.lang_code = "gb"
+            self.lang_code = "en"
             self.download_timeout = 5
             self.replacement_rules = DEFAULT_REPLACEMENT_RULES
+            self.data_saver = False
             print("Config was reset")
 
     def change_position(self, verbose):
@@ -298,13 +302,13 @@ class Config():
             self.covers = True
             print("Cover download turned on!")
 
-    def toogle_md_at_home(self):
-        if self.md_at_home:
-            self.md_at_home = False
-            print("MD@Home turned off")
+    def toogle_data_saver(self):
+        if self.data_saver:
+            self.data_saver = False
+            print("Data saver turned off")
         else:
-            self.md_at_home = True
-            print("MD@Home turned on")
+            self.data_saver = True
+            print("Data saver turned on")
 
     def print_config(self):
         print("\nConfig path:")
@@ -317,8 +321,8 @@ class Config():
         print(self.lang_code)
         print("\nPage download timeout (s):")
         print(self.download_timeout)
-        print("\nMD@Home:")
-        print(self.md_at_home)
+        print("\nData saver:")
+        print(self.data_saver)
         self.print_replacement_rules()
         print()
 
@@ -326,15 +330,24 @@ class Config():
         new_code = code.lower()
         cur_code = self.lang_code.lower()
         if new_code != cur_code:
-            if new_code in LANG_CODES:
+            if self.check_language_code(new_code):
                 self.lang_code = code
                 code_desc = LANG_CODES[new_code]
                 print(f"Language changed to \"{new_code}\" - {code_desc}")
-            else:
-                print(f"Invalid language code: \"{new_code}\"")
-                print("Use \"SMD conf --list_lang\" to list available codes")
         else:
             print(f"\"{new_code}\" already set as current language")
+
+    @staticmethod
+    def check_language_code(code):
+        """
+        Checks if the given language code is a valid, returns bool
+        """
+        if code in LANG_CODES:
+            return True
+        else:
+            print(f"Invalid language code: \"{code}\"")
+            print("Use \"SMD conf --list_lang\" to list available codes")
+            return False
 
     def list_lang(self):
         """
@@ -360,7 +373,7 @@ class Config():
                   "covers": self.covers,
                   "lang_code": self.lang_code,
                   "page_download_timeout": self.download_timeout,
-                  "MD@Home": self.md_at_home,
+                  "data_saver": self.data_saver,
                   "character_replacement_rules": self.replacement_rules,
                   "tracking": self.tracked_manga}
         try:

@@ -22,6 +22,7 @@ Additional features of the downloader:
 
 - It will check if a chapter on mangadex.org has multiple uploads by different groups and ask which one to download
 - It handles the MangaPlus chapters on mangadex
+- Allows to use data saver images from Mangadex
 - It can download the cover(s) for the manga (off by default)
 - You can specify the language (mangadex only)
 - You can specify which chapters to exclude from the download

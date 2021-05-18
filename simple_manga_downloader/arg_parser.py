@@ -70,6 +70,13 @@ def parse_arguments():
                              help=("Download the manga with a custom name. "
                                    "Not recommended to use with multiple "
                                    "downloads at once."))
+    parser_down.add_argument("--data-saver",
+                             help="Toggle the Mangadex data saver option. Takes priority over config file.",
+                             choices=["true", "false"],
+                             dest="data_saver")
+    parser_down.add_argument("--language",
+                             help="Overwrite the Mangadex language setting",
+                             dest="langauge_code")
     input_group_down = parser_down.add_mutually_exclusive_group()
     input_group_down.add_argument("-c", "--check",
                                   help=("Only check for new chapters "
@@ -97,7 +104,7 @@ def parse_arguments():
                                  type=float)
     selection_group.add_argument("-l", "--latest",
                                  help="Download only the latest chapter",
-                                 action='store_true')
+                                 action="store_true")
 
     # Parser for config mode
     tracked_edit_group = parser_conf.add_mutually_exclusive_group()
@@ -173,10 +180,10 @@ def parse_arguments():
                              help="Prints the current replacement rules",
                              action="store_true",
                              dest="rule_print")
-    parser_conf.add_argument("--home",
-                             help="Toggles the MD@Home setting",
+    parser_conf.add_argument("--data-saver",
+                             help="Toggles the date saving setting",
                              action="store_true",
-                             dest="md_at_home")
+                             dest="data_saver")
     replacement_rules_group = parser_conf.add_mutually_exclusive_group()
     replacement_rules_group.add_argument("--rule-add",
                                          help="Adds a new replacement rule for a character",
@@ -205,6 +212,13 @@ def parse_arguments():
                                metavar="PATH/TO/DIRECTORY",
                                default=None,
                                help="Custom path for manga download")
+    parser_update.add_argument("--language",
+                               help="Overwrite the Mangadex language setting",
+                               dest="langauge_code")
+    parser_update.add_argument("--data-saver",
+                               help="Toggle the Mangadex data saver option. Takes priority over config file.",
+                               choices=["true", "false"],
+                               dest="data_saver")
 
     # Version options
     parser_version.add_argument("-c", "--check",

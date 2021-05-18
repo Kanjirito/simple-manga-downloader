@@ -1,5 +1,23 @@
 # Release History
 
+## Pre-release
+
+### Changes
+- Migrated to the new Mangadex API
+- Slight output changes
+- Downloader will now exit with status code 1 if config has a invalid language code
+
+### Removed
+- MD@Home setting
+
+### New
+- Data saving setting `conf --data-saver` that will download the lower quality images (off by default)
+- `--data-saver true|false` flag for `down` and `update` that overwrites the data saver setting in the config file
+- `down --language` and `update --language` arguments that allow to overwrite the config language setting
+
+### Fixes
+- Mangadex no longer says that there's been an error when no chapters found matching the criteria but just prints that none were found
+
 ## v1.12.0(2021-01-20)
 
 ### New
