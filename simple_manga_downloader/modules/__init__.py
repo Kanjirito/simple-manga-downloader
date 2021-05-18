@@ -22,7 +22,7 @@ def set_mangadex_language(lang_code):
 
 
 def set_data_saver(flag):
-    """Sets the MD@Home setting"""
+    """Sets the data saver setting"""
     Mangadex.data_saver = flag
 
 
