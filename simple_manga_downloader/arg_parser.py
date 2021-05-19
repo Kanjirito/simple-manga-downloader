@@ -73,7 +73,8 @@ def parse_arguments():
                                    "downloads at once."))
     parser_down.add_argument("--data-saver",
                              help="Toggle the Mangadex data saver option. Takes priority over config file.",
-                             choices=["true", "false"],
+                             choices=["y", "yes", "n", "no"],
+                             metavar=r"{yes(y),no(n)}",
                              dest="data_saver")
     parser_down.add_argument("--language",
                              help="Overwrite the Mangadex language setting",
@@ -218,7 +219,8 @@ def parse_arguments():
                                dest="langauge_code")
     parser_update.add_argument("--data-saver",
                                help="Toggle the Mangadex data saver option. Takes priority over config file.",
-                               choices=["true", "false"],
+                               choices=["y", "yes", "n", "no"],
+                               metavar=r"{yes(y),no(n)}",
                                dest="data_saver")
 
     # Version options

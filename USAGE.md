@@ -73,8 +73,10 @@ SMD down manga_url --check
 
 Overwrite the data saver config setting for this run (Mangadex only):
 ```
-SMD down manga_url --data-saver true
-SMD down manga_url --data-saver false
+SMD down manga_url --data-saver yes
+SMD down manga_url --data-saver y
+SMD down manga_url --data-saver no
+SMD down manga_url --data-saver n
 ```
 
 Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):

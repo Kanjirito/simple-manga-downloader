@@ -215,7 +215,7 @@ def main_pipeline(links):
 
     if ARGS.data_saver is None:
         modules.set_data_saver(CONFIG.data_saver)
-    elif ARGS.data_saver == "true":
+    elif ARGS.data_saver == "y" or ARGS.data_saver == "yes":
         modules.set_data_saver(True)
     else:
         modules.set_data_saver(False)

@@ -7,9 +7,9 @@ import time
 from requests.packages.urllib3.util.retry import Retry
 
 
-class BaseLimiter(requests.adapters.HTTPAdapter):
+class Limiter(requests.adapters.HTTPAdapter):
     """
-    Base rate-limiting HTTAdapter
+    Rate-limiting HTTAdapter
 
     Only retries on 429 status code and ignores everything else
     limit = amount of retries
@@ -24,16 +24,7 @@ class BaseLimiter(requests.adapters.HTTPAdapter):
         super().__init__(max_retries=r, **kwargs)
 
 
-class MDatHomeServerLimiter(BaseLimiter):
-    """
-    Deals with the /at-home/server/ rate limits.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(6, 1, **kwargs)
-
-
-class Limiter(requests.adapters.HTTPAdapter):
+class ReporterLimiter(requests.adapters.HTTPAdapter):
     """
     A request limiter that sends reports on image download
 
@@ -75,9 +66,8 @@ class Mangadex(BaseManga):
     base_link = "https://api.mangadex.org"
     lang_code = "en"
     session = requests.Session()
-    session.mount("https://", Limiter(session))
-    session.mount("https://api.mangadex.org/at-home/server/",
-                  MDatHomeServerLimiter())
+    session.mount("https://", ReporterLimiter(session))
+    session.mount("https://api.mangadex.org/at-home/server/", Limiter(6, 1))
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
     data_saver = False
     scanlation_cache = {}
