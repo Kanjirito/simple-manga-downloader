@@ -30,8 +30,9 @@ def parse_arguments():
 
     # Sub-parsers for the different modes
     subparsers = parser.add_subparsers(dest="subparser_name",
-                                       metavar="mode",
-                                       required=True)
+                                       metavar="mode")
+    # Has to be this way for python 3.6 support
+    subparsers.required = True
     parser_conf = subparsers.add_parser("conf",
                                         help="Downloader will be in config edit mode",
                                         description="Changes the settings")

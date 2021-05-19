@@ -17,6 +17,7 @@
 
 ### Fixes
 - Mangadex no longer says that there's been an error when no chapters found matching the criteria but just prints that none were found
+- Crash on python 3.6 because of unsupported `required` keyword argument in `add_subparsers`
 
 ## v1.12.0(2021-01-20)
 
