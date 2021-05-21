@@ -1,5 +1,7 @@
-check: black-check line flake line
+check: black-check isort-check flake
 	@echo -e "\nEverything is fine"
+
+format: black-format isort-format
 
 black-format:
 	black .
@@ -7,11 +9,14 @@ black-format:
 black-check:
 	black . --check
 
+isort-check:
+	isort . -c
+
+isort-format:
+	isort .
+
 flake:
 	flake8 .
-
-line:
-	@echo ""
 
 requirements:
 	pipenv lock -r > requirements.txt

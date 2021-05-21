@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+
 from .modules.manga import BaseManga
 from .utils import ask_confirmation, ask_number, clean_up_string
 

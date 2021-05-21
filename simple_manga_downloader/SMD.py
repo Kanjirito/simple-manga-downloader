@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-from . import modules
-from .config_parser import Config
-from .arg_parser import parse_arguments
-from . import __version__
-from . import utils
-from pathlib import Path
-import shutil
 import imghdr
-import time
-import requests
+import shutil
 import sys
+import time
+from pathlib import Path
+
+import requests
+
+from . import __version__, modules, utils
+from .arg_parser import parse_arguments
+from .config_parser import Config
 
 
 def main():

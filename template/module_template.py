@@ -1,8 +1,10 @@
+import re
+
 import requests
 from bs4 import BeautifulSoup
-from ..utils import request_exception_handler, clean_up_string
+
+from ..utils import clean_up_string, request_exception_handler
 from .manga import BaseManga
-import re
 
 
 class MangaPageName(BaseManga):

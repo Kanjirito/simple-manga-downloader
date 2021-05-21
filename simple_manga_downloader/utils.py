@@ -1,8 +1,8 @@
-import requests
 import time
 from functools import wraps
 from html import unescape
 
+import requests
 
 REPLACEMENT_RULES = None
 

@@ -10,3 +10,7 @@ extend-exclude = '''
     template/
 )
 '''
+
+[tool.isort]
+profile = "black"
+

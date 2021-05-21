@@ -1,10 +1,12 @@
-import requests
 import html
 import re
-from ..utils import request_exception_handler, clean_up_string
-from .manga import BaseManga
 import time
+
+import requests
 from requests.packages.urllib3.util.retry import Retry
+
+from ..utils import clean_up_string, request_exception_handler
+from .manga import BaseManga
 
 
 class Limiter(requests.adapters.HTTPAdapter):

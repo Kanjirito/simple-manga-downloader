@@ -7,6 +7,7 @@ verify_ssl = true
 simple-manga-downloader = {editable = true,path = "."}
 black = "==21.5b1"
 flake8 = "*"
+isort = "*"
 
 [packages]
 beautifulsoup4 = "~=4.9"
