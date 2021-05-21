@@ -62,14 +62,16 @@ LANG_CODES = {
 }
 
 
-class Config():
+class Config:
     def __init__(self, custom_conf):
         self.status = False
         self.home = Path.home()
         if custom_conf:
             self.config_path = Path(custom_conf).resolve()
         elif os.getenv("XDG_CONFIG_HOME"):
-            self.config_path = Path(os.getenv("XDG_CONFIG_HOME")) / "SMD" / "SMD_conf.json"
+            self.config_path = (
+                Path(os.getenv("XDG_CONFIG_HOME")) / "SMD" / "SMD_conf.json"
+            )
         else:
             self.config_path = self.home / ".config" / "SMD" / "SMD_conf.json"
 
@@ -88,14 +90,16 @@ class Config():
                     config = json.load(f)
             except json.decoder.JSONDecodeError as e:
                 print("\nConfig is invalid JSON. Fix or remove it.")
-                print(f"\"{e}\"")
-                print(f"Config located at: \"{self.config_path}\"")
+                print(f'"{e}"')
+                print(f'Config located at: "{self.config_path}"')
                 return
         else:
             config = {}
 
         default_dir = self.home / "Manga"
-        self.manga_directory = Path(config.get("manga_directory", default_dir)).resolve()
+        self.manga_directory = Path(
+            config.get("manga_directory", default_dir)
+        ).resolve()
         self.tracked_manga = config.get("tracking", {})
         if not isinstance(self.tracked_manga, dict):
             print("Tracked manga is invalid, should be dict")
@@ -119,8 +123,9 @@ class Config():
             print("Timeout setting is invalid, can't be less than 1")
             return
 
-        self.replacement_rules = config.get("character_replacement_rules",
-                                            DEFAULT_REPLACEMENT_RULES)
+        self.replacement_rules = config.get(
+            "character_replacement_rules", DEFAULT_REPLACEMENT_RULES
+        )
         if not isinstance(self.replacement_rules, dict):
             print("Replacement rules are invalid, should be dictionary (Key: value)")
             return
@@ -141,9 +146,9 @@ class Config():
 
         if tracked:
             if message != current_title:
-                print(f"Already tracking \"{current_title}\" as \"{message}\"")
+                print(f'Already tracking "{current_title}" as "{message}"')
             else:
-                print(f"Already tracking  \"{current_title}\"")
+                print(f'Already tracking  "{current_title}"')
         else:
             self.tracked_manga[current_title] = manga_link
             print(f"Added to tracked:  {current_title}")
@@ -190,22 +195,22 @@ class Config():
                 if to_check in value:
                     return (True, key)
             else:
-                return (False, f"Link not tracked: \"{to_check}\"")
+                return (False, f'Link not tracked: "{to_check}"')
         else:
             try:
                 index = int(to_check)
                 if 0 < index <= len(self.tracked_manga):
                     return (True, list(self.tracked_manga)[index - 1])
                 else:
-                    return (False, f"Index out of range: \"{index}\"")
+                    return (False, f'Index out of range: "{index}"')
             except ValueError:
-                return (False, f"Not a tracked index, link or title: \"{to_check}\"")
+                return (False, f'Not a tracked index, link or title: "{to_check}"')
 
     def change_dir(self, dire):
         """Changes the manga download directory"""
         path = Path(dire).resolve()
         self.manga_directory = path
-        print(f"Manga download directory changed to : \"{path}\"")
+        print(f'Manga download directory changed to : "{path}"')
 
     def clear_tracked(self):
         """Clears the tracked shows"""
@@ -215,7 +220,9 @@ class Config():
 
     def reset_config(self):
         """Resets the config to the defaults"""
-        if ask_confirmation("Are you sure you want to reset the config file to the defaults?"):
+        if ask_confirmation(
+            "Are you sure you want to reset the config file to the defaults?"
+        ):
             self.manga_directory = self.home / "Manga"
             self.tracked_manga = {}
             self.covers = False
@@ -231,14 +238,16 @@ class Config():
             return
         self.list_tracked(verbose)
 
-        select = ask_number("Which manga do you want to move?",
-                            min_=1, max_=len(self.tracked_manga))
+        select = ask_number(
+            "Which manga do you want to move?", min_=1, max_=len(self.tracked_manga)
+        )
         if select:
             select -= 1
         else:
             return
-        move_index = ask_number("Where do you want to move it?",
-                                min_=1, max_=len(self.tracked_manga))
+        move_index = ask_number(
+            "Where do you want to move it?", min_=1, max_=len(self.tracked_manga)
+        )
         if move_index:
             move_index -= 1
         else:
@@ -249,7 +258,7 @@ class Config():
         keys.insert(move_index, get)
         self.tracked_manga = {k: self.tracked_manga[k] for k in keys}
 
-        print(f"Entry \"{get}\" moved to position {move_index + 1}")
+        print(f'Entry "{get}" moved to position {move_index + 1}')
 
     def change_manga_title(self, verbose):
         if not self.tracked_manga:
@@ -257,8 +266,9 @@ class Config():
             return None
 
         self.list_tracked(verbose)
-        to_rename = ask_number("Which manga do you want to rename?",
-                               min_=1, max_=len(self.tracked_manga))
+        to_rename = ask_number(
+            "Which manga do you want to rename?", min_=1, max_=len(self.tracked_manga)
+        )
         if to_rename:
             to_rename -= 1
         else:
@@ -279,7 +289,7 @@ class Config():
                 new_tracked_dict[key] = value
 
         self.tracked_manga = new_tracked_dict
-        print(f"Manga \"{old_name}\" was renamed to \"{new_name}\"\n")
+        print(f'Manga "{old_name}" was renamed to "{new_name}"\n')
         return (old_name, new_name)
 
     def list_tracked(self, verbose):
@@ -333,9 +343,9 @@ class Config():
             if self.check_language_code(new_code):
                 self.lang_code = code
                 code_desc = LANG_CODES[new_code]
-                print(f"Language changed to \"{new_code}\" - {code_desc}")
+                print(f'Language changed to "{new_code}" - {code_desc}')
         else:
-            print(f"\"{new_code}\" already set as current language")
+            print(f'"{new_code}" already set as current language')
 
     @staticmethod
     def check_language_code(code):
@@ -345,8 +355,8 @@ class Config():
         if code in LANG_CODES:
             return True
         else:
-            print(f"Invalid language code: \"{code}\"")
-            print("Use \"SMD conf --list_lang\" to list available codes")
+            print(f'Invalid language code: "{code}"')
+            print('Use "SMD conf --list_lang" to list available codes')
             return False
 
     def list_lang(self):
@@ -355,7 +365,7 @@ class Config():
         """
         print("Available language codes:")
         for code, desc in LANG_CODES.items():
-            print(f"\"{code}\" - {desc}")
+            print(f'"{code}" - {desc}')
 
     def change_timeout(self, seconds):
         """
@@ -369,13 +379,15 @@ class Config():
         print(f"Timeout changed to {seconds} seconds!")
 
     def save_config(self):
-        config = {"manga_directory": str(self.manga_directory),
-                  "covers": self.covers,
-                  "lang_code": self.lang_code,
-                  "page_download_timeout": self.download_timeout,
-                  "data_saver": self.data_saver,
-                  "character_replacement_rules": self.replacement_rules,
-                  "tracking": self.tracked_manga}
+        config = {
+            "manga_directory": str(self.manga_directory),
+            "covers": self.covers,
+            "lang_code": self.lang_code,
+            "page_download_timeout": self.download_timeout,
+            "data_saver": self.data_saver,
+            "character_replacement_rules": self.replacement_rules,
+            "tracking": self.tracked_manga,
+        }
         try:
             self.config_path.parent.mkdir(parents=True, exist_ok=True)
         except FileExistsError:
@@ -394,7 +406,7 @@ class Config():
     def print_replacement_rules(self):
         print("\nCharacter replacement rules:")
         for char, rule in self.replacement_rules.items():
-            print(f"\"{char}\" -> \"{rule}\"")
+            print(f'"{char}" -> "{rule}"')
 
     def add_replacemnt_rule(self, args):
         """Sets replacement rule for character"""
@@ -408,21 +420,23 @@ class Config():
             print("Can only set rules for single characters")
         else:
             if char in self.replacement_rules:
-                confirm = ask_confirmation(f"Character \"{char}\" is already replaced with \"{self.replacement_rules[char]}\", "
-                                           f"overwrite with \"{replacement}\"?")
+                confirm = ask_confirmation(
+                    f'Character "{char}" is already replaced with "{self.replacement_rules[char]}", '
+                    f'overwrite with "{replacement}"?'
+                )
                 if confirm:
                     self.replacement_rules[char] = replacement
-                    print(f"Replacement for \"{char}\" set as: \"{replacement}\"")
+                    print(f'Replacement for "{char}" set as: "{replacement}"')
                 else:
                     print("Aborting")
             else:
                 self.replacement_rules[char] = replacement
-                print(f"Replacement for \"{char}\" set as: \"{replacement}\"")
+                print(f'Replacement for "{char}" set as: "{replacement}"')
 
     def remove_replacemnt_rule(self, char):
         """Removes a replacement rule for character"""
         if char in self.replacement_rules:
             del self.replacement_rules[char]
-            print(f"Rule for \"{char}\" removed")
+            print(f'Rule for "{char}" removed')
         else:
-            print(f"No rule for \"{char}\"")
+            print(f'No rule for "{char}"')

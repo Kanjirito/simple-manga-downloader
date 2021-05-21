@@ -26,6 +26,7 @@ def limiter(seconds):
     """
     Limits the decorated func to be called after given amount of seconds
     """
+
     def middle(func):
 
         last_called = 0
@@ -43,7 +44,9 @@ def limiter(seconds):
 
             last_called = time.time()
             return result
+
         return wrapper
+
     return middle
 
 
@@ -52,6 +55,7 @@ def request_exception_handler(func):
     Decorator that handles any request exceptions
     Returns True func result if nothing failed otherwise a error string
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -81,8 +85,9 @@ def ask_confirmation(text, accepted=None):
     if accepted is None:
         accepted = "y"
     print(text)
-    confirm = input(f"[{accepted} to confirm/anything else to cancel]: "
-                    ).lower().strip()
+    confirm = (
+        input(f"[{accepted} to confirm/anything else to cancel]: ").lower().strip()
+    )
     if confirm == accepted:
         return True
     else:

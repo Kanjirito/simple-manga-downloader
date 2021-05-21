@@ -1,5 +1,6 @@
 """The module that handles importing the manga modules and changing their attributes."""
 from .manga import BaseManga
+
 # Modules need to be imported so they get registered, order matters
 from .mangadex_org import Mangadex
 from .mangakakalot_com import Mangakakalot  # noqa: F401

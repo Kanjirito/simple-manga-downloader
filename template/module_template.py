@@ -59,8 +59,10 @@ class MangaPageName(BaseManga):
                 else:
                     num = inp
 
-            self.chapters[num] = {"link": link,
-                                  "title": None}
+            self.chapters[num] = {
+                "link": link,
+                "title": None
+            }
         return True
 
     @request_exception_handler

@@ -61,7 +61,7 @@ def site_detect(link, tracked_allow=True):
     if matched:
         return matched
     else:
-        msg = f"Wrong link: \"{link}\""
+        msg = f'Wrong link: "{link}"'
         line = make_line(msg)
         print(line)
         print(msg)
@@ -79,15 +79,21 @@ def get_cover(Manga):
     except FileNotFoundError:
         files = set()
 
-    to_download = {filename: url for filename, url in Manga.cover_url.items()
-                   if filename not in files}
+    to_download = {
+        filename: url
+        for filename, url in Manga.cover_url.items()
+        if filename not in files
+    }
     if to_download:
         Manga.manga_dir.mkdir(parents=True, exist_ok=True)
     else:
         return
-
-    print("--------------\n"
-          "Getting covers")
+    # fmt: off
+    print(
+        "--------------\n"
+        "Getting covers"
+    )
+    # fmt: on
     successful = 0
     for filename, url in to_download.items():
         no_ext = Manga.manga_dir / filename
@@ -96,12 +102,12 @@ def get_cover(Manga):
             successful += 1
         else:
             print(status)
-    print(f"\nGot {successful} cover(s)\n"
-          "--------------\n")
+    print(f"\nGot {successful} cover(s)\n--------------\n")
 
 
 def version_mode():
-    """Version mode of the downloader """
+    """Version mode of the downloader"""
+
     print(f"SMD (simple-manga-downloader) v{__version__}")
 
     if ARGS.version_check:
@@ -200,9 +206,11 @@ def main_pipeline(links):
         print("\nNo manga to download!")
         return
 
-    print("\n------------------------\n"
-          f"    Getting {len(links)} manga"
-          "\n------------------------")
+    print(
+        "\n------------------------\n"
+        f"    Getting {len(links)} manga"
+        "\n------------------------"
+    )
 
     if ARGS.custom_down_dire:
         path = Path(ARGS.custom_down_dire).resolve()
@@ -236,16 +244,18 @@ def main_pipeline(links):
             for ch in Manga.chapters:
                 title = Manga.chapters[ch]["title"]
                 if title:
-                    save_text = f"{ch} - \"{title}\""
+                    save_text = f'{ch} - "{title}"'
                 else:
                     save_text = f"{ch}"
                 chapter_list.append(save_text)
             found_titles[Manga.series_title] = chapter_list
         else:
             continue
-    print("\n-----------------------------\n"
-          "All manga checking complete!"
-          "\n-----------------------------\n")
+    print(
+        "\n-----------------------------\n"
+        "All manga checking complete!"
+        "\n-----------------------------\n"
+    )
     if not total_num_ch:
         print("Found 0 chapters ready to download.")
         return
@@ -278,11 +288,16 @@ def handle_manga(Manga):
     """
     main_status = Manga.get_main()
     if main_status is not True:
-        print("\nSomething went wrong!"
-              f"\n{main_status}\n{Manga.manga_link}")
+        # fmt: off
+        print(
+            "\nSomething went wrong!\n"
+            f"{main_status}\n"
+            f"{Manga.manga_link}"
+        )
+        # fmt: on
         return False
 
-    message = f"Checking \"{Manga.series_title}\""
+    message = f'Checking "{Manga.series_title}"'
     line_break = make_line(message)
     print(f"\n{line_break}\n{message}\n{line_break}\n")
 
@@ -356,8 +371,9 @@ def filter_downloaded(manga_dir, wanted):
         filtered = list(wanted)
     else:
         filtered = []
-        directory_contents = {item.name for item in manga_dir.iterdir()
-                              if item.is_dir()}
+        directory_contents = {
+            item.name for item in manga_dir.iterdir() if item.is_dir()
+        }
         for n in wanted:
             chapter_name = f"Chapter {n}"
             if chapter_name not in directory_contents:
@@ -397,7 +413,7 @@ def downloader(manga_objects):
 
             title = Manga.chapters[ch]["title"]
             if title:
-                to_app = f"    Chapter {ch} - \"{title}\""
+                to_app = f'    Chapter {ch} - "{title}"'
             else:
                 to_app = f"    Chapter {ch}"
             if status[1]:
@@ -418,8 +434,7 @@ def download_image(link, session, no_ext):
     Download function, gets the image from the link, limited by wrapper
     no_ext = save target Path object with no file extension
     """
-    content = session.get(link, stream=True,
-                          timeout=CONFIG.download_timeout)
+    content = session.get(link, stream=True, timeout=CONFIG.download_timeout)
 
     content.raise_for_status()
     file_type = imghdr.what("", h=content.content)
@@ -473,16 +488,17 @@ def get_chapter(Manga, num):
     failed = False
     title = Manga.series_title
     chapter_name = f"Chapter {num}"
-    print(f"\nDownloading {title} - {chapter_name}"
-          "\n------------------------")
-
+    # fmt: off
+    print(
+        f"\nDownloading {title} - {chapter_name}"
+        "\n------------------------"
+    )
+    # fmt: on
     ch_dir = Manga.manga_dir / chapter_name
     ch_dir.mkdir()
 
     try:
-        name_gen = page_name_gen(title,
-                                 Manga.chapters[num],
-                                 chapter_name)
+        name_gen = page_name_gen(title, Manga.chapters[num], chapter_name)
         for page_name, link in name_gen:
             no_ext = ch_dir / page_name
             image = download_image(link, Manga.session, no_ext)
@@ -528,7 +544,8 @@ def rename_old_files(old_title, new_title):
         confirm = utils.ask_confirmation(
             "Do you want to rename the exisitng files?\n"
             "Existing file/directory found, this action will overwrite it. "
-            "Are you sure you want to continue?")
+            "Are you sure you want to continue?"
+        )
         pass
     else:
         confirm = utils.ask_confirmation("Do you want to rename the exisitng files?")
@@ -548,5 +565,5 @@ def rename_old_files(old_title, new_title):
     return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
