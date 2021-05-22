@@ -549,4 +549,4 @@ def rename_old_files(old_title, new_title):
 
 
 if __name__ == '__main__':
-    sys.exti(main())
+    sys.exit(main())
