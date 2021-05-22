@@ -114,7 +114,7 @@ class Mangadex(BaseManga):
 
         limit = 500
         params = {
-            "locales[]": self.lang_code,
+            "translatedLanguage[]": self.lang_code,
             "limit": limit,
             "offset": 0,
             "order[chapter]": "asc",

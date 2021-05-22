@@ -1,5 +1,10 @@
 # Release History
 
+## Pre-release
+
+### Fixes
+- mangadex language selections (API changed the query parameter)
+
 ## v1.13.0(2021-05-21)
 
 ### Changes
