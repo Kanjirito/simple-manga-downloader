@@ -1,9 +1,19 @@
 # Release History
 
-## Pre-release
+## v1.14.0(2021-05-22)
 
 ### Fixes
-- mangadex language selections (API changed the query parameter)
+- mangadex language selection (API changed the query parameter)
+- Typo that would cause crash if downloader was ran directly
+
+### Changes
+- Very slight help message changes
+
+### Internal
+- Code moved to follow [black](https://black.readthedocs.io/en/stable/) formatting
+- Added flake8 with plugins to catch mistakes
+- Started using isort to automatically sort imports
+- Added `requirements-dev.txt`
 
 ## v1.13.0(2021-05-21)
 
