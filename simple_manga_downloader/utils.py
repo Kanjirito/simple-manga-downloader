@@ -9,7 +9,7 @@ REPLACEMENT_RULES = None
 
 def clean_up_string(string):
     """Cleans up the given string from unwanted characters"""
-    if not type(string) == str or not REPLACEMENT_RULES:
+    if type(string) != str or not REPLACEMENT_RULES:
         return string
 
     fixed_html = unescape(string).strip()
@@ -88,10 +88,7 @@ def ask_confirmation(text, accepted=None):
     confirm = (
         input(f"[{accepted} to confirm/anything else to cancel]: ").lower().strip()
     )
-    if confirm == accepted:
-        return True
-    else:
-        return False
+    return confirm == accepted
 
 
 def ask_number(text, min_=None, max_=None, num_type=int):

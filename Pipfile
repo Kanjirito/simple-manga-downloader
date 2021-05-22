@@ -6,8 +6,12 @@ verify_ssl = true
 [dev-packages]
 simple-manga-downloader = {editable = true,path = "."}
 black = "==21.5b1"
-flake8 = "*"
 isort = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+flake8-comprehensions = "*"
+flake8-simplify = "*"
+pep8-naming = "*"
 
 [packages]
 beautifulsoup4 = "~=4.9"

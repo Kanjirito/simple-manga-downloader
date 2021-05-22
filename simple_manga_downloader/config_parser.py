@@ -138,10 +138,10 @@ class Config:
 
         self.status = True
 
-    def add_tracked(self, Manga):
+    def add_tracked(self, manga):
         """Adds manga to the tracked list"""
-        current_title = Manga.series_title
-        manga_link = Manga.manga_link
+        current_title = manga.series_title
+        manga_link = manga.manga_link
 
         tracked, message = self.check_if_manga_in_tracked(manga_link)
 

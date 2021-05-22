@@ -18,13 +18,12 @@ def parse_arguments():
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, self.dest, list(dict.fromkeys(values)))
 
-    desc = (
-        "SMD is a command line manga downloader. For more information "
-        "read the README file in the GitHub repo.\n"
-        "https://github.com/Kanjirito/simple-manga-downloader/blob/master/README.md"
-    )
     parser = argparse.ArgumentParser(
-        description=desc, formatter_class=argparse.RawDescriptionHelpFormatter
+        description=(
+            "SMD is a command line manga downloader. For more information read the README file in the GitHub repo.\n"
+            "https://github.com/Kanjirito/simple-manga-downloader/blob/master/README.md"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
@@ -49,7 +48,7 @@ def parse_arguments():
     parser_down = subparsers.add_parser(
         "down",
         help="Downloader will be in download mode",
-        description=("Downloads the given manga. " "Supports multiple links at once."),
+        description="Downloads the given manga. Supports multiple links at once.",
     )
     parser_update = subparsers.add_parser(
         "update",
@@ -66,9 +65,9 @@ def parse_arguments():
     parser_down.add_argument(
         "input",
         nargs="+",
-        metavar="manga_url",
+        metavar="target [another_target]",
         action=NoDupesOrderedListAction,
-        help="URL/tracked index/tracked title to download",
+        help="Manga URL, tracked index or tracked title to download",
     )
     parser_down.add_argument(
         "-d",
@@ -81,7 +80,7 @@ def parse_arguments():
     parser_down.add_argument(
         "-e",
         "--exclude",
-        help='Chapters to exclude "1 5 10 15"',
+        help="Chapters to exclude",
         metavar="NUMBER",
         nargs="+",
         type=float,
@@ -94,11 +93,7 @@ def parse_arguments():
         default=None,
         metavar="CUSTOM NAME",
         nargs="+",
-        help=(
-            "Download the manga with a custom name. "
-            "Not recommended to use with multiple "
-            "downloads at once."
-        ),
+        help="Download the manga with a custom name. Not recommended to use with multiple downloads at once.",
     )
     parser_down.add_argument(
         "--data-saver",
@@ -117,20 +112,14 @@ def parse_arguments():
     input_group_down.add_argument(
         "-c",
         "--check",
-        help=(
-            "Only check for new chapters "
-            "without downloading and asking for any input"
-        ),
+        help="Only check for new chapters without downloading and asking for any input",
         action="store_true",
         dest="check_only",
     )
     input_group_down.add_argument(
         "-i",
         "--ignore-input",
-        help=(
-            "Downloads without asking for any input "
-            "(in case of group conflict the alphabetically first group will be chosen)"
-        ),
+        help="Downloads without asking for any input in case of group conflict the alphabetically first group will be chosen)",
         action="store_true",
         dest="ignore_input",
     )
@@ -139,21 +128,15 @@ def parse_arguments():
     selection_group.add_argument(
         "-r",
         "--range",
-        help=(
-            "Specifies the range of chapters to download, "
-            'both ends are inclusive. "1 15"'
-        ),
-        metavar="NUMBER",
+        help="Specifies the range of chapters to download, both ends are inclusive.",
+        metavar=("START", "END"),
         nargs=2,
         type=float,
     )
     selection_group.add_argument(
         "-s",
         "--selection",
-        help=(
-            "Specifies which chapters to download. "
-            'Accepts multiple chapters "2 10 25"'
-        ),
+        help='Specifies which chapters to download. Accepts multiple chapters "2 10 25"',
         metavar="NUMBER",
         nargs="+",
         action=SetAction,
@@ -170,19 +153,16 @@ def parse_arguments():
         "--add-tracked",
         help="Adds manga to the tracked list",
         dest="add_to_tracked",
-        metavar="MANGA URL",
+        metavar="MANGA_URL",
         nargs="+",
         action=NoDupesOrderedListAction,
     )
     tracked_edit_group.add_argument(
         "-r",
         "--remove-tracked",
-        help=(
-            "Removes manga from tracked. "
-            "Supports deletion by url, title or tracked index"
-        ),
+        help="Removes manga from tracked. Supports deletion by url, title or tracked index",
         dest="remove_from_tracked",
-        metavar="MANGA URL|MANGA TITLE|NUMBER",
+        metavar="{MANGA_URL,MANGA_TITLE,NUMBER}",
         nargs="+",
         action=SetAction,
     )
@@ -190,10 +170,7 @@ def parse_arguments():
     parser_conf.add_argument(
         "-n",
         "--name",
-        help=(
-            "When adding manga gives it a custom name"
-            "(do not use when adding multiple at once)"
-        ),
+        help="When adding manga give it a custom name (do not use when adding multiple at once)",
         dest="name",
         default=None,
         nargs="+",
@@ -215,7 +192,7 @@ def parse_arguments():
     parser_conf.add_argument(
         "-l",
         "--list-tracked",
-        help="Lists all of the tracked shows",
+        help="Lists all of the tracked manga",
         action="store_true",
     )
     parser_conf.add_argument(
@@ -226,12 +203,6 @@ def parse_arguments():
         dest="modify_tracked_position",
     )
     parser_conf.add_argument(
-        "--change-name",
-        help="Change the name of a tracked manga",
-        action="store_true",
-        dest="change_name",
-    )
-    parser_conf.add_argument(
         "-v",
         "--verbose",
         help="Used with -l or -m to also print links",
@@ -239,9 +210,15 @@ def parse_arguments():
         dest="verbose",
     )
     parser_conf.add_argument(
+        "--change-name",
+        help="Change the name of a tracked manga",
+        action="store_true",
+        dest="change_name",
+    )
+    parser_conf.add_argument(
         "-p",
         "--print-conf",
-        help="Print config settings",
+        help="Print all config settings",
         action="store_true",
         dest="print_config",
     )
@@ -291,14 +268,14 @@ def parse_arguments():
     replacement_rules_group = parser_conf.add_mutually_exclusive_group()
     replacement_rules_group.add_argument(
         "--rule-add",
-        help="Adds a new replacement rule for a character",
+        help="Adds a new replacement rule for a character. If no replacement given it will default to removing it.",
         nargs="+",
         metavar=("CHARACTER", "REPLACEMENT"),
         dest="rule_add",
     )
     replacement_rules_group.add_argument(
         "--rule-remove",
-        help="Removes a new replacement rule for a character",
+        help="Removes a replacement rule for a character",
         metavar="CHARACTER",
         dest="rule_remove",
     )
@@ -308,20 +285,14 @@ def parse_arguments():
     input_group_update.add_argument(
         "-c",
         "--check",
-        help=(
-            "Only check for new chapters "
-            "without downloading and asking for any input"
-        ),
+        help="Only check for new chapters without downloading and asking for any input",
         action="store_true",
         dest="check_only",
     )
     input_group_update.add_argument(
         "-i",
         "--ignore-input",
-        help=(
-            "Downloads without asking for any input "
-            "(in case of group conflict the alphabetically first group will be chosen)"
-        ),
+        help="Downloads without asking for any input (in case of group conflict the alphabetically first group will be chosen)",
         action="store_true",
         dest="ignore_input",
     )

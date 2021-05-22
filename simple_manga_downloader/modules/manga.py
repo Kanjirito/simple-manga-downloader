@@ -51,13 +51,14 @@ class BaseManga:
 
     def ask_for_chapter_number(self, title, taken=False, num=None):
         """Asks for user input to get a chapter number
+
         title = the title of the chapter
         taken = Default False, prints a different output if the chapter already
         exists
         num = Default None, the chapter number. Only needed when taken = True
 
-        Returns False if the input is invalid otherwise returns the input as either
-        float or int.
+        Returns False if the input is invalid otherwise returns the input as
+        either float or int.
         """
         if self.check_only:
             return False

@@ -18,6 +18,9 @@ isort-format:
 flake:
 	flake8 .
 
+flake-show:
+	flake8 . --show-source
+
 requirements:
 	pipenv lock -r > requirements.txt
 	pipenv lock -r --dev-only > requirements-dev.txt
