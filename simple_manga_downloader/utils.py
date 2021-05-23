@@ -67,6 +67,8 @@ def request_exception_handler(func):
         except requests.HTTPError as e:
             error_code = str(e).split(":", 1)[0]
             status = f"HTTP code error: {error_code}"
+        except requests.exceptions.RetryError:
+            status = "Max retries reached"
         except requests.RequestException as e:
             status = f"A unexpected problem {e}"
 

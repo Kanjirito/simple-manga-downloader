@@ -1,5 +1,11 @@
 # Release History
 
+## Pre-release
+
+### Fixes
+- Rate limiting not actually working as it should
+- Better message on rate limit error
+
 ## v1.14.0(2021-05-22)
 
 ### Fixes

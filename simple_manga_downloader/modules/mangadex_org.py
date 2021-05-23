@@ -10,15 +10,17 @@ from .manga import BaseManga
 
 
 class Limiter(requests.adapters.HTTPAdapter):
-    """
-    Rate-limiting HTTAdapter
+    """Rate-limiting HTTAdapter
 
-    Only retries on 429 status code and ignores everything else
-    limit = amount of retries
-    backoff_factor = the backoff_factor for retries
+    By default only retries on 429 status code and ignores everything else
+    limit: int - amount of retries, default 6
+    backoff_factor: number - the backoff_factor for retries, default 1
+    status_forcelist: list - list of status codes to retry on, default [429]
     """
 
-    def __init__(self, limit, backoff_factor, **kwargs):
+    def __init__(self, limit=6, backoff_factor=1, status_forcelist=None, **kwargs):
+        if status_forcelist is None:
+            status_forcelist = [429]
         r = Retry(
             status=limit,
             total=None,
@@ -26,16 +28,15 @@ class Limiter(requests.adapters.HTTPAdapter):
             read=0,
             redirect=0,
             other=0,
-            status_forcelist=[429],
+            status_forcelist=status_forcelist,
             backoff_factor=backoff_factor,
             respect_retry_after_header=False,
         )
         super().__init__(max_retries=r, **kwargs)
 
 
-class ReporterLimiter(requests.adapters.HTTPAdapter):
-    """
-    A request limiter that sends reports on image download
+class ReporterLimiter(Limiter):
+    """A request limiter that sends reports on image download
 
     session = requests.Session object used for making the report
     """
@@ -78,7 +79,7 @@ class Mangadex(BaseManga):
     lang_code = "en"
     session = requests.Session()
     session.mount("https://", ReporterLimiter(session))
-    session.mount("https://api.mangadex.org/at-home/server/", Limiter(6, 1))
+    session.mount("https://api.mangadex.org/at-home/server/", Limiter())
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
     data_saver = False
     scanlation_cache = {}
@@ -280,6 +281,7 @@ class Mangadex(BaseManga):
         return True
 
     def make_get_request(self, url, **kwargs):
+        """Simple helper method that makes a request, checks status and returns JSON"""
         r = self.session.get(f"{self.base_link}{url}", timeout=5, **kwargs)
         r.raise_for_status()
         return r.json()
