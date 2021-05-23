@@ -80,12 +80,10 @@ class Mangakakalot(BaseManga):
                 else:
                     num = inp
 
-            # fmt: off
             self.chapters[num] = {
                 "link": link,
-                "title": clean_up_string(title)
+                "title": clean_up_string(title),
             }
-            # fmt: on
         return True
 
     @request_exception_handler

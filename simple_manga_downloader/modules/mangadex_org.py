@@ -51,13 +51,11 @@ class ReporterLimiter(requests.adapters.HTTPAdapter):
             before = time.time()
             r = super().send(request, **kwargs)
             difference = (time.time() - before) * 1000
-            # fmt: off
             report = {
                 "url": r.url,
                 "bytes": len(r.content),
-                "duration": difference
+                "duration": difference,
             }
-            # fmt: on
             if r.status_code == 200:
                 report["success"] = True
                 if r.headers.get("X-Cache", "").startswith("HIT"):

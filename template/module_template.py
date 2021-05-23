@@ -63,7 +63,7 @@ class MangaPageName(BaseManga):
 
             self.chapters[num] = {
                 "link": link,
-                "title": None
+                "title": None,
             }
         return True
 

@@ -2,6 +2,7 @@
 from .manga import BaseManga
 
 # Modules need to be imported so they get registered, order matters
+# isort: off
 from .mangadex_org import Mangadex
 from .mangakakalot_com import Mangakakalot  # noqa: F401
 from .manganelo_com import Manganelo  # noqa: F401
