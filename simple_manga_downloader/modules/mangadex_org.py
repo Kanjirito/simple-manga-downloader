@@ -74,11 +74,24 @@ class ReporterLimiter(Limiter):
         return r
 
 
+class DDoSGuardLimiter(Limiter):
+    """Bypasses the DDoSGuard by using GoogleBot header"""
+
+    def __init__(self, **kwargs):
+        super().__init__(status_forcelist=[429, 403], **kwargs)
+
+    def send(self, request, **kwargs):
+        # Workaround for the DDoSGuard. Probably will change.
+        request.headers.update({"User-Agent": "Googlebot"})
+        return super().send(request, **kwargs)
+
+
 class Mangadex(BaseManga):
     base_link = "https://api.mangadex.org"
     lang_code = "en"
     session = requests.Session()
     session.mount("https://", ReporterLimiter(session))
+    session.mount("https://uploads.mangadex.org", DDoSGuardLimiter())
     session.mount("https://api.mangadex.org/at-home/server/", Limiter())
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
     data_saver = False
@@ -91,7 +104,7 @@ class Mangadex(BaseManga):
             self.series_title = None
         self.id = self.site_re.search(link).group(1)
         self.manga_link = f"https://mangadex.org/title/{self.id}"
-        self.cover_url = None
+        self.covers = {}
         self.chapters = {}
 
     @request_exception_handler
@@ -108,30 +121,53 @@ class Mangadex(BaseManga):
         if title_return:
             return True
 
-        # TODO: Covers
-        # Covers are currently not available #
+        cover_params = {"manga[]": self.id, "order[volume]": "asc"}
+        for cover in self.request_paginator(
+            cover_params, 100, "/cover", raise_status=True
+        ):
+            attr = cover["data"]["attributes"]
+            cover_name = f"{self.series_title} Vol {attr['volume'].replace(',', '.')}"
+            url = f"https://uploads.mangadex.org/covers/{self.id}/{attr['fileName']}"
+            if self.data_saver:
+                url += ".256.jpg"
+            self.covers[cover_name] = url
 
-        limit = 500
-        params = {
+        feed_params = {
             "translatedLanguage[]": self.lang_code,
-            "limit": limit,
-            "offset": 0,
+            "order[volume]": "asc",
             "order[chapter]": "asc",
         }
-        chapters_data = []
+        self.data = self.request_paginator(feed_params, 500, f"/manga/{self.id}/feed")
+        return True
 
+    def request_paginator(self, params, limit, endpoint, raise_status=True):
+        """Will paginate over the results if needed
+
+        params: is a dictionary with the query parameters to use
+        limit: how many elements to fetch on each request (should be the
+        highest possible value)
+        endpoint: the endpoint to use for the request
+        raise_status: if it should raise on bad status, default True
+        """
+        params["limit"] = limit
+        params["offset"] = 0
+        results = []
         while True:
-            feed_data = self.make_get_request(f"/manga/{self.id}/feed", params=params)
-            for chapter in feed_data["results"]:
-                if chapter["result"] == "ok":
-                    chapters_data.append(chapter)
-            if limit + params["offset"] >= feed_data["total"]:
+            r = self.session.get(f"{self.base_link}{endpoint}", params=params)
+            if raise_status:
+                r.raise_for_status()
+            else:
+                if not r.ok:
+                    continue
+            data = r.json()
+            for result in data["results"]:
+                if result["result"] == "ok":
+                    results.append(result)
+            if limit + params["offset"] >= data["total"]:
                 break
             else:
                 params["offset"] += limit
-
-        self.data = chapters_data
-        return True
+        return results
 
     def get_chapters(self):
         """

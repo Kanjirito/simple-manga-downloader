@@ -18,7 +18,7 @@ class MangaPageName(BaseManga):
         else:
             self.series_title = None
         self.manga_link = link
-        self.cover_url = None
+        self.covers = None
         self.chapters = {}
 
     @request_exception_handler
@@ -31,7 +31,7 @@ class MangaPageName(BaseManga):
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        self.cover_url = {self.series_title: "get cover here"}
+        self.covers = {self.series_title: "get cover here"}
 
         self.series_title = "find title"
         if title_return:

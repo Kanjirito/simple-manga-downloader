@@ -80,9 +80,7 @@ def get_cover(manga):
         files = set()
 
     to_download = {
-        filename: url
-        for filename, url in manga.cover_url.items()
-        if filename not in files
+        filename: url for filename, url in manga.covers.items() if filename not in files
     }
     if to_download:
         manga.manga_dir.mkdir(parents=True, exist_ok=True)
@@ -101,6 +99,7 @@ def get_cover(manga):
         if status is True:
             successful += 1
         else:
+            print(filename)
             print(status)
     print(f"\nGot {successful} cover(s)\n--------------\n")
 
@@ -301,7 +300,7 @@ def handle_manga(manga):
     line_break = make_line(message)
     print(f"\n{line_break}\n{message}\n{line_break}\n")
 
-    if CONFIG.covers and manga.cover_url:
+    if CONFIG.covers and manga.covers:
         get_cover(manga)
 
     manga.get_chapters()

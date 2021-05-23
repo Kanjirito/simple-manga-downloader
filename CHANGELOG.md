@@ -2,9 +2,16 @@
 
 ## Pre-release
 
+### New
+- Mangadex covers (they also now respect the data saver option)
+
 ### Fixes
 - Rate limiting not actually working as it should
 - Better message on rate limit error
+- Mangadex results are now also sorted by volume (should help a bit with anthologies)
+
+### Code-quality
+- `cover_url` renamed to `covers`
 
 ## v1.14.0(2021-05-22)
 

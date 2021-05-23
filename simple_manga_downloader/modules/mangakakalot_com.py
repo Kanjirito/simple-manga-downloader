@@ -19,7 +19,7 @@ class Mangakakalot(BaseManga):
         else:
             self.series_title = None
         self.manga_link = link
-        self.cover_url = None
+        self.covers = {}
         self.chapters = {}
 
     @request_exception_handler
@@ -42,7 +42,7 @@ class Mangakakalot(BaseManga):
 
         thumb = soup.find(class_="manga-info-pic")
         if thumb:
-            self.cover_url = {self.series_title: thumb.img["src"]}
+            self.covers = {self.series_title: thumb.img["src"]}
 
         self.data = soup.find_all(class_="row")[1:][::-1]
         return True

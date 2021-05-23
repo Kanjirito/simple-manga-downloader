@@ -19,7 +19,7 @@ class Manganelo(BaseManga):
         else:
             self.series_title = None
         self.manga_link = link
-        self.cover_url = None
+        self.covers = {}
         self.chapters = {}
 
     @request_exception_handler
@@ -42,7 +42,7 @@ class Manganelo(BaseManga):
 
         try:
             url = soup.find(class_="info-image").img["src"]
-            self.cover_url = {self.series_title: url}
+            self.covers = {self.series_title: url}
         except AttributeError:
             pass
 
