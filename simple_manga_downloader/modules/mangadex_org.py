@@ -74,24 +74,11 @@ class ReporterLimiter(Limiter):
         return r
 
 
-class DDoSGuardLimiter(Limiter):
-    """Bypasses the DDoSGuard by using GoogleBot header"""
-
-    def __init__(self, **kwargs):
-        super().__init__(status_forcelist=[429, 403], **kwargs)
-
-    def send(self, request, **kwargs):
-        # Workaround for the DDoSGuard. Probably will change.
-        request.headers.update({"User-Agent": "Googlebot"})
-        return super().send(request, **kwargs)
-
-
 class Mangadex(BaseManga):
     base_link = "https://api.mangadex.org"
     lang_code = "en"
     session = requests.Session()
     session.mount("https://", ReporterLimiter(session))
-    session.mount("https://uploads.mangadex.org", DDoSGuardLimiter())
     session.mount("https://api.mangadex.org/at-home/server/", Limiter())
     site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
     data_saver = False

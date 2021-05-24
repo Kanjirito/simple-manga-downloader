@@ -99,7 +99,7 @@ def get_cover(manga):
         if status is True:
             successful += 1
         else:
-            print(filename)
+            print(f'Error while getting "{filename}":')
             print(status)
     print(f"\nGot {successful} cover(s)\n--------------\n")
 
