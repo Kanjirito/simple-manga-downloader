@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release
+## v1.15.0(2021-05-25)
 
 ### New
 - Mangadex covers (they also now respect the data saver option)
