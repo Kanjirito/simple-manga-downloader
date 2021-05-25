@@ -58,7 +58,7 @@ def site_detect(link, tracked_allow=True):
         title = None
 
     matched = modules.match_module(link, title)
-    if matched:
+    if matched is not None:
         return matched
     else:
         msg = f'Wrong link: "{link}"'
@@ -147,7 +147,6 @@ def conf_mode():
 
     if ARGS.add_to_tracked:
         for link in ARGS.add_to_tracked:
-            print()
             manga = site_detect(link, tracked_allow=False)
             if manga is False:
                 continue
@@ -247,7 +246,7 @@ def main_pipeline(links):
                 else:
                     save_text = f"{ch}"
                 chapter_list.append(save_text)
-            found_titles[manga.series_title] = chapter_list
+            found_titles[manga.title] = chapter_list
         else:
             continue
     print(
@@ -291,12 +290,12 @@ def handle_manga(manga):
         print(
             "\nSomething went wrong!\n"
             f"{main_status}\n"
-            f"{manga.manga_link}"
+            f"{manga.manga_url}"
         )
         # fmt: on
         return False
 
-    message = f'Checking "{manga.series_title}"'
+    message = f'Checking "{manga.title}"'
     line_break = make_line(message)
     print(f"\n{line_break}\n{message}\n{line_break}\n")
 
@@ -413,10 +412,10 @@ def downloader(manga_objects):
             else:
                 to_append = f"    Chapter {ch}"
             if status[1]:
-                fail_list = failed.setdefault(manga.series_title, [])
+                fail_list = failed.setdefault(manga.title, [])
                 fail_list.append(to_append)
             else:
-                succ_list = success.setdefault(manga.series_title, [])
+                succ_list = success.setdefault(manga.title, [])
                 succ_list.append(to_append)
 
     total_time = time.time() - start_time
@@ -482,7 +481,7 @@ def get_chapter(manga, num):
 
     count = 0
     failed = False
-    title = manga.series_title
+    title = manga.title
     chapter_name = f"Chapter {num}"
     # fmt: off
     print(

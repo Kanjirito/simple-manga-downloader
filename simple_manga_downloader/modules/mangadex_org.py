@@ -5,8 +5,11 @@ import time
 import requests
 from requests.packages.urllib3.util.retry import Retry
 
-from ..utils import clean_up_string, request_exception_handler
-from .manga import BaseManga
+from ..models import BaseManga
+from ..utils import clean_up_string
+
+# 4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb is the MangaPlus group ID
+MANGA_PLUS = ("4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb",)
 
 
 class Limiter(requests.adapters.HTTPAdapter):
@@ -44,7 +47,7 @@ class ReporterLimiter(Limiter):
     md_at_home_re = re.compile(r"https://(?:[\w\d]+\.){2}mangadex\.network")
 
     def __init__(self, session, **kwargs):
-        self.session = session
+        self._session = session
         super().__init__(5, 0, **kwargs)
 
     def send(self, request, **kwargs):
@@ -66,7 +69,7 @@ class ReporterLimiter(Limiter):
             else:
                 report["success"] = False
                 report["cached"] = False
-            self.session.post(
+            self._session.post(
                 "https://api.mangadex.network/report", json=report, timeout=1
             )
         else:
@@ -75,59 +78,53 @@ class ReporterLimiter(Limiter):
 
 
 class Mangadex(BaseManga):
-    base_link = "https://api.mangadex.org"
-    lang_code = "en"
-    session = requests.Session()
-    session.mount("https://", ReporterLimiter(session))
-    session.mount("https://api.mangadex.org/at-home/server/", Limiter())
-    site_re = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/([\w-]+)")
-    data_saver = False
-    scanlation_cache = {}
+    _base_url = "https://mangadex.org"
+    _api_url = "https://api.mangadex.org"
+    _lang_code = "en"
+    _data_saver = False
+    _site_regex = re.compile(r"mangadex\.(?:org|cc)/(?:title|manga)/(?P<id>[\w-]+)")
+    _scanlation_cache = {}
 
-    def __init__(self, link, title=None):
-        if title:
-            self.series_title = clean_up_string(title)
-        else:
-            self.series_title = None
-        self.id = self.site_re.search(link).group(1)
-        self.manga_link = f"https://mangadex.org/title/{self.id}"
-        self.covers = {}
-        self.chapters = {}
+    _session = requests.Session()
+    _session.mount("https://", ReporterLimiter(_session))
+    _session.mount("https://api.mangadex.org/at-home/server/", Limiter())
 
-    @request_exception_handler
-    def get_main(self, title_return=False):
-        """
-        Gets the main manga info like title, cover url and chapter links
-        using the mangadex API
-        title_return=True will only get the title and return
-        """
-        data = self.make_get_request(f"/manga/{self.id}")["data"]
+    @property
+    def manga_url(self):
+        return f"{self._base_url}/{self._id}"
 
-        if self.series_title is None:
-            self.series_title = clean_up_string(data["attributes"]["title"]["en"])
+    def _get_main(self, title_return=False):
+        data = self._make_get_request(f"/manga/{self._id}")["data"]
+
+        if self._title is None:
+            self._title = clean_up_string(data["attributes"]["title"]["en"])
         if title_return:
             return True
 
-        cover_params = {"manga[]": self.id, "order[volume]": "asc"}
-        for cover in self.request_paginator(
+        cover_params = {"manga[]": self._id, "order[volume]": "asc"}
+        for cover in self._request_paginator(
             cover_params, 100, "/cover", raise_status=True
         ):
             attr = cover["data"]["attributes"]
-            cover_name = f"{self.series_title} Vol {attr['volume'].replace(',', '.')}"
-            url = f"https://uploads.mangadex.org/covers/{self.id}/{attr['fileName']}"
-            if self.data_saver:
+            volume = attr["volume"]
+            if volume:
+                cover_name = f"{self._title} Vol {attr['volume'].replace(',', '.')}"
+            else:
+                cover_name = f"{self._title}"
+            url = f"https://uploads.mangadex.org/covers/{self._id}/{attr['fileName']}"
+            if self._data_saver:
                 url += ".256.jpg"
-            self.covers[cover_name] = url
+            self._covers[cover_name] = url
 
         feed_params = {
-            "translatedLanguage[]": self.lang_code,
+            "translatedLanguage[]": self._lang_code,
             "order[volume]": "asc",
             "order[chapter]": "asc",
         }
-        self.data = self.request_paginator(feed_params, 500, f"/manga/{self.id}/feed")
+        self.data = self._request_paginator(feed_params, 500, f"/manga/{self._id}/feed")
         return True
 
-    def request_paginator(self, params, limit, endpoint, raise_status=True):
+    def _request_paginator(self, params, limit, endpoint, raise_status=True):
         """Will paginate over the results if needed
 
         params: is a dictionary with the query parameters to use
@@ -140,7 +137,7 @@ class Mangadex(BaseManga):
         params["offset"] = 0
         results = []
         while True:
-            r = self.session.get(f"{self.base_link}{endpoint}", params=params)
+            r = self._session.get(f"{self._api_url}{endpoint}", params=params)
             if raise_status:
                 r.raise_for_status()
             else:
@@ -156,11 +153,7 @@ class Mangadex(BaseManga):
                 params["offset"] += limit
         return results
 
-    def get_chapters(self):
-        """
-        Handles the chapter data by assigning chapter numbers
-        """
-
+    def _get_chapters(self):
         for chapter in self.data:
             attributes = chapter["data"]["attributes"]
             title = clean_up_string(attributes["title"])
@@ -196,14 +189,14 @@ class Mangadex(BaseManga):
                 )
             )
 
-            if num in self.chapters and all_groups in self.chapters[num]:
+            if num in self._chapters and all_groups in self._chapters[num]:
                 inp = self.ask_for_chapter_number(title, taken=True, num=num)
                 if inp is False:
                     continue
                 else:
                     num = inp
 
-            self.chapters.setdefault(num, {})[all_groups] = {
+            self._chapters.setdefault(num, {})[all_groups] = {
                 "ch_id": chapter["data"]["id"],
                 "hash": attributes["hash"],
                 "page_names": attributes["data"],
@@ -212,38 +205,36 @@ class Mangadex(BaseManga):
             }
         return True
 
-    def check_groups(self, ch):
-        """Handles the possible different releases of a chapter"""
-        num_of_releases = len(self.chapters[ch])
+    def _check_groups(self, ch):
+        num_of_releases = len(self._chapters[ch])
 
-        # 4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb is the MangaPlus group ID
-        if ("4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb",) in self.chapters[ch]:
+        if MANGA_PLUS in self._chapters[ch]:
             if num_of_releases == 1:
                 return "Only Manga Plus releases"
             else:
-                del self.chapters[ch][("4f1de6a2-f0c5-4ac5-bce5-02c7dbb67deb",)]
+                del self._chapters[ch][MANGA_PLUS]
                 num_of_releases -= 1
         if num_of_releases == 1:
-            self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
+            self._chapters[ch] = self._chapters[ch][list(self._chapters[ch])[0]]
             return True
 
-        self.fetch_groups(tuple(self.chapters[ch].keys()))
+        self._fetch_groups(tuple(self._chapters[ch].keys()))
 
         release_mapping = {}
-        for release in self.chapters[ch].keys():
+        for release in self._chapters[ch].keys():
             names = []
             for group in release:
-                names.append(self.scanlation_cache[group])
+                names.append(self._scanlation_cache[group])
             release_mapping[" | ".join(names)] = release
 
         sorted_groups = sorted(release_mapping)
-        if self.check_only:
+        if self._check_only:
             select = 1
         else:
             print(f"Multiple groups for chapter {ch}, select one by number:")
             selections = []
             for n, g in enumerate(sorted_groups, 1):
-                print(f"{n}.{g}")
+                print(f"{n}. {g}")
                 selections.append(n)
 
             try:
@@ -259,52 +250,49 @@ class Mangadex(BaseManga):
             print()
 
         group = sorted_groups[select - 1]
-        self.chapters[ch] = self.chapters[ch][release_mapping[group]]
+        self._chapters[ch] = self._chapters[ch][release_mapping[group]]
         return True
 
-    def fetch_groups(self, group_ids):
+    def _fetch_groups(self, group_ids):
         to_check = set()
         for release in group_ids:
             for id_ in release:
-                if id_ not in self.scanlation_cache:
+                if id_ not in self._scanlation_cache:
                     to_check.add(id_)
         if to_check:
-            data = self.make_get_request(
+            data = self._make_get_request(
                 "/group", params={"ids[]": to_check, "limit": 100}
             )
             for group in data["results"]:
-                self.scanlation_cache[group["data"]["id"]] = html.unescape(
+                self._scanlation_cache[group["data"]["id"]] = html.unescape(
                     group["data"]["attributes"]["name"]
                 )
 
-    @request_exception_handler
-    def get_info(self, ch):
-        """Gets the data about the specific chapters using the mangadex API"""
-
-        groups = self.check_groups(ch)
+    def _get_info(self, ch):
+        groups = self._check_groups(ch)
 
         if groups is not True:
             return groups
 
-        ch_id = self.chapters[ch]["ch_id"]
-        data = self.make_get_request(f"/at-home/server/{ch_id}")
+        ch_id = self._chapters[ch]["ch_id"]
+        data = self._make_get_request(f"/at-home/server/{ch_id}")
 
         server = data["baseUrl"]
 
-        if self.data_saver:
-            url = f"{server}/data-saver/{self.chapters[ch]['hash']}/"
+        if self._data_saver:
+            url = f"{server}/data-saver/{self._chapters[ch]['hash']}/"
             pages = [
-                f"{url}{page}" for page in self.chapters[ch]["data_saver_page_names"]
+                f"{url}{page}" for page in self._chapters[ch]["data_saver_page_names"]
             ]
         else:
-            url = f"{server}/data/{self.chapters[ch]['hash']}/"
-            pages = [f"{url}{page}" for page in self.chapters[ch]["page_names"]]
-        self.chapters[ch]["pages"] = pages
+            url = f"{server}/data/{self._chapters[ch]['hash']}/"
+            pages = [f"{url}{page}" for page in self._chapters[ch]["page_names"]]
+        self._chapters[ch]["pages"] = pages
 
         return True
 
-    def make_get_request(self, url, **kwargs):
+    def _make_get_request(self, url, **kwargs):
         """Simple helper method that makes a request, checks status and returns JSON"""
-        r = self.session.get(f"{self.base_link}{url}", timeout=5, **kwargs)
+        r = self._session.get(f"{self._api_url}{url}", timeout=5, **kwargs)
         r.raise_for_status()
         return r.json()

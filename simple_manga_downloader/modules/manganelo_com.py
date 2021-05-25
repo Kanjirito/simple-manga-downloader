@@ -3,59 +3,47 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from ..utils import clean_up_string, request_exception_handler
-from .manga import BaseManga
+from ..models import BaseManga
+from ..utils import clean_up_string
 
 
 class Manganelo(BaseManga):
-    base_link = "https://manganelo.com/"
-    session = requests.Session()
-    session.headers.update({"Referer": base_link})
-    site_re = re.compile(r"https?://manganelo\.com/manga/\S*")
+    _base_url = "https://manganelo.com"
+    _session = requests.Session()
+    _session.headers.update({"Referer": _base_url})
+    _site_regex = re.compile(r"https?://manganelo\.com/manga/(?P<id>[^\s/]+)")
+    _chapter_regex = re.compile(r" (\d+\.?\d*)(?:: (.*))?")
 
-    def __init__(self, link, title=None):
-        if title:
-            self.series_title = clean_up_string(title)
-        else:
-            self.series_title = None
-        self.manga_link = link
-        self.covers = {}
-        self.chapters = {}
+    @property
+    def manga_url(self):
+        return f"{self._base_url}/manga/{self._id}"
 
-    @request_exception_handler
-    def get_main(self, title_return=False):
-        """
-        Gets the main manga info like title, cover url and chapter links
-        title_return=True will only get the title and return
-        """
-        r = self.session.get(self.manga_link, timeout=5)
+    def _get_main(self, title_return=False):
+        r = self._session.get(self.manga_url, timeout=5)
         r.raise_for_status()
         if "404 - PAGE NOT FOUND" in r.text:
             return "HTTP code error: 404 Client Error"
         soup = BeautifulSoup(r.text, "html.parser")
 
-        if self.series_title is None:
+        if self._title is None:
             title = soup.find(class_="story-info-right").find("h1").text
-            self.series_title = clean_up_string(title)
+            self._title = clean_up_string(title)
         if title_return:
             return True
 
         try:
             url = soup.find(class_="info-image").img["src"]
-            self.covers = {self.series_title: url}
+            self._covers = {self._title: url}
         except AttributeError:
             pass
 
         self.data = soup.find_all(class_="chapter-name text-nowrap")[::-1]
         return True
 
-    def get_chapters(self):
-        """
-        Handles the chapter data by assigning chapter numbers
-        """
+    def _get_chapters(self):
         for chapter in self.data:
 
-            search_reg = re.search(r" (\d+\.?\d*)(?:: (.*))?", chapter.text)
+            search_reg = self._chapter_regex.search(chapter.text)
             try:
                 num = search_reg.group(1)
                 title = search_reg.group(2)
@@ -71,7 +59,7 @@ class Manganelo(BaseManga):
                 else:
                     num = inp
 
-            if num in self.chapters:
+            if num in self._chapters:
                 inp = self.ask_for_chapter_number(title, taken=True, num=num)
                 if inp is False:
                     continue
@@ -80,20 +68,16 @@ class Manganelo(BaseManga):
 
             link = chapter["href"]
 
-            self.chapters[num] = {
+            self._chapters[num] = {
                 "link": link,
                 "title": clean_up_string(title),
             }
         return True
 
-    @request_exception_handler
-    def get_info(self, ch):
-        """
-        Gets the needed data abut the chapters from the site
-        """
-        link = self.chapters[ch]["link"]
+    def _get_info(self, ch):
+        link = self._chapters[ch]["link"]
 
-        r = self.session.get(link, timeout=5)
+        r = self._session.get(link, timeout=5)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
@@ -104,5 +88,5 @@ class Manganelo(BaseManga):
 
         page_links = [p["src"] for p in pages]
 
-        self.chapters[ch]["pages"] = page_links
+        self._chapters[ch]["pages"] = page_links
         return True

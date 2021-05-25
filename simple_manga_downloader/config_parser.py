@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-from .modules.manga import BaseManga
+from . import modules
 from .utils import ask_confirmation, ask_number, clean_up_string
 
 DEFAULT_REPLACEMENT_RULES = {
@@ -140,8 +140,8 @@ class Config:
 
     def add_tracked(self, manga):
         """Adds manga to the tracked list"""
-        current_title = manga.series_title
-        manga_link = manga.manga_link
+        current_title = manga.title
+        manga_link = manga.manga_url
 
         tracked, message = self.check_if_manga_in_tracked(manga_link)
 
@@ -188,9 +188,9 @@ class Config:
         if to_check in self.tracked_manga:
             return (True, to_check)
         elif "/" in to_check:
-            module = BaseManga.find_matching_module(to_check)
-            if module:
-                to_check = module.clean_up_link(to_check)
+            module = modules.match_module(to_check)
+            if module is not None:
+                to_check = module.manga_url
 
             for key, value in self.tracked_manga.items():
                 if to_check in value:
