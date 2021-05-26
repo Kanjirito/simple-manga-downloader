@@ -113,7 +113,11 @@ class Mangadex(BaseManga):
             cover_params, 100, "/cover", raise_status=True
         ):
             attr = cover["data"]["attributes"]
-            cover_name = f"{self.series_title} Vol {attr['volume'].replace(',', '.')}"
+            volume = attr["volume"]
+            if volume is not None:
+                cover_name = f"{self.series_title} Vol {volume.replace(',', '.')}"
+            else:
+                cover_name = f"{self.series_title}"
             url = f"https://uploads.mangadex.org/covers/{self.id}/{attr['fileName']}"
             if self.data_saver:
                 url += ".256.jpg"
