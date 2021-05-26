@@ -1,5 +1,10 @@
 # Release History
 
+## v1.15.1(2021-05-26)
+
+### Fixes
+- Crash when getting some mangadex covers
+
 ## v1.15.0(2021-05-25)
 
 ### New
