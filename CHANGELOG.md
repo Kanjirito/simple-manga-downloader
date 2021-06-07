@@ -1,5 +1,10 @@
 # Release History
 
+## v1.15.2(2021-06-07)
+
+### Fixes
+- Crash caused by outdated urllib3
+
 ## v1.15.1(2021-05-26)
 
 ### Fixes
