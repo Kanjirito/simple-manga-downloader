@@ -7,11 +7,11 @@ from ..utils import clean_up_string, request_exception_handler
 from .manga import BaseManga
 
 
-class Manganelo(BaseManga):
-    base_link = "https://manganelo.com/"
+class Manganato(BaseManga):
+    base_link = "https://manganato.com/"
     session = requests.Session()
     session.headers.update({"Referer": base_link})
-    site_re = re.compile(r"https?://manganelo\.com/manga/\S*")
+    site_re = re.compile(r"https?://(?:read)?manganato\.com/manga-\S*")
 
     def __init__(self, link, title=None):
         if title:

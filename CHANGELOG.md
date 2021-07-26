@@ -1,5 +1,10 @@
 # Release History
 
+## Pre-release
+
+### Changes
+- Manganelo changed name to Manganato
+
 ## v1.15.2(2021-06-07)
 
 ### Fixes

@@ -6,7 +6,7 @@ Currently supports:
 - [mangadex](https://mangadex.org)
 - [mangatown](https://www.mangatown.com)
 - [mangakakalot](https://mangakakalot.com/page)
-- [manganelo](https://manganelo.com)
+- [manganato](https://manganato.com/)
 
 *Note:* mangadex is the main supported site, the others *might* be maintained but they are not my top priority.
 

@@ -5,7 +5,7 @@ from .manga import BaseManga
 # isort: off
 from .mangadex_org import Mangadex
 from .mangakakalot_com import Mangakakalot  # noqa: F401
-from .manganelo_com import Manganelo  # noqa: F401
+from .manganato_com import Manganato  # noqa: F401
 from .mangatown_com import Mangatown  # noqa: F401
 
 
