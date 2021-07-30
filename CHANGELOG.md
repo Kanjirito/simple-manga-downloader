@@ -2,8 +2,12 @@
 
 ## Pre-release
 
-## Changes
+### Changes
 - Add support for Manganelo links for Manganato (this might change at any point)
+- The default replacement rules change to space instead of nothing
+
+### Internal
+- Better flake8 rule selection
 
 ## v1.15.3(2021-07-26)
 

@@ -6,15 +6,15 @@ from .modules.manga import BaseManga
 from .utils import ask_confirmation, ask_number, clean_up_string
 
 DEFAULT_REPLACEMENT_RULES = {
-    "/": "",
-    "\\": "",
-    ":": "",
-    ".": "",
-    "<": "",
-    ">": "",
-    "?": "",
-    "*": "",
-    "|": "",
+    "/": " ",
+    "\\": " ",
+    ":": " ",
+    ".": " ",
+    "<": " ",
+    ">": " ",
+    "?": " ",
+    "*": " ",
+    "|": " ",
 }
 
 LANG_CODES = {
