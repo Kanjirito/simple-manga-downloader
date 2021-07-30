@@ -1,5 +1,10 @@
 # Release History
 
+## Pre-release
+
+## Changes
+- Add support for Manganelo links for Manganato (this might change at any point)
+
 ## v1.15.3(2021-07-26)
 
 ### Changes

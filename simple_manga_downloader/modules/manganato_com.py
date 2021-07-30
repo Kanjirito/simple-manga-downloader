@@ -11,7 +11,9 @@ class Manganato(BaseManga):
     base_link = "https://manganato.com/"
     session = requests.Session()
     session.headers.update({"Referer": base_link})
-    site_re = re.compile(r"https?://(?:read)?manganato\.com/manga-\S*")
+    site_re = re.compile(
+        r"https?://(?:(?:(?:read)?manganato)|manganelo)\.com/manga(?:/|-)\S*"
+    )
 
     def __init__(self, link, title=None):
         if title:
