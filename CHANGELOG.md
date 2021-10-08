@@ -1,5 +1,10 @@
 # Release History
 
+# Pre-release
+
+### Fixes
+- Mangadex works again
+
 ## v1.15.4(2021-07-30)
 
 ### Changes

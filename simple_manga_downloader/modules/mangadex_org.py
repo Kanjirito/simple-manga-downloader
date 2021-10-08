@@ -112,7 +112,7 @@ class Mangadex(BaseManga):
         for cover in self.request_paginator(
             cover_params, 100, "/cover", raise_status=True
         ):
-            attr = cover["data"]["attributes"]
+            attr = cover["attributes"]
             volume = attr["volume"]
             if volume is not None:
                 cover_name = f"{self.series_title} Vol {volume.replace(',', '.')}"
@@ -151,9 +151,8 @@ class Mangadex(BaseManga):
                 if not r.ok:
                     continue
             data = r.json()
-            for result in data["results"]:
-                if result["result"] == "ok":
-                    results.append(result)
+            if data["result"] == "ok":
+                results.extend(data["data"])
             if limit + params["offset"] >= data["total"]:
                 break
             else:
@@ -166,7 +165,7 @@ class Mangadex(BaseManga):
         """
 
         for chapter in self.data:
-            attributes = chapter["data"]["attributes"]
+            attributes = chapter["attributes"]
             title = clean_up_string(attributes["title"])
             # Creates the number of the chapter
             # Uses chapter number if present
@@ -208,7 +207,7 @@ class Mangadex(BaseManga):
                     num = inp
 
             self.chapters.setdefault(num, {})[all_groups] = {
-                "ch_id": chapter["data"]["id"],
+                "ch_id": chapter["id"],
                 "hash": attributes["hash"],
                 "page_names": attributes["data"],
                 "data_saver_page_names": attributes["dataSaver"],
