@@ -415,7 +415,7 @@ class Config:
         if len(args) > 1:
             replacement = " ".join(args[1::])
         else:
-            replacement = ""
+            replacement = " "
 
         if len(char) != 1:
             print("Can only set rules for single characters")

@@ -81,7 +81,7 @@ SMD down manga_url --data-saver n
 
 Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):
 ```
-SMD down manga_url --language en
+SMD down manga_url --language gb
 SMD down manga_url --language es
 ```
 
@@ -121,7 +121,7 @@ SMD down manga_url --data-saver false
 
 Overwrite the config file language setting for this run (has to be a valid code or it will not proceed, Mangadex only):
 ```
-SMD down manga_url --language en
+SMD down manga_url --language gb
 SMD down manga_url --language es
 ```
 
@@ -240,7 +240,7 @@ Remove a character replacement rule:
 SMD conf --rule-remove CHAR
 ```
 
-Add (or change) a character replacement rule, if no replacement is given it will be set to "":
+Add (or change) a character replacement rule, if no replacement is given it will be set to " ":
 ```
 SMD conf --rule-add CHAR
 SMD conf --rule-add CHAR what to replace it with
