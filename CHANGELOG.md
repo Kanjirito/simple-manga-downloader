@@ -3,7 +3,7 @@
 # Pre-release
 
 ### Fixes
-- Mangadex works again
+- Mangadex works again (doesn't fetch groups separately any more)
 
 ## v1.15.4(2021-07-30)
 

@@ -104,7 +104,9 @@ class Mangadex(BaseManga):
         data = self.make_get_request(f"/manga/{self.id}")["data"]
 
         if self.series_title is None:
-            self.series_title = clean_up_string(data["attributes"]["title"]["en"])
+            self.series_title = clean_up_string(
+                data["attributes"]["title"].popitem()[1]
+            )
         if title_return:
             return True
 
@@ -127,6 +129,7 @@ class Mangadex(BaseManga):
             "translatedLanguage[]": self.lang_code,
             "order[volume]": "asc",
             "order[chapter]": "asc",
+            "includes[]": "scanlation_group",
         }
         self.data = self.request_paginator(feed_params, 500, f"/manga/{self.id}/feed")
         return True
@@ -199,6 +202,12 @@ class Mangadex(BaseManga):
                 )
             )
 
+            for r in chapter["relationships"]:
+                if r["type"] == "scanlation_group":
+                    self.scanlation_cache[r["id"]] = html.unescape(
+                        r["attributes"]["name"]
+                    )
+
             if num in self.chapters and all_groups in self.chapters[num]:
                 inp = self.ask_for_chapter_number(title, taken=True, num=num)
                 if inp is False:
@@ -229,8 +238,6 @@ class Mangadex(BaseManga):
         if num_of_releases == 1:
             self.chapters[ch] = self.chapters[ch][list(self.chapters[ch])[0]]
             return True
-
-        self.fetch_groups(tuple(self.chapters[ch].keys()))
 
         release_mapping = {}
         for release in self.chapters[ch].keys():
@@ -264,21 +271,6 @@ class Mangadex(BaseManga):
         group = sorted_groups[select - 1]
         self.chapters[ch] = self.chapters[ch][release_mapping[group]]
         return True
-
-    def fetch_groups(self, group_ids):
-        to_check = set()
-        for release in group_ids:
-            for id_ in release:
-                if id_ not in self.scanlation_cache:
-                    to_check.add(id_)
-        if to_check:
-            data = self.make_get_request(
-                "/group", params={"ids[]": to_check, "limit": 100}
-            )
-            for group in data["results"]:
-                self.scanlation_cache[group["data"]["id"]] = html.unescape(
-                    group["data"]["attributes"]["name"]
-                )
 
     @request_exception_handler
     def get_info(self, ch):
