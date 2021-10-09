@@ -1,9 +1,10 @@
 # Release History
 
-# Pre-release
+# v1.15.5(2021-10-09)
 
 ### Fixes
 - Mangadex works again (doesn't fetch groups separately any more)
+- Changing a replacement rule with no string given now sets it to " " which is in line with the default rules
 
 ## v1.15.4(2021-07-30)
 
