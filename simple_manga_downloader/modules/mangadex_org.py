@@ -217,9 +217,6 @@ class Mangadex(BaseManga):
 
             self.chapters.setdefault(num, {})[all_groups] = {
                 "ch_id": chapter["id"],
-                "hash": attributes["hash"],
-                "page_names": attributes["data"],
-                "data_saver_page_names": attributes["dataSaver"],
                 "title": clean_up_string(title),
             }
         return True
@@ -285,15 +282,14 @@ class Mangadex(BaseManga):
         data = self.make_get_request(f"/at-home/server/{ch_id}")
 
         server = data["baseUrl"]
+        chapter_hash = data["chapter"]["hash"]
 
         if self.data_saver:
-            url = f"{server}/data-saver/{self.chapters[ch]['hash']}/"
-            pages = [
-                f"{url}{page}" for page in self.chapters[ch]["data_saver_page_names"]
-            ]
+            url = f"{server}/data-saver/{chapter_hash}/"
+            pages = [f"{url}{page}" for page in data["chapter"]["dataSaver"]]
         else:
-            url = f"{server}/data/{self.chapters[ch]['hash']}/"
-            pages = [f"{url}{page}" for page in self.chapters[ch]["page_names"]]
+            url = f"{server}/data/{chapter_hash}/"
+            pages = [f"{url}{page}" for page in data["chapter"]["data"]]
         self.chapters[ch]["pages"] = pages
 
         return True
