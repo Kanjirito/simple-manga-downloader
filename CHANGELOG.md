@@ -1,6 +1,14 @@
 # Release History
 
-# v1.15.5(2021-10-09)
+## v1.16.0(2021-12-30)
+
+### New
+- `smd` entry point for convenience. `SMD` will still work
+
+### Fixes
+- Chapter hash and page names are now at `/at-home`
+
+## v1.15.5(2021-10-09)
 
 ### Fixes
 - Mangadex works again (doesn't fetch groups separately any more)
