@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 simple-manga-downloader = {editable = true,path = "."}
-black = "==21.5b1"
+black = "*"
 isort = "*"
 flake8 = "*"
 flake8-bugbear = "*"

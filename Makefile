@@ -22,5 +22,5 @@ flake-show:
 	flake8 . --show-source
 
 requirements:
-	pipenv lock -r > requirements.txt
-	pipenv lock -r --dev-only > requirements-dev.txt
+	pipenv requirements > requirements.txt
+	pipenv requirements --dev-only > requirements-dev.txt
