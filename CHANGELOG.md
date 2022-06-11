@@ -1,6 +1,6 @@
 # Release History
 
-## Pre-release
+## v1.16.1(2022-06-11)
 
 ### Fixes
 - Adds a replacement rule for `"`
