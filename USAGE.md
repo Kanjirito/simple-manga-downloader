@@ -1,5 +1,7 @@
 # Detailed argument and mode explanation
 
+For all commands you can either use `SMD` or `smd`.
+
 ## Download mode
 This mode will download the manga from the link based on your selection, accepts multiple links.
 
@@ -240,7 +242,7 @@ Remove a character replacement rule:
 SMD conf --rule-remove CHAR
 ```
 
-Add (or change) a character replacement rule, if no replacement is given it will be set to " ":
+Add (or change) a character replacement rule, if no replacement is given it will be set to a single space:
 ```
 SMD conf --rule-add CHAR
 SMD conf --rule-add CHAR what to replace it with
