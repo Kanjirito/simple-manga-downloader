@@ -1,5 +1,10 @@
 # Release History
 
+## Pre-release
+
+### Fixes
+- Adds a replacement rule for `"`
+
 ## v1.16.0(2021-12-30)
 
 ### New

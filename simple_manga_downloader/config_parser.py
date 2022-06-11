@@ -15,6 +15,7 @@ DEFAULT_REPLACEMENT_RULES = {
     "?": " ",
     "*": " ",
     "|": " ",
+    '"': " ",
 }
 
 LANG_CODES = {
